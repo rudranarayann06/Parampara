@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Login — PARAMPARA</title>
+    <title>Login</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,11 +17,10 @@
         rel="stylesheet">
 
     <!-- Font Awesome -->
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <link rel="stylesheet" href="css/style_login.css">
+    <link rel="stylesheet" href="style_index.css">
 
 </head>
 
@@ -31,33 +30,68 @@
     <!-- Ambient background -->
     <div class="ambient"></div>
 
+    <!-- ================= NAVBAR ================= -->
+    <header class="navbar-wrapper">
 
-    <!-- =====================================================
-         TOP NAV
-    ====================================================== -->
+        <nav class="glass-navbar">
 
-    <header class="auth-navbar">
+            <!-- Logo -->
+            <a href="index.html" class="brand">
+                <div class="brand-icon"><img src="assets/logo.png" alt="PARAMPARA Logo"></div>
 
-        <a href="index.html" class="brand">
+                <div class="brand-name">
+                    <span>PARAM</span><span class="gold-text">PARA</span>
+                </div>
+            </a>
 
-            <div class="brand-icon">
-                <img src="assets/logo.png" alt="PARAMPARA">
+            <!-- Desktop Navigation -->
+            <div class="nav-links">
+
+                <a href="index.html" class="nav-link active">
+                    Home
+                </a>
+
+                <a href="explore.html" class="nav-link">
+                    Explore
+                </a>
+
+                <a href="contribute.html" class="nav-link">
+                    Contribute
+                </a>
+
+                <a href="about.html" class="nav-link">
+                    About
+                </a>
+
+                <a href="login.html" class="login-btn">
+                    Login
+                </a>
+
             </div>
 
-            <div class="brand-name">
-                <span>PARAM</span><span class="gold-text">PARA</span>
-            </div>
+            <!-- Mobile Menu Button -->
+            <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
 
-        </a>
+                <span></span>
+                <span></span>
+                <span></span>
 
+            </button>
 
-        <a href="index.html" class="back-home">
+        </nav>
 
-            <i class="fa-solid fa-arrow-left"></i>
+        <!-- Mobile Navigation -->
+        <div class="mobile-menu" id="mobileMenu">
 
-            Back to Home
+            <a href="index.html">Home</a>
+            <a href="explore.html">Explore</a>
+            <a href="contribute.html">Contribute</a>
+            <a href="about.html">About</a>
+            <a href="login.html" class="mobile-login">
+                Login
+            </a>
 
-        </a>
+        </div>
 
     </header>
 
@@ -119,44 +153,6 @@
                 </span>
 
             </div>
-
-
-            <!-- Archive indicators -->
-
-            <div class="archive-stats">
-
-                <div class="archive-stat">
-
-                    <strong>18+</strong>
-
-                    <span>Languages</span>
-
-                </div>
-
-
-                <div class="stat-line"></div>
-
-
-                <div class="archive-stat">
-
-                    <strong>120+</strong>
-
-                    <span>Communities</span>
-
-                </div>
-
-
-                <div class="stat-line"></div>
-
-
-                <div class="archive-stat">
-
-                    <strong>1.2K+</strong>
-
-                    <span>Stories</span>
-
-                </div>
-
             </div>
 
         </section>
@@ -174,18 +170,14 @@
 
             <div class="auth-tabs">
 
-                <button
-                    class="auth-tab active"
-                    data-view="login">
+                <button class="auth-tab active" data-view="login">
 
                     Login
 
                 </button>
 
 
-                <button
-                    class="auth-tab"
-                    data-view="register">
+                <button class="auth-tab" data-view="register">
 
                     Create Account
 
@@ -216,14 +208,20 @@
 
                 <!-- Google -->
 
-                <button
-                    class="google-btn"
-                    id="googleLogin">
+                <button class="google-btn" id="googleLogin">
 
-                    <span class="google-icon">
-                        G
+                    <span class="google-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" role="img">
+                            <path fill="#4285F4"
+                                d="M21.35 12.27c0-.79-.07-1.54-.2-2.27H12v4.3h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.91-4.18 2.91-7.42z" />
+                            <path fill="#34A853"
+                                d="M12 21.75c2.63 0 4.84-.87 6.45-2.36l-3.14-2.45c-.87.58-1.98.93-3.31.93-2.54 0-4.7-1.72-5.47-4.03H3.29v2.53A9.75 9.75 0 0 0 12 21.75z" />
+                            <path fill="#FBBC05"
+                                d="M6.53 13.84A5.86 5.86 0 0 1 6.23 12c0-.64.11-1.26.3-1.84V7.63H3.29A9.75 9.75 0 0 0 2.25 12c0 1.57.38 3.05 1.04 4.37l3.24-2.53z" />
+                            <path fill="#EA4335"
+                                d="M12 6.13c1.43 0 2.72.49 3.73 1.45l2.8-2.8C16.83 3.2 14.63 2.25 12 2.25a9.75 9.75 0 0 0-8.71 5.38l3.24 2.53C7.3 7.85 9.46 6.13 12 6.13z" />
+                        </svg>
                     </span>
-
                     Continue with Google
 
                 </button>
@@ -251,11 +249,7 @@
 
                             <i class="fa-regular fa-envelope"></i>
 
-                            <input
-                                type="email"
-                                id="loginEmail"
-                                placeholder="you@example.com"
-                                required>
+                            <input type="email" id="loginEmail" placeholder="you@example.com" required>
 
                         </div>
 
@@ -273,10 +267,7 @@
                                 Password
                             </label>
 
-                            <button
-                                type="button"
-                                class="forgot-btn"
-                                id="forgotFromLogin">
+                            <button type="button" class="forgot-btn" id="forgotFromLogin">
 
                                 Forgot password?
 
@@ -289,16 +280,9 @@
 
                             <i class="fa-solid fa-lock"></i>
 
-                            <input
-                                type="password"
-                                id="loginPassword"
-                                placeholder="Enter your password"
-                                required>
+                            <input type="password" id="loginPassword" placeholder="Enter your password" required>
 
-                            <button
-                                type="button"
-                                class="password-toggle"
-                                data-target="loginPassword">
+                            <button type="button" class="password-toggle" data-target="loginPassword">
 
                                 <i class="fa-regular fa-eye"></i>
 
@@ -316,9 +300,7 @@
 
                         <label class="remember">
 
-                            <input
-                                type="checkbox"
-                                id="rememberMe">
+                            <input type="checkbox" id="rememberMe">
 
                             <span class="custom-check"></span>
 
@@ -330,9 +312,7 @@
 
 
 
-                    <button
-                        type="submit"
-                        class="auth-submit">
+                    <button type="submit" class="auth-submit">
 
                         <span>Login to PARAMPARA</span>
 
@@ -351,9 +331,7 @@
 
                     Don't have an account?
 
-                    <button
-                        type="button"
-                        data-switch="register">
+                    <button type="button" data-switch="register">
 
                         Create one
 
@@ -399,11 +377,7 @@
 
                             <i class="fa-regular fa-user"></i>
 
-                            <input
-                                type="text"
-                                id="registerName"
-                                placeholder="Your name"
-                                required>
+                            <input type="text" id="registerName" placeholder="Your name" required>
 
                         </div>
 
@@ -423,11 +397,7 @@
 
                             <i class="fa-regular fa-envelope"></i>
 
-                            <input
-                                type="email"
-                                id="registerEmail"
-                                placeholder="you@example.com"
-                                required>
+                            <input type="email" id="registerEmail" placeholder="you@example.com" required>
 
                         </div>
 
@@ -447,16 +417,9 @@
 
                             <i class="fa-solid fa-lock"></i>
 
-                            <input
-                                type="password"
-                                id="registerPassword"
-                                placeholder="Create a password"
-                                required>
+                            <input type="password" id="registerPassword" placeholder="Create a password" required>
 
-                            <button
-                                type="button"
-                                class="password-toggle"
-                                data-target="registerPassword">
+                            <button type="button" class="password-toggle" data-target="registerPassword">
 
                                 <i class="fa-regular fa-eye"></i>
 
@@ -528,9 +491,7 @@
 
                     <label class="terms-check">
 
-                        <input
-                            type="checkbox"
-                            required>
+                        <input type="checkbox" required>
 
                         <span class="custom-check"></span>
 
@@ -545,9 +506,7 @@
 
 
 
-                    <button
-                        type="submit"
-                        class="auth-submit">
+                    <button type="submit" class="auth-submit">
 
                         <span>Create Account</span>
 
@@ -559,9 +518,7 @@
                 </form>
 
 
-                <div
-                    class="auth-message"
-                    id="registerMessage">
+                <div class="auth-message" id="registerMessage">
                 </div>
 
 
@@ -569,9 +526,7 @@
 
                     Already have an account?
 
-                    <button
-                        type="button"
-                        data-switch="login">
+                    <button type="button" data-switch="login">
 
                         Login
 
@@ -587,13 +542,9 @@
                  FORGOT PASSWORD VIEW
             ================================================== -->
 
-            <div
-                class="auth-view"
-                id="forgotView">
+            <div class="auth-view" id="forgotView">
 
-                <button
-                    class="back-auth"
-                    id="backToLogin">
+                <button class="back-auth" id="backToLogin">
 
                     <i class="fa-solid fa-arrow-left"></i>
 
@@ -635,20 +586,14 @@
 
                             <i class="fa-regular fa-envelope"></i>
 
-                            <input
-                                type="email"
-                                id="forgotEmail"
-                                placeholder="you@example.com"
-                                required>
+                            <input type="email" id="forgotEmail" placeholder="you@example.com" required>
 
                         </div>
 
                     </div>
 
 
-                    <button
-                        type="submit"
-                        class="auth-submit">
+                    <button type="submit" class="auth-submit">
 
                         <span>Send Reset Link</span>
 
@@ -659,9 +604,7 @@
                 </form>
 
 
-                <div
-                    class="auth-message"
-                    id="forgotMessage">
+                <div class="auth-message" id="forgotMessage">
                 </div>
 
             </div>
@@ -706,9 +649,11 @@
             <!-- Community Member -->
 
             <article class="role-card active-role">
-
-                <div class="role-icon">
-                    👤
+                <div class="role-decoration">
+                    <i class="fa-solid fa-microphone-lines"></i>
+                </div>
+                <div class="role-art">
+                    <img src="assets/heritage/community.avif" alt="" aria-hidden="true">
                 </div>
 
                 <div class="role-title">
@@ -768,10 +713,13 @@
 
             <!-- Researcher -->
 
-            <article class="role-card">
 
-                <div class="role-icon">
-                    🔬
+            <article class="role-card">
+                <div class="role-decoration">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <div class="role-art">
+                    <img src="assets/heritage/researcher.jpeg" alt="" aria-hidden="true">
                 </div>
 
                 <div class="role-title">
@@ -829,10 +777,13 @@
 
             <!-- Linguist -->
 
-            <article class="role-card">
 
-                <div class="role-icon">
-                    🔤
+            <article class="role-card">
+                <div class="role-decoration">
+                    <i class="fa-solid fa-language"></i>
+                </div>
+                <div class="role-art">
+                    <img src="assets/heritage/lingustics.webp" alt="" aria-hidden="true">
                 </div>
 
                 <div class="role-title">
@@ -877,12 +828,12 @@
 
             <!-- Archaeologist -->
 
-            <article class="role-card">
-
-                <div class="role-icon">
-                    🏺
+            <article class="role-card" data-decoration="🗿">
+                <div class="role-decoration">
                 </div>
-
+                <div class="role-art">
+                    <img src="assets/heritage/Archaeologist.jpeg" alt="" aria-hidden="true">
+                </div>
                 <div class="role-title">
 
                     <h3>
@@ -924,11 +875,14 @@
 
 
             <!-- Archivist -->
+            <div class="role-decoration">
+                🗃️
+            </div>
 
-            <article class="role-card">
+            <article class="role-card " data-decoration="🗃️">
 
-                <div class="role-icon">
-                    🗄️
+                <div class="role-art">
+                    <img src="assets/heritage/arcivist.jpeg" alt="" aria-hidden="true">
                 </div>
 
                 <div class="role-title">
@@ -979,9 +933,12 @@
             <!-- Institution -->
 
             <article class="role-card">
+                <div class="role-decoration">
+                    <i class="fa-solid fa-building-columns"></i>
+                </div>
 
-                <div class="role-icon">
-                    🏛️
+                <div class="role-art">
+                    <img src="assets/heritage/Institution.jpeg" alt="" aria-hidden="true">
                 </div>
 
                 <div class="role-title">
@@ -1027,9 +984,12 @@
             <!-- Student -->
 
             <article class="role-card">
+                <div class="role-decoration">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
 
-                <div class="role-icon">
-                    🎓
+                <div class="role-art">
+                    <img src="assets/heritage/student.jpg" alt="" aria-hidden="true">
                 </div>
 
                 <div class="role-title">
@@ -1076,57 +1036,79 @@
     </section>
 
 
-
-    <!-- =====================================================
+    <!-- =========================================================
          FOOTER
-    ====================================================== -->
+    ========================================================== -->
 
-    <footer class="auth-footer">
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">
+                    <div class="logo-mark">
+                        <img src="assets/logo.png" alt="PARAMPARA Logo">
+                    </div>
+                    <div class="logo-text">
+                        PARAM<span>PARA</span>
+                    </div>
+                </a>
+                <p>
+                    A digital heritage platform preserving
+                    ancestral voices, cultural memories and
+                    community knowledge for future generations.
+                </p>
 
-        <div>
+                <div class="socials">
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-x-twitter"></i>
+                    </a>
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+                </div>
+            </div>
 
-            <strong>
-                PARAM<span>PARA</span>
-            </strong>
+            <div class="footer-column">
+                <h4> Explore </h4>
+                <a href="#explore"> Stories </a>
+                <a href="#"> Heritage Map </a>
+                <a href="#"> Languages </a>
+                <a href="#"> Communities </a>
+            </div>
 
-            <p>
-                Preserving heritage, one voice at a time.
-            </p>
+            <div class="footer-column">
+                <h4> Contribute </h4>
+                <a href="#contribute"> Preserve a Story </a>
+                <a href="#"> Become a Verifier </a>
+                <a href="#"> Guidelines </a>
+                <a href="#"> Report Content </a>
+            </div>
 
+            <div class="footer-column">
+                <h4> PARAMPARA </h4>
+                <a href="#about"> About</a>
+                <a href="#"> Our Team </a>
+                <a href="#"> Contact </a>
+                <a href="#"> Privacy </a>
+            </div>
         </div>
 
-
-        <div class="footer-links">
-
-            <a href="index.html">
-                Home
-            </a>
-
-            <a href="about.html">
-                About
-            </a>
-
-            <a href="#">
-                Privacy
-            </a>
-
-            <a href="#">
-                Contact
-            </a>
-
+        <div class="footer-bottom">
+            <span>
+                © 2026 PARAMPARA. Preserving heritage, one voice at a time.
+            </span>
+            <span>
+                Built for the future of our past.
+            </span>
         </div>
-
-
-        <span class="copyright">
-            © 2026 PARAMPARA
-        </span>
-
     </footer>
-
-
-
-    <script type= "module" src="scripts/script_login.js"></script>
-
+    <script src="script_index.js" defer></script>
+    <script type="module" src="scripts/script_login.js"></script>
 </body>
 
 </html>
