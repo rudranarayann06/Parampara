@@ -1,22 +1,23 @@
 // =========================================================
 // PARAMPARA AUTHENTICATION
-// PHASE 2 — FIREBASE AUTH
+// Firebase Authentication
 // =========================================================
 
 import {
     auth,
     db
-} from "./firebase-config.js";
-
+} from "../firebase-config.js";
 
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
+    signInWithPopup,
+    GoogleAuthProvider,
+    sendPasswordResetEmail,
     sendEmailVerification,
     onAuthStateChanged,
     signOut
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
-
 
 import {
     doc,
@@ -26,23 +27,26 @@ import {
 
 
 // =========================================================
+// GOOGLE PROVIDER
+// =========================================================
+
+const googleProvider = new GoogleAuthProvider();
+
+
+// =========================================================
 // AUTH VIEWS
 // =========================================================
 
 const authTabs =
     document.querySelectorAll(".auth-tab");
 
-
 const authViews = {
 
-    login:
-        document.getElementById("loginView"),
+    login: document.getElementById("loginView"),
 
-    register:
-        document.getElementById("registerView"),
+    register: document.getElementById("registerView"),
 
-    forgot:
-        document.getElementById("forgotView")
+    forgot: document.getElementById("forgotView")
 
 };
 
@@ -57,24 +61,18 @@ function showAuthView(view) {
 
     });
 
-
     authTabs.forEach(tab => {
 
         tab.classList.remove("active");
 
         if (tab.dataset.view === view) {
-
             tab.classList.add("active");
-
         }
 
     });
 
-
     if (authViews[view]) {
-
         authViews[view].classList.add("active");
-
     }
 
 }
@@ -99,14 +97,13 @@ authTabs.forEach(tab => {
 // SWITCH LOGIN / REGISTER
 // =========================================================
 
-document.querySelectorAll("[data-switch]")
+document
+    .querySelectorAll("[data-switch]")
     .forEach(button => {
 
         button.addEventListener("click", () => {
 
-            showAuthView(
-                button.dataset.switch
-            );
+            showAuthView(button.dataset.switch);
 
         });
 
@@ -120,27 +117,28 @@ document.querySelectorAll("[data-switch]")
 const forgotFromLogin =
     document.getElementById("forgotFromLogin");
 
-
 const backToLogin =
     document.getElementById("backToLogin");
 
 
 if (forgotFromLogin) {
 
-    forgotFromLogin.addEventListener(
-        "click",
-        () => showAuthView("forgot")
-    );
+    forgotFromLogin.addEventListener("click", () => {
+
+        showAuthView("forgot");
+
+    });
 
 }
 
 
 if (backToLogin) {
 
-    backToLogin.addEventListener(
-        "click",
-        () => showAuthView("login")
-    );
+    backToLogin.addEventListener("click", () => {
+
+        showAuthView("login");
+
+    });
 
 }
 
@@ -160,7 +158,6 @@ document
                     button.dataset.target
                 );
 
-
             const icon =
                 button.querySelector("i");
 
@@ -169,27 +166,17 @@ document
 
                 target.type = "text";
 
-                icon.classList.remove(
-                    "fa-eye"
-                );
+                icon.classList.remove("fa-eye");
 
-                icon.classList.add(
-                    "fa-eye-slash"
-                );
+                icon.classList.add("fa-eye-slash");
 
-            }
-
-            else {
+            } else {
 
                 target.type = "password";
 
-                icon.classList.remove(
-                    "fa-eye-slash"
-                );
+                icon.classList.remove("fa-eye-slash");
 
-                icon.classList.add(
-                    "fa-eye"
-                );
+                icon.classList.add("fa-eye");
 
             }
 
@@ -199,7 +186,7 @@ document
 
 
 // =========================================================
-// MESSAGE FUNCTION
+// MESSAGE
 // =========================================================
 
 function showMessage(
@@ -210,57 +197,70 @@ function showMessage(
 
     if (!element) return;
 
-
     element.textContent = message;
 
-
     element.className =
-        "auth-message show " + type;
+        `auth-message show ${type}`;
 
 }
 
 
 // =========================================================
-// FIREBASE ERROR TRANSLATION
+// FIREBASE ERROR HANDLING
 // =========================================================
 
-function getFirebaseErrorMessage(error) {
+function firebaseError(error) {
+
+    console.error(
+        "Firebase Error:",
+        error.code,
+        error.message
+    );
+
 
     switch (error.code) {
 
         case "auth/invalid-email":
-
             return "Please enter a valid email address.";
 
-        case "auth/email-already-in-use":
+        case "auth/user-not-found":
+            return "No account exists with this email.";
 
+        case "auth/wrong-password":
+            return "Incorrect password.";
+
+        case "auth/invalid-credential":
+            return "Incorrect email or password.";
+
+        case "auth/email-already-in-use":
             return "An account with this email already exists.";
 
         case "auth/weak-password":
+            return "Password must contain at least 6 characters.";
 
-            return "Password should be at least 6 characters.";
+        case "auth/popup-closed-by-user":
+            return "Google sign-in was cancelled.";
 
-        case "auth/invalid-credential":
+        case "auth/popup-blocked":
+            return "Your browser blocked the Google login popup.";
 
-        case "auth/wrong-password":
+        case "auth/cancelled-popup-request":
+            return "Google login was cancelled.";
 
-        case "auth/user-not-found":
+        case "auth/operation-not-allowed":
+            return "This login method is not enabled in Firebase.";
 
-            return "Incorrect email or password.";
-
-        case "auth/too-many-requests":
-
-            return "Too many attempts. Please try again later.";
+        case "auth/unauthorized-domain":
+            return "This website domain is not authorized in Firebase.";
 
         case "auth/network-request-failed":
+            return "Network error. Check your internet connection.";
 
-            return "Network error. Please check your internet connection.";
+        case "auth/too-many-requests":
+            return "Too many attempts. Please try again later.";
 
         default:
-
-            console.error(error);
-
-            return "Something went wrong. Please try again.";
+            return error.message || "Authentication failed.";
 
     }
 
@@ -273,7 +273,6 @@ function getFirebaseErrorMessage(error) {
 
 const registerForm =
     document.getElementById("registerForm");
-
 
 const registerMessage =
     document.getElementById("registerMessage");
@@ -308,21 +307,17 @@ if (registerForm) {
                     .value;
 
 
-            const role =
+            const requestedRole =
                 document
                     .getElementById("registerRole")
                     .value;
 
 
-            // ---------------------------------------------
-            // Validation
-            // ---------------------------------------------
-
             if (
                 !name ||
                 !email ||
                 !password ||
-                !role
+                !requestedRole
             ) {
 
                 showMessage(
@@ -351,11 +346,9 @@ if (registerForm) {
 
             try {
 
-                // -----------------------------------------
-                // CREATE FIREBASE AUTH USER
-                // -----------------------------------------
+                // Create Firebase Auth account
 
-                const userCredential =
+                const credential =
                     await createUserWithEmailAndPassword(
                         auth,
                         email,
@@ -364,39 +357,23 @@ if (registerForm) {
 
 
                 const user =
-                    userCredential.user;
+                    credential.user;
 
 
-                // -----------------------------------------
-                // SEND EMAIL VERIFICATION
-                // -----------------------------------------
+                // Send verification email
 
                 await sendEmailVerification(user);
 
 
-                // -----------------------------------------
-                // ROLE LOGIC
-                // -----------------------------------------
+                // IMPORTANT:
+                // Everyone starts as community.
+                // Elevated roles require approval.
 
-                /*
-                    IMPORTANT:
-
-                    The selected role is stored as
-                    requestedRole.
-
-                    For now every new account receives
-                    the safe default role "community".
-
-                    Elevated roles will later require
-                    approval.
-                */
-
-                let assignedRole = "community";
+                const assignedRole =
+                    "community";
 
 
-                // -----------------------------------------
-                // CREATE FIRESTORE USER PROFILE
-                // -----------------------------------------
+                // Create Firestore profile
 
                 await setDoc(
                     doc(
@@ -414,7 +391,8 @@ if (registerForm) {
 
                         role: assignedRole,
 
-                        requestedRole: role,
+                        requestedRole:
+                            requestedRole,
 
                         provider: "password",
 
@@ -430,14 +408,10 @@ if (registerForm) {
                 );
 
 
-                // -----------------------------------------
-                // SUCCESS
-                // -----------------------------------------
-
                 showMessage(
                     registerMessage,
 
-                    "Account created successfully! Please check your email and verify your account.",
+                    "Account created! Check your email to verify your account.",
 
                     "success"
                 );
@@ -446,19 +420,13 @@ if (registerForm) {
                 registerForm.reset();
 
 
-                console.log(
-                    "PARAMPARA user created:",
-                    user.uid
-                );
-
-
             }
 
             catch (error) {
 
                 showMessage(
                     registerMessage,
-                    getFirebaseErrorMessage(error),
+                    firebaseError(error),
                     "error"
                 );
 
@@ -471,12 +439,11 @@ if (registerForm) {
 
 
 // =========================================================
-// LOGIN
+// EMAIL LOGIN
 // =========================================================
 
 const loginForm =
     document.getElementById("loginForm");
-
 
 const loginMessage =
     document.getElementById("loginMessage");
@@ -519,11 +486,7 @@ if (loginForm) {
 
             try {
 
-                // -----------------------------------------
-                // FIREBASE LOGIN
-                // -----------------------------------------
-
-                const userCredential =
+                const credential =
                     await signInWithEmailAndPassword(
                         auth,
                         email,
@@ -532,19 +495,17 @@ if (loginForm) {
 
 
                 const user =
-                    userCredential.user;
+                    credential.user;
 
 
-                // -----------------------------------------
-                // EMAIL VERIFICATION CHECK
-                // -----------------------------------------
+                // Require verification
 
                 if (!user.emailVerified) {
 
                     showMessage(
                         loginMessage,
 
-                        "Please verify your email before continuing. Check your inbox.",
+                        "Please verify your email before logging in. Check your inbox.",
 
                         "error"
                     );
@@ -554,35 +515,19 @@ if (loginForm) {
                 }
 
 
-                // -----------------------------------------
-                // SUCCESS
-                // -----------------------------------------
-
                 showMessage(
                     loginMessage,
-
-                    "Login successful. Redirecting...",
-
+                    "Login successful! Redirecting...",
                     "success"
                 );
 
-
-                console.log(
-                    "Logged in user:",
-                    user.uid
-                );
-
-
-                // -----------------------------------------
-                // TEMPORARY REDIRECT
-                // -----------------------------------------
 
                 setTimeout(() => {
 
                     window.location.href =
                         "index.html";
 
-                }, 1200);
+                }, 1000);
 
 
             }
@@ -591,7 +536,7 @@ if (loginForm) {
 
                 showMessage(
                     loginMessage,
-                    getFirebaseErrorMessage(error),
+                    firebaseError(error),
                     "error"
                 );
 
@@ -604,7 +549,199 @@ if (loginForm) {
 
 
 // =========================================================
-// AUTH STATE LISTENER
+// GOOGLE LOGIN
+// =========================================================
+
+const googleLogin =
+    document.getElementById("googleLogin");
+
+
+if (googleLogin) {
+
+    googleLogin.addEventListener(
+        "click",
+        async () => {
+
+            try {
+
+                // REAL GOOGLE LOGIN
+
+                const result =
+                    await signInWithPopup(
+                        auth,
+                        googleProvider
+                    );
+
+
+                const user =
+                    result.user;
+
+
+                // Store/update profile
+
+                await setDoc(
+                    doc(
+                        db,
+                        "users",
+                        user.uid
+                    ),
+                    {
+
+                        uid: user.uid,
+
+                        name:
+                            user.displayName || "PARAMPARA User",
+
+                        email:
+                            user.email,
+
+                        photoURL:
+                            user.photoURL || "",
+
+                        role:
+                            "community",
+
+                        requestedRole:
+                            "community",
+
+                        provider:
+                            "google",
+
+                        emailVerified:
+                            user.emailVerified,
+
+                        status:
+                            "active",
+
+                        lastLogin:
+                            serverTimestamp(),
+
+                        createdAt:
+                            serverTimestamp()
+
+                    },
+
+                    {
+                        merge: true
+                    }
+                );
+
+
+                showMessage(
+                    loginMessage,
+                    "Google login successful! Redirecting...",
+                    "success"
+                );
+
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        "index.html";
+
+                }, 1000);
+
+
+            }
+
+            catch (error) {
+
+                showMessage(
+                    loginMessage,
+                    firebaseError(error),
+                    "error"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+// =========================================================
+// FORGOT PASSWORD
+// =========================================================
+
+const forgotForm =
+    document.getElementById("forgotForm");
+
+const forgotMessage =
+    document.getElementById("forgotMessage");
+
+
+if (forgotForm) {
+
+    forgotForm.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+
+            const email =
+                document
+                    .getElementById("forgotEmail")
+                    .value
+                    .trim();
+
+
+            if (!email) {
+
+                showMessage(
+                    forgotMessage,
+                    "Please enter your email.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                await sendPasswordResetEmail(
+                    auth,
+                    email
+                );
+
+
+                showMessage(
+
+                    forgotMessage,
+
+                    "Password reset email sent. Please check your inbox.",
+
+                    "success"
+
+                );
+
+
+                forgotForm.reset();
+
+
+            }
+
+            catch (error) {
+
+                showMessage(
+                    forgotMessage,
+                    firebaseError(error),
+                    "error"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+// =========================================================
+// AUTH STATE
 // =========================================================
 
 onAuthStateChanged(
@@ -614,13 +751,11 @@ onAuthStateChanged(
         if (user) {
 
             console.log(
-                "Authenticated:",
+                "Currently authenticated:",
                 user.email
             );
 
-        }
-
-        else {
+        } else {
 
             console.log(
                 "No authenticated user."
