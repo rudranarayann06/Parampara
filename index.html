@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title> PARAMPARA </title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style_index.css">
+
+</head>
+
+<body>
+    <!-- Ambient Background -->
+    <div class="ambient"></div>
+
+    <!-- ================= NAVBAR ================= -->
+    <header class="navbar-wrapper">
+
+        <nav class="glass-navbar">
+
+            <!-- Logo -->
+            <a href="index.html" class="brand">
+                <div class="brand-icon"><img src="assets/logo.png" alt="PARAMPARA Logo"></div>
+
+                <div class="brand-name">
+                    <span>PARAM</span><span class="gold-text">PARA</span>
+                </div>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <div class="nav-links">
+
+                <a href="index.html" class="nav-link active">
+                    Home
+                </a>
+
+                <a href="explore.html" class="nav-link">
+                    Explore
+                </a>
+
+                <a href="contribute.html" class="nav-link">
+                    Contribute
+                </a>
+
+                <a href="about.html" class="nav-link">
+                    About
+                </a>
+
+                <a href="login.html" class="login-btn">
+                    Login
+                </a>
+
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </button>
+
+        </nav>
+
+        <!-- Mobile Navigation -->
+        <div class="mobile-menu" id="mobileMenu">
+
+            <a href="index.html">Home</a>
+            <a href="explore.html">Explore</a>
+            <a href="contribute.html">Contribute</a>
+            <a href="about.html">About</a>
+            <a href="login.html" class="mobile-login">
+                Login
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================================================
+         HERO
+    ========================================================== -->
+
+    <main id="home">
+        <section class="hero">
+            <div class="hero-ornament"></div>
+            <div class="hero-content">
+
+                <div class="eyebrow">
+                    <span class="eyebrow-dot"></span>
+                    Preserving what should never be forgotten
+                </div>
+
+                <h1>
+                    From <span>Ancestral Voices</span> to Future Generations.
+                </h1>
+
+                <p class="hero-description">
+                    PARAMPARA is a digital heritage platform that preserves
+                    oral histories, traditions and cultural memories —
+                    connecting the voices of yesterday with the generations
+                    of tomorrow.
+                </p>
+
+                <div class="hero-actions">
+                    <a href="explore.html" class="btn btn-primary">
+                        <i class="fa-solid fa-compass"></i>
+                        Explore Stories
+                    </a>
+
+                    <a href="#contribute" class="btn btn-secondary">
+                        <i class="fa-solid fa-microphone"></i>
+                        Preserve a Story
+                    </a>
+                </div>
+            </div>
+
+            <div class="heritage-visual">
+
+                <!-- Main cultural image -->
+                <div class="heritage-image main-artifact">
+                    <img src="assets/heritage-artifact.jpeg" alt="Indian cultural heritage">
+                </div>
+
+                <!-- Manuscript / old knowledge -->
+                <div class="heritage-image manuscript-card">
+                    <img src="assets/manuscript.jpeg" alt="Traditional manuscript">
+                </div>
+
+                <!-- Audio archive card -->
+                <div class="archive-card">
+
+                    <div class="archive-icon">
+                        <i class="fa-solid fa-microphone"></i>
+                    </div>
+
+                    <div class="archive-info">
+                        <span>ORAL ARCHIVE</span>
+                        <strong>Echoes of Heritage</strong>
+
+                        <div class="waveform">
+                            <i></i><i></i><i></i><i></i><i></i>
+                            <i></i><i></i><i></i><i></i><i></i>
+                            <i></i><i></i><i></i><i></i><i></i>
+                        </div>
+
+                        <small>
+                            <span>02:18</span>
+                            · Verified testimony
+                        </small>
+                    </div>
+
+                </div>
+
+
+                <!-- Decorative line -->
+                <div class="heritage-line"></div>
+
+            </div>
+
+            <div class="scroll-indicator">
+
+                <div class="mouse-icon">
+                    <div class="mouse-wheel"></div>
+                </div>
+
+                <span>Scroll to discover</span>
+
+            </div>
+        </section>
+
+        <!-- =====================================================
+             WHY PARAMPARA
+        ====================================================== -->
+
+        <section class="why-section" id="about">
+            <div class="container">
+                <div class="why-header reveal">
+                    <div>
+                        <span class="section-label">
+                            Why PARAMPARA
+                        </span>
+
+                        <h2 class="section-title">
+                            Some stories are<br>
+                            disappearing.
+                        </h2>
+                    </div>
+
+                    <p class="section-description">
+                        Across generations, countless traditions,
+                        memories and oral histories remain undocumented,
+                        fragmented or vulnerable to being forgotten.
+                    </p>
+                </div>
+
+                <div class="why-grid">
+                    <div class="glass-card problem-card reveal">
+                        <span class="problem-number">
+                            01
+                        </span>
+                        <div class="problem-icon">
+                            <i class="fa-solid fa-hourglass-end"></i>
+                        </div>
+
+                        <h3>
+                            Cultural memories are disappearing
+                        </h3>
+
+                        <p>
+                            As generations change, unique stories,
+                            traditions and memories can disappear
+                            before they are ever documented.
+                        </p>
+
+                    </div>
+
+
+                    <div class="glass-card problem-card reveal">
+                        <span class="problem-number">
+                            02
+                        </span>
+                        <div class="problem-icon">
+                            <i class="fa-solid fa-ear-listen"></i>
+                        </div>
+
+                        <h3>
+                            Oral histories are difficult to preserve
+                        </h3>
+
+                        <p>
+                            Valuable knowledge often exists only through
+                            spoken memories, making it difficult to
+                            preserve and pass forward.
+                        </p>
+                    </div>
+
+
+                    <div class="glass-card problem-card reveal">
+                        <span class="problem-number">
+                            03
+                        </span>
+                        <div class="problem-icon">
+                            <i class="fa-solid fa-link-slash"></i>
+                        </div>
+                        <h3>
+                            Digital content lacks provenance
+                        </h3>
+                        <p>
+                            Existing digital archives often lack a clear
+                            source, evidence trail or verification history
+                            behind the information they contain.
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================
+             HOW PARAMPARA WORKS
+        ====================================================== -->
+
+        <section class="how-section" id="how">
+            <div class="container">
+                <div class="how-header reveal">
+                    <span class="section-label">
+                        How PARAMPARA Works
+                    </span>
+
+                    <h2 class="section-title">
+                        From memory to legacy.
+                    </h2>
+
+                    <p class="section-description">
+                        A simple journey that transforms personal memories
+                        into verified digital heritage.
+                    </p>
+                </div>
+                <div class="steps">
+                    <div class="step reveal">
+                        <div class="step-circle">
+                            <i class="fa-solid fa-microphone"></i>
+                        </div>
+                        <h3>
+                            Record
+                        </h3>
+                        <p>
+                            Capture stories, memories and traditions
+                            through voice, text, images or video.
+                        </p>
+                    </div>
+
+                    <div class="step reveal">
+                        <div class="step-circle">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <h3>
+                            Verify
+                        </h3>
+                        <p>
+                            Review sources, evidence and community
+                            knowledge to establish authenticity.
+                        </p>
+                    </div>
+
+                    <div class="step reveal">
+                        <div class="step-circle">
+                            <i class="fa-solid fa-box-archive"></i>
+                        </div>
+                        <h3>
+                            Preserve
+                        </h3>
+                        <p>
+                            Securely preserve cultural memories in a
+                            structured digital archive.
+                        </p>
+                    </div>
+
+                    <div class="step reveal">
+                        <div class="step-circle">
+                            <i class="fa-solid fa-compass"></i>
+                        </div>
+                        <h3>
+                            Discover
+                        </h3>
+                        <p>
+                            Let future generations explore and reconnect
+                            with the heritage of their communities.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================
+             FEATURED STORIES
+        ====================================================== -->
+
+        <section class="stories-section" id="explore">
+            <div class="container">
+                <div class="stories-header reveal">
+                    <div>
+                        <span class="section-label">
+                            Featured Stories
+                        </span>
+                        <h2 class="section-title">
+                            Voices worth remembering.
+                        </h2>
+                    </div>
+                    <a href="#" class="view-all">
+                        Explore all stories
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="stories-grid">
+
+                    <!-- STORY 1 -->
+                    <article class="glass-card story-card reveal">
+                        <div class="story-image">
+                            <span class="story-tag">
+                                Folk Tradition
+                            </span>
+                            <span class="verified">
+                                <i class="fa-solid fa-check"></i>
+                                Verified
+                            </span>
+                            <i class="fa-solid fa-music"></i>
+                        </div>
+                        <div class="story-content">
+                            <h3>
+                                The Song That Guided the Fishermen
+                            </h3>
+                            <p>
+                                An old coastal song passed through
+                                generations, once sung before fishermen
+                                ventured into the sea.
+                            </p>
+                            <div class="story-meta">
+                                <span class="meta">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    Odisha
+                                </span>
+                                <span class="meta">
+                                    <i class="fa-solid fa-users"></i>
+                                    Coastal Community
+                                </span>
+                                <span class="meta">
+                                    <i class="fa-solid fa-language"></i>
+                                    Odia
+                                </span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- STORY 2 -->
+                    <article class="glass-card story-card reveal">
+                        <div class="story-image" style="background:linear-gradient(135deg,#3c3023,#161514);">
+                            <span class="story-tag">
+                                Oral History
+                            </span>
+                            <span class="verified">
+                                <i class="fa-solid fa-check"></i>
+                                Verified
+                            </span>
+                            <i class="fa-solid fa-book-open"></i>
+                        </div>
+                        <div class="story-content">
+                            <h3>
+                                The Village That Remembered the Flood
+                            </h3>
+                            <p>
+                                A first-hand account of a historic flood
+                                remembered through generations of one
+                                riverside community.
+                            </p>
+                            <div class="story-meta">
+                                <span class="meta">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    Assam
+                                </span>
+                                <span class="meta">
+                                    <i class="fa-solid fa-users"></i>
+                                    Riverside Community
+                                </span>
+                                <span class="meta">
+                                    <i class="fa-solid fa-language"></i>
+                                    Assamese
+                                </span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- STORY 3 -->
+                    <article class="glass-card story-card reveal">
+                        <div class="story-image" style="background:linear-gradient(135deg,#403029,#151414);">
+                            <span class="story-tag">
+                                Craft Tradition
+                            </span>
+                            <span class="verified">
+                                <i class="fa-solid fa-check"></i>
+                                Verified
+                            </span>
+                            <i class="fa-solid fa-hands"></i>
+                        </div>
+                        <div class="story-content">
+                            <h3>
+                                Hands That Remember the Craft
+                            </h3>
+                            <p>
+                                The story behind a traditional craft,
+                                taught from master artisans to the next
+                                generation.
+                            </p>
+                            <div class="story-meta">
+                                <span class="meta">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    Rajasthan
+                                </span>
+                                <span class="meta">
+                                    <i class="fa-solid fa-users"></i>
+                                    Artisan Community
+                                </span>
+                                <span class="meta">
+                                    <i class="fa-solid fa-language"></i>
+                                    Hindi
+                                </span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- STORY 4 -->
+                    <article class="glass-card story-card reveal">
+                        <div class="story-image" style="background:linear-gradient(135deg,#29352f,#121615);">
+                            <span class="story-tag">
+                                Festival
+                            </span>
+                            <span class="verified">
+                                <i class="fa-solid fa-check"></i>
+                                Verified
+                            </span>
+                            <i class="fa-solid fa-fire"></i>
+                        </div>
+                        <div class="story-content">
+                            <h3>
+                                When the Village Lights the First Lamp
+                            </h3>
+                            <p>
+                                A community festival and the meaning
+                                behind a ritual performed every year
+                                by generations of families.
+                            </p>
+                            <div class="story-meta">
+                                <span class="meta">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    West Bengal
+                                </span>
+                                <span class="meta">
+                                    <i class="fa-solid fa-users"></i>
+                                    Village Community
+                                </span>
+                                <span class="meta">
+                                    <i class="fa-solid fa-language"></i>
+                                    Bengali
+                                </span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- STORY 5 -->
+                    <article class="glass-card story-card reveal">
+                        <div class="story-image" style="background:linear-gradient(135deg,#393126,#151413);">
+                            <span class="story-tag">
+                                Food Heritage
+                            </span>
+                            <span class="verified">
+                                <i class="fa-solid fa-check"></i>
+                                Verified
+                            </span>
+                            <i class="fa-solid fa-bowl-food"></i>
+                        </div>
+                        <div class="story-content">
+                            <h3>
+                                A Recipe Written in Memory
+                            </h3>
+                            <p>
+                                A traditional recipe preserved through
+                                stories, memories and generations of
+                                family kitchens.
+                            </p>
+                            <div class="story-meta">
+                                <span class="meta">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    Kerala
+                                </span>
+                                <span class="meta">
+                                    <i class="fa-solid fa-users"></i>
+                                    Family Tradition
+                                </span>
+                                <span class="meta">
+                                    <i class="fa-solid fa-language"></i>
+                                    Malayalam
+                                </span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- STORY 6 -->
+                    <article class="glass-card story-card reveal">
+                        <div class="story-image" style="background:linear-gradient(135deg,#30372e,#131513);">
+                            <span class="story-tag">
+                                Indigenous Knowledge
+                            </span>
+                            <span class="verified">
+                                <i class="fa-solid fa-check"></i>
+                                Verified
+                            </span>
+                            <i class="fa-solid fa-leaf"></i>
+                        </div>
+
+                        <div class="story-content">
+                            <h3>
+                                The Forest Knows the Way
+                            </h3>
+                            <p>
+                                Traditional ecological knowledge passed
+                                through generations of a forest-dwelling
+                                community.
+                            </p>
+                            <div class="story-meta">
+                                <span class="meta">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    Jharkhand
+                                </span>
+                                <span class="meta">
+                                    <i class="fa-solid fa-users"></i>
+                                    Tribal Community
+                                </span>
+                                <span class="meta">
+                                    <i class="fa-solid fa-language"></i>
+                                    Santhali
+                                </span>
+                            </div>
+                        </div>
+                        <article>
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================
+             IMPACT
+        ====================================================== -->
+
+        <section class="impact-section">
+            <div class="container">
+                <div class="impact-box reveal">
+                    <div class="impact-header">
+                        <span class="section-label">
+                            Our Growing Archive
+                        </span>
+                        <h2 class="section-title">
+                            Every story adds to the legacy.
+                        </h2>
+                        <p class="section-description">
+                            Demo impact metrics representing the future
+                            scale of the PARAMPARA heritage network.
+                        </p>
+                    </div>
+                    <div class="impact-grid">
+                        <div class="impact-item">
+                            <div class="impact-number">
+                                <span class="counter" data-target="1240">
+                                    0
+                                </span>+
+                            </div>
+                            <div class="impact-label">
+                                Stories Preserved
+                            </div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-number">
+                                <span class="counter" data-target="18">
+                                    0
+                                </span>
+                            </div>
+                            <div class="impact-label">
+                                Languages
+                            </div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-number">
+                                <span class="counter" data-target="120">
+                                    0
+                                </span>+
+                            </div>
+                            <div class="impact-label">
+                                Communities
+                            </div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-number">
+                                <span class="counter" data-target="87">
+                                    0
+                                </span>%
+                            </div>
+                            <div class="impact-label">
+                                Verified
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================
+             CTA
+        ====================================================== -->
+
+        <section class="cta-section" id="contribute">
+            <div class="container reveal">
+                <span class="section-label">
+                    Your Story Matters
+                </span>
+                <h2>
+                    What story will you
+                    <span>preserve?</span>
+                </h2>
+                <p>
+                    Somewhere in your family, village or community
+                    is a story that deserves to survive another
+                    generation.
+                </p>
+                <a href="#" class="btn btn-primary">
+                    <i class="fa-solid fa-microphone"></i>
+                    Preserve a Story
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- =========================================================
+         FOOTER
+    ========================================================== -->
+
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">
+                    <div class="logo-mark">
+                        <img src="assets/logo.png" alt="PARAMPARA Logo">
+                    </div>
+                    <div class="logo-text">
+                        PARAM<span>PARA</span>
+                    </div>
+                </a>
+                <p>
+                    A digital heritage platform preserving
+                    ancestral voices, cultural memories and
+                    community knowledge for future generations.
+                </p>
+
+                <div class="socials">
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-x-twitter"></i>
+                    </a>
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-column">
+                <h4> Explore </h4>
+                <a href="#explore"> Stories </a>
+                <a href="#"> Heritage Map </a>
+                <a href="#"> Languages </a>
+                <a href="#"> Communities </a>
+            </div>
+
+            <div class="footer-column">
+                <h4> Contribute </h4>
+                <a href="#contribute"> Preserve a Story </a>
+                <a href="#"> Become a Verifier </a>
+                <a href="#"> Guidelines </a>
+                <a href="#"> Report Content </a>
+            </div>
+
+            <div class="footer-column">
+                <h4> PARAMPARA </h4>
+                <a href="#about"> About</a>
+                <a href="#"> Our Team </a>
+                <a href="#"> Contact </a>
+                <a href="#"> Privacy </a>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <span>
+                © 2026 PARAMPARA. Preserving heritage, one voice at a time.
+            </span>
+            <span>
+                Built for the future of our past.
+            </span>
+        </div>
+    </footer>
+    <script src="script_index.js" defer></script>
+
+</body>
+
+</html>

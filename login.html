@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login — PARAMPARA</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link rel="stylesheet" href="css/style_login.css">
+
+</head>
+
+
+<body>
+
+    <!-- Ambient background -->
+    <div class="ambient"></div>
+
+
+    <!-- =====================================================
+         TOP NAV
+    ====================================================== -->
+
+    <header class="auth-navbar">
+
+        <a href="index.html" class="brand">
+
+            <div class="brand-icon">
+                <img src="assets/logo.png" alt="PARAMPARA">
+            </div>
+
+            <div class="brand-name">
+                <span>PARAM</span><span class="gold-text">PARA</span>
+            </div>
+
+        </a>
+
+
+        <a href="index.html" class="back-home">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Back to Home
+
+        </a>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         MAIN AUTH AREA
+    ====================================================== -->
+
+    <main class="auth-container">
+
+
+        <!-- =================================================
+             LEFT SIDE — BRAND STORY
+        ================================================== -->
+
+        <section class="auth-intro">
+
+            <div class="intro-label">
+
+                <span></span>
+
+                DIGITAL HERITAGE ARCHIVE
+
+            </div>
+
+
+            <h1>
+
+                Your voice can
+                <span>live forever.</span>
+
+            </h1>
+
+
+            <p class="intro-description">
+
+                Join PARAMPARA and help preserve the stories,
+                traditions and memories that connect generations.
+
+            </p>
+
+
+            <!-- Heritage quote -->
+
+            <div class="heritage-quote">
+
+                <div class="quote-mark">
+                    “
+                </div>
+
+                <p>
+                    Every generation inherits stories.
+                    Every generation has a story to leave behind.
+                </p>
+
+                <span>
+                    — PARAMPARA
+                </span>
+
+            </div>
+
+
+            <!-- Archive indicators -->
+
+            <div class="archive-stats">
+
+                <div class="archive-stat">
+
+                    <strong>18+</strong>
+
+                    <span>Languages</span>
+
+                </div>
+
+
+                <div class="stat-line"></div>
+
+
+                <div class="archive-stat">
+
+                    <strong>120+</strong>
+
+                    <span>Communities</span>
+
+                </div>
+
+
+                <div class="stat-line"></div>
+
+
+                <div class="archive-stat">
+
+                    <strong>1.2K+</strong>
+
+                    <span>Stories</span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             RIGHT SIDE — AUTH CARD
+        ================================================== -->
+
+        <section class="auth-card">
+
+
+            <!-- Auth tabs -->
+
+            <div class="auth-tabs">
+
+                <button
+                    class="auth-tab active"
+                    data-view="login">
+
+                    Login
+
+                </button>
+
+
+                <button
+                    class="auth-tab"
+                    data-view="register">
+
+                    Create Account
+
+                </button>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 LOGIN VIEW
+            ================================================== -->
+
+            <div class="auth-view active" id="loginView">
+
+                <div class="auth-heading">
+
+                    <h2>
+                        Welcome back
+                    </h2>
+
+                    <p>
+                        Continue your journey of preserving heritage.
+                    </p>
+
+                </div>
+
+
+                <!-- Google -->
+
+                <button
+                    class="google-btn"
+                    id="googleLogin">
+
+                    <span class="google-icon">
+                        G
+                    </span>
+
+                    Continue with Google
+
+                </button>
+
+
+                <div class="divider">
+
+                    <span>or continue with email</span>
+
+                </div>
+
+
+                <!-- Email -->
+
+                <form id="loginForm">
+
+
+                    <div class="form-group">
+
+                        <label for="loginEmail">
+                            Email address
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <i class="fa-regular fa-envelope"></i>
+
+                            <input
+                                type="email"
+                                id="loginEmail"
+                                placeholder="you@example.com"
+                                required>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Password -->
+
+                    <div class="form-group">
+
+                        <div class="label-row">
+
+                            <label for="loginPassword">
+                                Password
+                            </label>
+
+                            <button
+                                type="button"
+                                class="forgot-btn"
+                                id="forgotFromLogin">
+
+                                Forgot password?
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="input-wrapper">
+
+                            <i class="fa-solid fa-lock"></i>
+
+                            <input
+                                type="password"
+                                id="loginPassword"
+                                placeholder="Enter your password"
+                                required>
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                data-target="loginPassword">
+
+                                <i class="fa-regular fa-eye"></i>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Remember -->
+
+                    <div class="form-options">
+
+                        <label class="remember">
+
+                            <input
+                                type="checkbox"
+                                id="rememberMe">
+
+                            <span class="custom-check"></span>
+
+                            Remember me
+
+                        </label>
+
+                    </div>
+
+
+
+                    <button
+                        type="submit"
+                        class="auth-submit">
+
+                        <span>Login to PARAMPARA</span>
+
+                        <i class="fa-solid fa-arrow-right"></i>
+
+                    </button>
+
+
+                </form>
+
+
+                <div class="auth-message" id="loginMessage"></div>
+
+
+                <p class="switch-text">
+
+                    Don't have an account?
+
+                    <button
+                        type="button"
+                        data-switch="register">
+
+                        Create one
+
+                    </button>
+
+                </p>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 REGISTER VIEW
+            ================================================== -->
+
+            <div class="auth-view" id="registerView">
+
+                <div class="auth-heading">
+
+                    <h2>
+                        Join PARAMPARA
+                    </h2>
+
+                    <p>
+                        Create your account and choose your role.
+                    </p>
+
+                </div>
+
+
+                <form id="registerForm">
+
+
+                    <!-- Name -->
+
+                    <div class="form-group">
+
+                        <label for="registerName">
+                            Full name
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <i class="fa-regular fa-user"></i>
+
+                            <input
+                                type="text"
+                                id="registerName"
+                                placeholder="Your name"
+                                required>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Email -->
+
+                    <div class="form-group">
+
+                        <label for="registerEmail">
+                            Email address
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <i class="fa-regular fa-envelope"></i>
+
+                            <input
+                                type="email"
+                                id="registerEmail"
+                                placeholder="you@example.com"
+                                required>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Password -->
+
+                    <div class="form-group">
+
+                        <label for="registerPassword">
+                            Password
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <i class="fa-solid fa-lock"></i>
+
+                            <input
+                                type="password"
+                                id="registerPassword"
+                                placeholder="Create a password"
+                                required>
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                data-target="registerPassword">
+
+                                <i class="fa-regular fa-eye"></i>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Role -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Choose your role
+                        </label>
+
+                        <div class="role-select-wrapper">
+
+                            <i class="fa-solid fa-user-shield"></i>
+
+                            <select id="registerRole" required>
+
+                                <option value="">
+                                    Select your role
+                                </option>
+
+                                <option value="community">
+                                    👤 Community Member
+                                </option>
+
+                                <option value="researcher">
+                                    🔬 Researcher
+                                </option>
+
+                                <option value="linguist">
+                                    🔤 Linguist
+                                </option>
+
+                                <option value="archaeologist">
+                                    🏺 Archaeologist
+                                </option>
+
+                                <option value="archivist">
+                                    🗄️ Archivist
+                                </option>
+
+                                <option value="institution">
+                                    🏛️ Institution
+                                </option>
+
+                                <option value="student">
+                                    🎓 Student
+                                </option>
+
+                            </select>
+
+                            <i class="fa-solid fa-chevron-down select-arrow"></i>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Terms -->
+
+                    <label class="terms-check">
+
+                        <input
+                            type="checkbox"
+                            required>
+
+                        <span class="custom-check"></span>
+
+                        <span>
+                            I agree to PARAMPARA's
+                            <a href="#">
+                                Terms & Privacy Policy
+                            </a>
+                        </span>
+
+                    </label>
+
+
+
+                    <button
+                        type="submit"
+                        class="auth-submit">
+
+                        <span>Create Account</span>
+
+                        <i class="fa-solid fa-arrow-right"></i>
+
+                    </button>
+
+
+                </form>
+
+
+                <div
+                    class="auth-message"
+                    id="registerMessage">
+                </div>
+
+
+                <p class="switch-text">
+
+                    Already have an account?
+
+                    <button
+                        type="button"
+                        data-switch="login">
+
+                        Login
+
+                    </button>
+
+                </p>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 FORGOT PASSWORD VIEW
+            ================================================== -->
+
+            <div
+                class="auth-view"
+                id="forgotView">
+
+                <button
+                    class="back-auth"
+                    id="backToLogin">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+
+                    Back to login
+
+                </button>
+
+
+                <div class="forgot-icon">
+
+                    <i class="fa-solid fa-key"></i>
+
+                </div>
+
+
+                <div class="auth-heading">
+
+                    <h2>
+                        Reset your password
+                    </h2>
+
+                    <p>
+                        Enter your email and we'll send you
+                        instructions to reset your password.
+                    </p>
+
+                </div>
+
+
+                <form id="forgotForm">
+
+                    <div class="form-group">
+
+                        <label for="forgotEmail">
+                            Email address
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <i class="fa-regular fa-envelope"></i>
+
+                            <input
+                                type="email"
+                                id="forgotEmail"
+                                placeholder="you@example.com"
+                                required>
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="auth-submit">
+
+                        <span>Send Reset Link</span>
+
+                        <i class="fa-solid fa-paper-plane"></i>
+
+                    </button>
+
+                </form>
+
+
+                <div
+                    class="auth-message"
+                    id="forgotMessage">
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- =====================================================
+         ROLE CAPABILITIES
+    ====================================================== -->
+
+    <section class="roles-section">
+
+
+        <div class="roles-header">
+
+            <span class="section-label">
+                PARAMPARA ACCESS
+            </span>
+
+            <h2>
+                One archive.
+                <span>Different responsibilities.</span>
+            </h2>
+
+            <p>
+                Every role has carefully defined permissions
+                to protect the integrity and provenance of
+                cultural knowledge.
+            </p>
+
+        </div>
+
+
+
+        <div class="roles-grid">
+
+
+            <!-- Community Member -->
+
+            <article class="role-card active-role">
+
+                <div class="role-icon">
+                    👤
+                </div>
+
+                <div class="role-title">
+
+                    <h3>
+                        Community Member
+                    </h3>
+
+                    <span>
+                        Contributor
+                    </span>
+
+                </div>
+
+                <ul>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Record oral history
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Upload audio
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Give/manage consent
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Correct transcripts
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Approve translations
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Set access restrictions
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Request removal
+                    </li>
+
+                </ul>
+
+            </article>
+
+
+
+            <!-- Researcher -->
+
+            <article class="role-card">
+
+                <div class="role-icon">
+                    🔬
+                </div>
+
+                <div class="role-title">
+
+                    <h3>
+                        Researcher
+                    </h3>
+
+                    <span>
+                        Research Access
+                    </span>
+
+                </div>
+
+                <ul>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Search public archives
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Request restricted material
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Analyze transcripts
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Explore themes
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Download permitted datasets
+                    </li>
+
+                    <li class="restricted">
+
+                        <i class="fa-solid fa-lock"></i>
+
+                        Cannot change original testimony
+
+                    </li>
+
+                </ul>
+
+            </article>
+
+
+
+            <!-- Linguist -->
+
+            <article class="role-card">
+
+                <div class="role-icon">
+                    🔤
+                </div>
+
+                <div class="role-title">
+
+                    <h3>
+                        Linguist
+                    </h3>
+
+                    <span>
+                        Language Specialist
+                    </span>
+
+                </div>
+
+                <ul>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Compare linguistic variants
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Examine transcripts
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Review translations
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Add linguistic annotations
+                    </li>
+
+                </ul>
+
+            </article>
+
+
+
+            <!-- Archaeologist -->
+
+            <article class="role-card">
+
+                <div class="role-icon">
+                    🏺
+                </div>
+
+                <div class="role-title">
+
+                    <h3>
+                        Archaeologist
+                    </h3>
+
+                    <span>
+                        Heritage Research
+                    </span>
+
+                </div>
+
+                <ul>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Search relevant oral histories
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Explore historical place narratives
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Link oral accounts with research
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Request restricted recordings
+                    </li>
+
+                </ul>
+
+            </article>
+
+
+
+            <!-- Archivist -->
+
+            <article class="role-card">
+
+                <div class="role-icon">
+                    🗄️
+                </div>
+
+                <div class="role-title">
+
+                    <h3>
+                        Archivist
+                    </h3>
+
+                    <span>
+                        Archive Management
+                    </span>
+
+                </div>
+
+                <ul>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Manage metadata
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Maintain versions
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Review provenance
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Manage archive records
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Monitor preservation status
+                    </li>
+
+                </ul>
+
+            </article>
+
+
+
+            <!-- Institution -->
+
+            <article class="role-card">
+
+                <div class="role-icon">
+                    🏛️
+                </div>
+
+                <div class="role-title">
+
+                    <h3>
+                        Institution
+                    </h3>
+
+                    <span>
+                        Organizational Access
+                    </span>
+
+                </div>
+
+                <ul>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Manage institutional collections
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Approve researchers
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Manage organizational access
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Generate reports
+                    </li>
+
+                </ul>
+
+            </article>
+
+
+
+            <!-- Student -->
+
+            <article class="role-card">
+
+                <div class="role-icon">
+                    🎓
+                </div>
+
+                <div class="role-title">
+
+                    <h3>
+                        Student
+                    </h3>
+
+                    <span>
+                        Educational Access
+                    </span>
+
+                </div>
+
+                <ul>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Search public content
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Listen to permitted recordings
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Read transcripts
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        Explore educational collections
+                    </li>
+
+                </ul>
+
+            </article>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="auth-footer">
+
+        <div>
+
+            <strong>
+                PARAM<span>PARA</span>
+            </strong>
+
+            <p>
+                Preserving heritage, one voice at a time.
+            </p>
+
+        </div>
+
+
+        <div class="footer-links">
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="about.html">
+                About
+            </a>
+
+            <a href="#">
+                Privacy
+            </a>
+
+            <a href="#">
+                Contact
+            </a>
+
+        </div>
+
+
+        <span class="copyright">
+            © 2026 PARAMPARA
+        </span>
+
+    </footer>
+
+
+
+    <script type= "module" src="scripts/script_login.js"></script>
+
+</body>
+
+</html>
