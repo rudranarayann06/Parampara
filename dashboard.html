@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>PARAMPARA | Dashboard</title>
+
+
+    <!-- Google Fonts -->
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- Dashboard CSS -->
+
+    <link
+        rel="stylesheet"
+        href="css/style_dashboard.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         NAVBAR
+    ====================================================== -->
+
+    <header class="dashboard-navbar">
+
+        <a
+            href="index.html"
+            class="brand"
+        >
+
+            <img
+                src="assets/logo.png"
+                alt="PARAMPARA Logo"
+            >
+
+            <span>
+                PARAMPARA
+            </span>
+
+        </a>
+
+
+        <div class="nav-right">
+
+            <span
+                id="userNameNav"
+                class="user-name"
+            >
+                Loading...
+            </span>
+
+
+            <button
+                id="logoutBtn"
+                class="logout-btn"
+                type="button"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         MAIN DASHBOARD
+    ====================================================== -->
+
+    <main class="dashboard-container">
+
+
+        <!-- =================================================
+             WELCOME SECTION
+        ================================================== -->
+
+        <section class="welcome-section">
+
+            <div class="welcome-content">
+
+                <p class="eyebrow">
+                    COMMUNITY MEMBER
+                </p>
+
+
+                <h1>
+
+                    Welcome,
+
+                    <span id="userName">
+                        User
+                    </span>
+
+                </h1>
+
+
+                <p class="welcome-text">
+
+                    Help preserve the voices, memories,
+                    traditions and knowledge passed down
+                    through generations.
+
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             PENDING ROLE REQUEST
+        ================================================== -->
+
+        <div
+            id="rolePendingNotice"
+            class="role-pending-notice"
+            style="display: none;"
+        >
+
+            <div class="pending-icon">
+                ⏳
+            </div>
+
+
+            <div class="pending-content">
+
+                <h3>
+                    Role request under review
+                </h3>
+
+
+                <p>
+
+                    Your request for elevated access is
+                    currently being reviewed by an
+                    authorized PARAMPARA administrator.
+
+                </p>
+
+
+                <span
+                    id="pendingRoleText"
+                    class="pending-role"
+                >
+                    Requested role: —
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             QUICK ACTIONS
+        ================================================== -->
+
+        <section class="section">
+
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        YOUR CONTRIBUTION
+                    </p>
+
+
+                    <h2>
+                        Preserve a Story
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="action-grid">
+
+
+                <!-- Record -->
+
+                <a
+                    href="#"
+                    class="action-card"
+                    id="recordStoryBtn"
+                >
+
+                    <div class="action-icon">
+                        🎙️
+                    </div>
+
+
+                    <h3>
+                        Record Oral History
+                    </h3>
+
+
+                    <p>
+
+                        Record a story, memory,
+                        tradition or knowledge
+                        directly from your device.
+
+                    </p>
+
+
+                    <span>
+                        Start recording →
+                    </span>
+
+                </a>
+
+
+
+                <!-- Upload -->
+
+                <a
+                    href="#"
+                    class="action-card"
+                    id="uploadAudioBtn"
+                >
+
+                    <div class="action-icon">
+                        🎧
+                    </div>
+
+
+                    <h3>
+                        Upload Audio
+                    </h3>
+
+
+                    <p>
+
+                        Preserve an existing
+                        oral history recording
+                        in the PARAMPARA archive.
+
+                    </p>
+
+
+                    <span>
+                        Upload recording →
+                    </span>
+
+                </a>
+
+
+
+                <!-- Transcript -->
+
+                <a
+                    href="#"
+                    class="action-card"
+                    id="transcriptBtn"
+                >
+
+                    <div class="action-icon">
+                        📝
+                    </div>
+
+
+                    <h3>
+                        Review Transcript
+                    </h3>
+
+
+                    <p>
+
+                        Review and correct the
+                        transcript generated from
+                        your recorded story.
+
+                    </p>
+
+
+                    <span>
+                        Review transcript →
+                    </span>
+
+                </a>
+
+
+
+                <!-- Translation -->
+
+                <a
+                    href="#"
+                    class="action-card"
+                    id="translationBtn"
+                >
+
+                    <div class="action-icon">
+                        🌐
+                    </div>
+
+
+                    <h3>
+                        Review Translation
+                    </h3>
+
+
+                    <p>
+
+                        Help make cultural stories
+                        accessible across languages.
+
+                    </p>
+
+
+                    <span>
+                        Review translation →
+                    </span>
+
+                </a>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             MY STORIES
+        ================================================== -->
+
+        <section class="section">
+
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        YOUR ARCHIVE
+                    </p>
+
+
+                    <h2>
+                        My Stories
+                    </h2>
+
+                </div>
+
+
+                <a
+                    href="#"
+                    class="section-link"
+                >
+                    View all
+                </a>
+
+            </div>
+
+
+
+            <div
+                id="storiesContainer"
+                class="stories-container"
+            >
+
+
+                <!-- Empty state -->
+
+                <div
+                    id="emptyStories"
+                    class="empty-state"
+                >
+
+                    <div class="empty-icon">
+                        🏺
+                    </div>
+
+
+                    <h3>
+                        No stories yet
+                    </h3>
+
+
+                    <p>
+
+                        Your preserved stories will
+                        appear here once you contribute
+                        to the PARAMPARA archive.
+
+                    </p>
+
+
+                    <button
+                        type="button"
+                        class="primary-btn"
+                        id="firstStoryBtn"
+                    >
+
+                        Preserve Your First Story
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             ACCOUNT / PROFILE
+        ================================================== -->
+
+        <section class="section">
+
+
+            <div class="profile-card">
+
+
+                <div class="profile-header">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            ACCOUNT
+                        </p>
+
+
+                        <h2>
+                            Your Profile
+                        </h2>
+
+                    </div>
+
+
+                    <a
+                        href="#"
+                        class="edit-profile"
+                        id="editProfileBtn"
+                    >
+                        Edit Profile
+                    </a>
+
+                </div>
+
+
+
+                <!-- Profile Information -->
+
+                <div class="profile-grid">
+
+
+                    <!-- Name -->
+
+                    <div class="profile-item">
+
+                        <span>
+                            Name
+                        </span>
+
+
+                        <strong id="profileName">
+                            —
+                        </strong>
+
+                    </div>
+
+
+
+                    <!-- Email -->
+
+                    <div class="profile-item">
+
+                        <span>
+                            Email
+                        </span>
+
+
+                        <strong id="profileEmail">
+                            —
+                        </strong>
+
+                    </div>
+
+
+
+                    <!-- Current Role -->
+
+                    <div class="profile-item">
+
+                        <span>
+                            Current Role
+                        </span>
+
+
+                        <strong id="profileRole">
+                            —
+                        </strong>
+
+                    </div>
+
+
+
+                    <!-- Requested Role -->
+
+                    <div class="profile-item">
+
+                        <span>
+                            Requested Role
+                        </span>
+
+
+                        <strong id="profileRequestedRole">
+                            —
+                        </strong>
+
+                    </div>
+
+
+
+                    <!-- Account Status -->
+
+                    <div class="profile-item">
+
+                        <span>
+                            Account Status
+                        </span>
+
+
+                        <strong id="profileStatus">
+                            —
+                        </strong>
+
+                    </div>
+
+
+
+                    <!-- Verification -->
+
+                    <div class="profile-item">
+
+                        <span>
+                            Email Verification
+                        </span>
+
+
+                        <strong id="profileVerification">
+                            —
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             PRIVACY / ACCESS
+        ================================================== -->
+
+        <section class="section">
+
+
+            <div class="privacy-card">
+
+
+                <div class="privacy-icon">
+                    🔐
+                </div>
+
+
+                <div class="privacy-content">
+
+                    <p class="eyebrow">
+                        YOUR CONTROL
+                    </p>
+
+
+                    <h2>
+                        Your stories remain yours.
+                    </h2>
+
+
+                    <p>
+
+                        You control consent, access
+                        restrictions and removal requests
+                        for your contributed cultural memories.
+
+                    </p>
+
+
+                    <div class="privacy-links">
+
+                        <a href="#">
+                            Manage Consent
+                        </a>
+
+
+                        <a href="#">
+                            Access Restrictions
+                        </a>
+
+
+                        <a href="#">
+                            Request Removal
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="dashboard-footer">
+
+        <div>
+
+            <strong>
+                PARAMPARA
+            </strong>
+
+            <p>
+                Preserving ancestral voices for
+                future generations.
+            </p>
+
+        </div>
+
+
+        <div class="footer-links">
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="#">
+                Explore
+            </a>
+
+            <a href="#">
+                About
+            </a>
+
+        </div>
+
+    </footer>
+
+
+
+    <!-- =====================================================
+         FIREBASE DASHBOARD SCRIPT
+    ====================================================== -->
+
+    <script
+        type="module"
+        src="scripts/script_dashboard.js"
+    ></script>
+
+
+</body>
+
+</html>

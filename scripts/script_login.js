@@ -1,3 +1,97 @@
+async function redirectUserByRole(user) {
+
+    const userRef =
+        doc(db, "users", user.uid);
+
+    const userSnapshot =
+        await getDoc(userRef);
+
+    if (!userSnapshot.exists()) {
+
+        console.error(
+            "User profile not found."
+        );
+
+        window.location.href =
+            "dashboard.html";
+
+        return;
+
+    }
+
+    const userData =
+        userSnapshot.data();
+
+    const role =
+        userData.role || "community";
+
+
+    switch (role) {
+
+        case "community":
+
+            window.location.href =
+                "dashboard.html";
+
+            break;
+
+
+        case "researcher":
+
+            window.location.href =
+                "researcher.html";
+
+            break;
+
+
+        case "linguist":
+
+            window.location.href =
+                "linguist.html";
+
+            break;
+
+
+        case "archaeologist":
+
+            window.location.href =
+                "archaeologist.html";
+
+            break;
+
+
+        case "archivist":
+
+            window.location.href =
+                "archivist.html";
+
+            break;
+
+
+        case "institution":
+
+            window.location.href =
+                "institution.html";
+
+            break;
+
+
+        case "student":
+
+            window.location.href =
+                "student.html";
+
+            break;
+
+
+        default:
+
+            window.location.href =
+                "dashboard.html";
+
+    }
+
+}
 // =========================================================
 // PARAMPARA AUTHENTICATION
 // Firebase Authentication
@@ -369,8 +463,21 @@ if (registerForm) {
                 // Everyone starts as community.
                 // Elevated roles require approval.
 
+                const immediateRoles = [
+                    "community",
+                    "student"
+                ];
+
                 const assignedRole =
-                    "community";
+                    immediateRoles.includes(requestedRole)
+                        ? requestedRole
+                        : "community";
+
+
+                const accountStatus =
+                    immediateRoles.includes(requestedRole)
+                        ? "active"
+                        : "pending";
 
 
                 // Create Firestore profile
@@ -399,7 +506,7 @@ if (registerForm) {
                         emailVerified:
                             user.emailVerified,
 
-                        status: "active",
+                        status: accountStatus,
 
                         createdAt:
                             serverTimestamp()
@@ -525,7 +632,7 @@ if (loginForm) {
                 setTimeout(() => {
 
                     window.location.href =
-                        "index.html";
+                        "dashboard.html";
 
                 }, 1000);
 
@@ -637,7 +744,7 @@ if (googleLogin) {
                 setTimeout(() => {
 
                     window.location.href =
-                        "index.html";
+                        "dashboard.html";
 
                 }, 1000);
 
