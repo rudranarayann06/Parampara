@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Explore | PARAMPARA</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+    <!-- Your main stylesheet -->
+    <link rel="stylesheet" href="style_index.css">
+
+    <!-- Explore stylesheet -->
+    <link rel="stylesheet" href="css/style_explore.css">
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     NAVBAR
+========================================================= -->
+
+<div class="navbar-wrapper">
+
+    <nav class="glass-navbar">
+
+        <a href="index.html" class="brand">
+
+            <div class="brand-icon">
+                <!-- Replace with your logo -->
+                <img src="assets/logo.png" alt="PARAMPARA">
+            </div>
+
+            <span class="brand-name">
+                PARAM<span class="gold-text">PARA</span>
+            </span>
+
+        </a>
+
+
+        <div class="nav-links">
+
+            <a href="index.html" class="nav-link">
+                Home
+            </a>
+
+            <a href="explore.html" class="nav-link active">
+                Explore
+            </a>
+
+            <a href="about.html" class="nav-link">
+                About
+            </a>
+
+            <a href="contribute.html" class="nav-link">
+                Contribute
+            </a>
+
+        </div>
+
+
+        <a href="login.html" class="login-btn">
+            Login
+        </a>
+
+
+        <button class="menu-toggle" id="menuToggle">
+
+            <span></span>
+            <span></span>
+            <span></span>
+
+        </button>
+
+    </nav>
+
+
+    <div class="mobile-menu" id="mobileMenu">
+
+        <a href="index.html">
+            Home
+        </a>
+
+        <a href="explore.html">
+            Explore
+        </a>
+
+        <a href="about.html">
+            About
+        </a>
+
+        <a href="contribute.html">
+            Contribute
+        </a>
+
+        <a href="login.html" class="mobile-login">
+            Login
+        </a>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     EXPLORE HERO
+========================================================= -->
+
+<main>
+
+
+<section class="explore-hero">
+
+    <div class="explore-glow explore-glow-one"></div>
+    <div class="explore-glow explore-glow-two"></div>
+
+
+    <div class="explore-container">
+
+
+        <div class="explore-heading reveal">
+
+            <span class="explore-eyebrow">
+                THE LIVING ARCHIVE
+            </span>
+
+            <h1>
+                Explore the
+                <span>stories</span>
+                that shaped us.
+            </h1>
+
+            <p>
+                Discover stories, traditions, people, places and knowledge
+                preserved across India's diverse cultural landscape.
+            </p>
+
+        </div>
+
+
+
+        <!-- =====================================================
+             SEARCH
+        ====================================================== -->
+
+        <div class="explore-search-wrap reveal">
+
+            <div class="explore-search">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search stories, traditions, places, people..."
+                    autocomplete="off"
+                >
+
+                <button id="searchButton">
+                    Search
+                </button>
+
+            </div>
+
+
+            <div class="search-hint">
+
+                <span>
+                    <i class="fa-solid fa-sparkles"></i>
+                    Try
+                </span>
+
+                <button class="search-suggestion">
+                    Odisha folk traditions
+                </button>
+
+                <button class="search-suggestion">
+                    Tribal crafts
+                </button>
+
+                <button class="search-suggestion">
+                    Indian festivals
+                </button>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =====================================================
+             FILTER PANEL
+        ====================================================== -->
+
+        <div class="filter-panel glass-card reveal">
+
+            <div class="filter-top">
+
+                <div>
+
+                    <span class="filter-label">
+                        REFINE DISCOVERY
+                    </span>
+
+                    <h3>
+                        Find heritage your way
+                    </h3>
+
+                </div>
+
+                <button
+                    class="clear-filters"
+                    id="clearFilters"
+                >
+                    Clear all
+                </button>
+
+            </div>
+
+
+            <div class="filters-grid">
+
+
+                <div class="filter-group">
+
+                    <label>
+                        State
+                    </label>
+
+                    <select id="stateFilter">
+
+                        <option value="">All States</option>
+
+                        <option>Odisha</option>
+                        <option>West Bengal</option>
+                        <option>Rajasthan</option>
+                        <option>Kerala</option>
+                        <option>Tamil Nadu</option>
+                        <option>Assam</option>
+                        <option>Gujarat</option>
+                        <option>Maharashtra</option>
+                        <option>Karnataka</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="filter-group">
+
+                    <label>
+                        District
+                    </label>
+
+                    <select id="districtFilter">
+
+                        <option value="">All Districts</option>
+
+                        <option>Puri</option>
+                        <option>Cuttack</option>
+                        <option>Koraput</option>
+                        <option>Mayurbhanj</option>
+                        <option>Ganjam</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="filter-group">
+
+                    <label>
+                        Language
+                    </label>
+
+                    <select id="languageFilter">
+
+                        <option value="">All Languages</option>
+
+                        <option>Odia</option>
+                        <option>Hindi</option>
+                        <option>Bengali</option>
+                        <option>Tamil</option>
+                        <option>Telugu</option>
+                        <option>Assamese</option>
+                        <option>Kannada</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="filter-group">
+
+                    <label>
+                        Community
+                    </label>
+
+                    <select id="communityFilter">
+
+                        <option value="">All Communities</option>
+
+                        <option>Tribal</option>
+                        <option>Coastal</option>
+                        <option>Rural</option>
+                        <option>Indigenous</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="filter-group">
+
+                    <label>
+                        Tradition
+                    </label>
+
+                    <select id="traditionFilter">
+
+                        <option value="">All Traditions</option>
+
+                        <option>Folk Story</option>
+                        <option>Song</option>
+                        <option>Festival</option>
+                        <option>Food</option>
+                        <option>Craft</option>
+                        <option>Ritual</option>
+                        <option>Local History</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="filter-group">
+
+                    <label>
+                        Era
+                    </label>
+
+                    <select id="eraFilter">
+
+                        <option value="">Any Era</option>
+
+                        <option>Ancient</option>
+                        <option>Medieval</option>
+                        <option>Colonial</option>
+                        <option>20th Century</option>
+                        <option>Contemporary</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="filter-group">
+
+                    <label>
+                        Verification
+                    </label>
+
+                    <select id="verificationFilter">
+
+                        <option value="">Any Level</option>
+
+                        <option>Verified</option>
+                        <option>Community Verified</option>
+                        <option>Under Review</option>
+
+                    </select>
+
+                </div>
+
+
+                <button class="filter-apply" id="applyFilters">
+
+                    <i class="fa-solid fa-sliders"></i>
+
+                    Apply Filters
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     CATEGORY SECTION
+========================================================= -->
+
+<section class="category-section">
+
+    <div class="explore-container">
+
+
+        <div class="section-heading-row reveal">
+
+            <div>
+
+                <span class="section-label">
+                    DISCOVER BY
+                </span>
+
+                <h2 class="section-title">
+                    Explore by Category
+                </h2>
+
+            </div>
+
+            <p class="section-description">
+                From oral traditions to living crafts,
+                discover the many forms heritage takes.
+            </p>
+
+        </div>
+
+
+        <div class="category-grid reveal">
+
+
+            <button class="category-card active-category"
+                    data-category="folk-stories">
+
+                <div class="category-icon">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+
+                <span>
+                    Folk Stories
+                </span>
+
+                <small>
+                    128 stories
+                </small>
+
+            </button>
+
+
+            <button class="category-card"
+                    data-category="songs">
+
+                <div class="category-icon">
+                    <i class="fa-solid fa-music"></i>
+                </div>
+
+                <span>
+                    Songs
+                </span>
+
+                <small>
+                    86 recordings
+                </small>
+
+            </button>
+
+
+            <button class="category-card"
+                    data-category="festivals">
+
+                <div class="category-icon">
+                    <i class="fa-solid fa-sun"></i>
+                </div>
+
+                <span>
+                    Festivals
+                </span>
+
+                <small>
+                    94 traditions
+                </small>
+
+            </button>
+
+
+            <button class="category-card"
+                    data-category="food">
+
+                <div class="category-icon">
+                    <i class="fa-solid fa-bowl-food"></i>
+                </div>
+
+                <span>
+                    Food
+                </span>
+
+                <small>
+                    112 traditions
+                </small>
+
+            </button>
+
+
+            <button class="category-card"
+                    data-category="crafts">
+
+                <div class="category-icon">
+                    <i class="fa-solid fa-palette"></i>
+                </div>
+
+                <span>
+                    Crafts
+                </span>
+
+                <small>
+                    76 practices
+                </small>
+
+            </button>
+
+
+            <button class="category-card"
+                    data-category="rituals">
+
+                <div class="category-icon">
+                    <i class="fa-solid fa-hands-praying"></i>
+                </div>
+
+                <span>
+                    Rituals
+                </span>
+
+                <small>
+                    63 traditions
+                </small>
+
+            </button>
+
+
+            <button class="category-card"
+                    data-category="history">
+
+                <div class="category-icon">
+                    <i class="fa-solid fa-landmark"></i>
+                </div>
+
+                <span>
+                    Local History
+                </span>
+
+                <small>
+                    105 stories
+                </small>
+
+            </button>
+
+
+            <button class="category-card"
+                    data-category="knowledge">
+
+                <div class="category-icon">
+                    <i class="fa-solid fa-leaf"></i>
+                </div>
+
+                <span>
+                    Indigenous Knowledge
+                </span>
+
+                <small>
+                    58 records
+                </small>
+
+            </button>
+
+
+            <button class="category-card"
+                    data-category="legends">
+
+                <div class="category-icon">
+                    <i class="fa-solid fa-dragon"></i>
+                </div>
+
+                <span>
+                    Legends
+                </span>
+
+                <small>
+                    71 stories
+                </small>
+
+            </button>
+
+
+            <button class="category-card"
+                    data-category="languages">
+
+                <div class="category-icon">
+                    <i class="fa-solid fa-language"></i>
+                </div>
+
+                <span>
+                    Languages
+                </span>
+
+                <small>
+                    42 languages
+                </small>
+
+            </button>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     FEATURED STORIES
+========================================================= -->
+
+<section class="discovery-section">
+
+    <div class="explore-container">
+
+
+        <div class="section-heading-row reveal">
+
+            <div>
+
+                <span class="section-label">
+                    HANDPICKED
+                </span>
+
+                <h2 class="section-title">
+                    Featured Stories
+                </h2>
+
+            </div>
+
+            <a href="#" class="view-all">
+                View all
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+
+        </div>
+
+
+
+        <div class="featured-grid reveal">
+
+
+            <!-- LARGE STORY -->
+
+            <article class="featured-main story-discovery-card">
+
+                <div class="story-image-large">
+
+                    <img
+                        src="assets/stories/lost-harvest-song.jpg"
+                        alt="Traditional folk performance"
+                    >
+
+                    <div class="story-image-overlay"></div>
+
+                    <span class="story-category">
+                        ORAL HISTORY
+                    </span>
+
+                    <span class="verified-badge">
+                        <i class="fa-solid fa-check"></i>
+                        Verified
+                    </span>
+
+                    <div class="featured-story-info">
+
+                        <span>
+                            Odisha · Odia
+                        </span>
+
+                        <h3>
+                            The Lost Harvest Song
+                        </h3>
+
+                        <p>
+                            An old harvest melody carried through
+                            generations by voices from rural Odisha.
+                        </p>
+
+                        <div class="story-details">
+
+                            <span>
+                                <i class="fa-regular fa-clock"></i>
+                                8 min
+                            </span>
+
+                            <span>
+                                <i class="fa-solid fa-headphones"></i>
+                                Audio
+                            </span>
+
+                            <span>
+                                <i class="fa-solid fa-eye"></i>
+                                2.4k
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+
+            <!-- SIDE STORY 1 -->
+
+            <article class="featured-side story-discovery-card">
+
+                <div class="story-image-medium">
+
+                    <img
+                        src="assets/stories/pattachitra.jpg"
+                        alt="Pattachitra artwork"
+                    >
+
+                    <div class="story-image-overlay"></div>
+
+                    <span class="story-category">
+                        CRAFT
+                    </span>
+
+                </div>
+
+                <div class="side-story-content">
+
+                    <span>
+                        Puri · Odisha
+                    </span>
+
+                    <h3>
+                        Stories Painted on Cloth
+                    </h3>
+
+                    <div class="side-story-meta">
+
+                        <span>
+                            <i class="fa-regular fa-clock"></i>
+                            6 min
+                        </span>
+
+                        <span class="verified-small">
+                            <i class="fa-solid fa-check"></i>
+                            Verified
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+
+            <!-- SIDE STORY 2 -->
+
+            <article class="featured-side story-discovery-card">
+
+                <div class="story-image-medium">
+
+                    <img
+                        src="assets/stories/tribal-song.jpg"
+                        alt="Traditional tribal performance"
+                    >
+
+                    <div class="story-image-overlay"></div>
+
+                    <span class="story-category">
+                        SONG
+                    </span>
+
+                </div>
+
+                <div class="side-story-content">
+
+                    <span>
+                        Koraput · Odisha
+                    </span>
+
+                    <h3>
+                        Voices of the Hills
+                    </h3>
+
+                    <div class="side-story-meta">
+
+                        <span>
+                            <i class="fa-regular fa-clock"></i>
+                            5 min
+                        </span>
+
+                        <span class="verified-small">
+                            <i class="fa-solid fa-check"></i>
+                            Verified
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     STORY COLLECTION
+========================================================= -->
+
+<section class="collection-section">
+
+    <div class="explore-container">
+
+
+        <!-- RECENTLY PRESERVED -->
+
+        <div class="collection-block reveal">
+
+            <div class="collection-header">
+
+                <div>
+
+                    <span class="section-label">
+                        NEWLY ADDED
+                    </span>
+
+                    <h2>
+                        Recently Preserved
+                    </h2>
+
+                </div>
+
+                <a href="#" class="view-all">
+                    Explore all
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+
+            </div>
+
+
+            <div class="story-grid">
+
+
+                <article class="compact-story">
+
+                    <div class="compact-image">
+
+                        <img
+                            src="assets/stories/story-1.jpg"
+                            alt=""
+                        >
+
+                        <span class="verified-badge">
+                            <i class="fa-solid fa-check"></i>
+                        </span>
+
+                    </div>
+
+                    <div class="compact-content">
+
+                        <span>
+                            Assam · Assamese
+                        </span>
+
+                        <h3>
+                            The River's Memory
+                        </h3>
+
+                        <div>
+
+                            <small>
+                                7 min
+                            </small>
+
+                            <small>
+                                Oral History
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+
+                <article class="compact-story">
+
+                    <div class="compact-image">
+
+                        <img
+                            src="assets/stories/story-2.jpg"
+                            alt=""
+                        >
+
+                        <span class="verified-badge">
+                            <i class="fa-solid fa-check"></i>
+                        </span>
+
+                    </div>
+
+                    <div class="compact-content">
+
+                        <span>
+                            Rajasthan · Hindi
+                        </span>
+
+                        <h3>
+                            Songs of the Desert
+                        </h3>
+
+                        <div>
+
+                            <small>
+                                9 min
+                            </small>
+
+                            <small>
+                                Folk Song
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+
+                <article class="compact-story">
+
+                    <div class="compact-image">
+
+                        <img
+                            src="assets/stories/story-3.jpg"
+                            alt=""
+                        >
+
+                    </div>
+
+                    <div class="compact-content">
+
+                        <span>
+                            Kerala · Malayalam
+                        </span>
+
+                        <h3>
+                            A Feast Before the Monsoon
+                        </h3>
+
+                        <div>
+
+                            <small>
+                                5 min
+                            </small>
+
+                            <small>
+                                Food
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- MOST EXPLORED -->
+
+        <div class="collection-block reveal">
+
+            <div class="collection-header">
+
+                <div>
+
+                    <span class="section-label">
+                        COMMUNITY FAVOURITES
+                    </span>
+
+                    <h2>
+                        Most Explored
+                    </h2>
+
+                </div>
+
+                <a href="#" class="view-all">
+                    View popular
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+
+            </div>
+
+
+            <div class="story-grid">
+
+
+                <article class="compact-story">
+
+                    <div class="compact-image">
+
+                        <img
+                            src="assets/stories/story-4.jpg"
+                            alt=""
+                        >
+
+                    </div>
+
+                    <div class="compact-content">
+
+                        <span>
+                            Odisha · Odia
+                        </span>
+
+                        <h3>
+                            The Legend of Konark
+                        </h3>
+
+                        <div>
+
+                            <small>
+                                12 min
+                            </small>
+
+                            <small>
+                                Legend
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+
+                <article class="compact-story">
+
+                    <div class="compact-image">
+
+                        <img
+                            src="assets/stories/story-5.jpg"
+                            alt=""
+                        >
+
+                    </div>
+
+                    <div class="compact-content">
+
+                        <span>
+                            West Bengal · Bengali
+                        </span>
+
+                        <h3>
+                            Baul: Songs Without Borders
+                        </h3>
+
+                        <div>
+
+                            <small>
+                                8 min
+                            </small>
+
+                            <small>
+                                Music
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+
+                <article class="compact-story">
+
+                    <div class="compact-image">
+
+                        <img
+                            src="assets/stories/story-6.jpg"
+                            alt=""
+                        >
+
+                    </div>
+
+                    <div class="compact-content">
+
+                        <span>
+                            Tamil Nadu · Tamil
+                        </span>
+
+                        <h3>
+                            The Festival of Lamps
+                        </h3>
+
+                        <div>
+
+                            <small>
+                                10 min
+                            </small>
+
+                            <small>
+                                Festival
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- VERIFIED HERITAGE -->
+
+        <div class="collection-block reveal">
+
+            <div class="collection-header">
+
+                <div>
+
+                    <span class="section-label">
+                        TRUSTED ARCHIVE
+                    </span>
+
+                    <h2>
+                        Verified Heritage
+                    </h2>
+
+                </div>
+
+                <a href="#" class="view-all">
+                    Browse verified
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+
+            </div>
+
+
+            <div class="verified-strip">
+
+
+                <article class="verified-card">
+
+                    <div class="verified-card-image">
+
+                        <img
+                            src="assets/stories/story-7.jpg"
+                            alt=""
+                        >
+
+                    </div>
+
+                    <div class="verified-card-content">
+
+                        <span class="verified-label">
+                            <i class="fa-solid fa-circle-check"></i>
+                            VERIFIED
+                        </span>
+
+                        <h3>
+                            Sambalpuri Weaving
+                        </h3>
+
+                        <p>
+                            Sambalpur · Odisha
+                        </p>
+
+                    </div>
+
+                </article>
+
+
+
+                <article class="verified-card">
+
+                    <div class="verified-card-image">
+
+                        <img
+                            src="assets/stories/story-8.jpg"
+                            alt=""
+                        >
+
+                    </div>
+
+                    <div class="verified-card-content">
+
+                        <span class="verified-label">
+                            <i class="fa-solid fa-circle-check"></i>
+                            VERIFIED
+                        </span>
+
+                        <h3>
+                            Madhubani Traditions
+                        </h3>
+
+                        <p>
+                            Madhubani · Bihar
+                        </p>
+
+                    </div>
+
+                </article>
+
+
+
+                <article class="verified-card">
+
+                    <div class="verified-card-image">
+
+                        <img
+                            src="assets/stories/story-9.jpg"
+                            alt=""
+                        >
+
+                    </div>
+
+                    <div class="verified-card-content">
+
+                        <span class="verified-label">
+                            <i class="fa-solid fa-circle-check"></i>
+                            VERIFIED
+                        </span>
+
+                        <h3>
+                            Theyyam Rituals
+                        </h3>
+
+                        <p>
+                            Kannur · Kerala
+                        </p>
+
+                    </div>
+
+                </article>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     MAP CTA
+========================================================= -->
+
+<section class="map-section">
+
+    <div class="explore-container">
+
+        <div class="map-card reveal">
+
+
+            <div class="map-pattern"></div>
+
+
+            <div class="map-content">
+
+                <span class="section-label">
+                    HERITAGE ACROSS INDIA
+                </span>
+
+                <h2>
+                    Explore heritage
+                    <span>by place.</span>
+                </h2>
+
+                <p>
+                    Move beyond lists. Discover stories rooted in
+                    the places where they were born, practiced and preserved.
+                </p>
+
+                <a href="map.html" class="map-button">
+
+                    <i class="fa-solid fa-map-location-dot"></i>
+
+                    Explore the Heritage Map
+
+                    <i class="fa-solid fa-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+
+            <div class="map-visual">
+
+                <div class="india-map-placeholder">
+
+                    <span class="map-pin pin-odisha">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </span>
+
+                    <span class="map-pin pin-rajasthan">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </span>
+
+                    <span class="map-pin pin-kerala">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </span>
+
+                    <span class="map-pin pin-assam">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </span>
+
+                    <span class="map-pin pin-tamil">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </span>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+</main>
+
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer>
+
+    <div class="footer-grid">
+
+        <div class="footer-brand">
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    <img src="assets/logo.png" alt="PARAMPARA">
+                </div>
+
+                <span class="brand-name">
+                    PARAM<span class="gold-text">PARA</span>
+                </span>
+
+            </div>
+
+            <p>
+                Preserving India's living heritage, one story,
+                tradition and voice at a time.
+            </p>
+
+        </div>
+
+
+        <div class="footer-column">
+
+            <h4>
+                Explore
+            </h4>
+
+            <a href="#">
+                Stories
+            </a>
+
+            <a href="#">
+                Traditions
+            </a>
+
+            <a href="#">
+                Places
+            </a>
+
+            <a href="#">
+                Map
+            </a>
+
+        </div>
+
+
+        <div class="footer-column">
+
+            <h4>
+                Participate
+            </h4>
+
+            <a href="#">
+                Contribute
+            </a>
+
+            <a href="#">
+                Preserve a Story
+            </a>
+
+            <a href="#">
+                Verify
+            </a>
+
+        </div>
+
+
+        <div class="footer-column">
+
+            <h4>
+                PARAMPARA
+            </h4>
+
+            <a href="#">
+                About
+            </a>
+
+            <a href="#">
+                Our Mission
+            </a>
+
+            <a href="#">
+                Contact
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="footer-bottom">
+
+        <span>
+            © 2026 PARAMPARA
+        </span>
+
+        <span>
+            Preserving what should never be forgotten.
+        </span>
+
+    </div>
+
+</footer>
+
+
+
+<script src="scripts/script_explore.js"></script>
+
+</body>
+
+</html>
