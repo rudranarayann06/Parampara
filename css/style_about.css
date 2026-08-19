@@ -1,0 +1,2653 @@
+/* =========================================================
+   ABOUT SECTION
+========================================================= */
+
+.about-section {
+
+    position: relative;
+
+    padding:
+        85px 5vw 60px;
+
+    background: #08090b;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   HEADING
+========================================================= */
+
+.about-heading-wrap {
+
+    position: relative;
+
+    z-index: 2;
+
+    width: 100%;
+
+}
+
+
+/* Small label */
+
+.about-kicker {
+
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #898983;
+
+    font-family:
+        "DM Sans",
+        sans-serif;
+
+    font-size: 8px;
+
+    font-weight: 600;
+
+    letter-spacing: 2.5px;
+
+    text-transform: uppercase;
+}
+
+
+/* Main heading */
+
+.about-title {
+
+    margin: 0;
+
+    color: #f5f5f3;
+
+    font-family:
+        "DM Sans",
+        sans-serif;
+
+    font-size:
+        clamp(42px, 5vw, 72px);
+
+    font-weight: 800;
+
+    line-height: .92;
+
+    letter-spacing: -3px;
+
+}
+
+
+.about-title span {
+
+    color: #d7a85b;
+
+}
+
+
+/* =========================================================
+   UNDERLINE
+========================================================= */
+
+.about-underline {
+
+    position: relative;
+
+    width: 100%;
+
+    height: 8px;
+
+    margin-top: 17px;
+
+}
+
+
+.about-underline::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+
+    top: 50%;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(215,168,91,.2),
+            rgba(255,255,255,.055),
+            transparent
+        );
+
+}
+
+
+.about-underline span {
+
+    position: absolute;
+
+    left: 0;
+
+    top: 50%;
+
+    width: 55px;
+
+    height: 2px;
+
+    transform:
+        translateY(-50%);
+
+    background:
+        linear-gradient(
+            90deg,
+            #b9853e,
+            #f1c878
+        );
+
+    box-shadow:
+        0 0 12px
+        rgba(215,168,91,.25);
+
+}
+
+
+/* Small diamond */
+
+.about-underline span::after {
+
+    content: "";
+
+    position: absolute;
+
+    right: -3px;
+
+    top: 50%;
+
+    width: 6px;
+    height: 6px;
+
+    transform:
+        translateY(-50%)
+        rotate(45deg);
+
+    background: #d7a85b;
+
+}
+
+
+/* =========================================================
+   MAIN CONTENT
+========================================================= */
+
+.about-content {
+
+    width: min(1120px, 100%);
+
+    margin:
+        55px auto 0;
+
+    display: grid;
+
+    grid-template-columns:
+        1.05fr .95fr;
+
+    gap: 85px;
+
+    align-items: center;
+
+}
+
+
+/* =========================================================
+   LEFT IMAGE AREA
+========================================================= */
+
+.about-image-area {
+
+    position: relative;
+
+    min-height: 480px;
+
+}
+
+
+/* Image frame */
+
+.about-image-frame {
+
+    position: relative;
+
+    width: 100%;
+
+    max-width: 500px;
+
+    height: 440px;
+
+    overflow: hidden;
+
+    border-radius: 4px;
+
+    border:
+        1px solid rgba(255,255,255,.1);
+
+    background:
+
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.07),
+            rgba(255,255,255,.015)
+        );
+
+}
+
+
+/* =========================================================
+   IMAGE PLACEHOLDER
+========================================================= */
+
+.image-placeholder {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    overflow: hidden;
+
+    background:
+
+        radial-gradient(
+            circle at 50% 45%,
+            rgba(215,168,91,.13),
+            transparent 45%
+        ),
+
+        linear-gradient(
+            145deg,
+            #181511,
+            #0d0e0f
+        );
+
+}
+
+
+/* subtle pattern */
+
+.image-placeholder::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    opacity: .3;
+
+    background-image:
+
+        linear-gradient(
+            rgba(215,168,91,.08) 1px,
+            transparent 1px
+        ),
+
+        linear-gradient(
+            90deg,
+            rgba(215,168,91,.08) 1px,
+            transparent 1px
+        );
+
+    background-size:
+        40px 40px;
+
+    mask-image:
+        radial-gradient(
+            circle,
+            black,
+            transparent 70%
+        );
+
+}
+
+
+/* number */
+
+.placeholder-number {
+
+    position: absolute;
+
+    top: 20px;
+    left: 20px;
+
+    color: #77736a;
+
+    font-size: 8px;
+
+    letter-spacing: 2px;
+
+}
+
+
+/* center */
+
+.placeholder-center {
+
+    position: relative;
+
+    z-index: 2;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 8px;
+
+    text-align: center;
+
+}
+
+
+.placeholder-center span {
+
+    color: #817967;
+
+    font-size: 7px;
+
+    letter-spacing: 3px;
+
+}
+
+
+.placeholder-center strong {
+
+    color: #e4d7c2;
+
+    font-family:
+        var(--font-display);
+
+    font-size: 48px;
+
+    font-weight: 400;
+
+    letter-spacing: -1px;
+
+}
+
+
+/* =========================================================
+   IMAGE CAPTION
+========================================================= */
+
+.image-caption {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    width: 100%;
+
+    max-width: 500px;
+
+    padding-top: 12px;
+
+    color: #686862;
+
+    font-size: 7px;
+
+    letter-spacing: 1.8px;
+
+}
+
+
+/* =========================================================
+   RIGHT TEXT
+========================================================= */
+
+.about-text {
+
+    max-width: 500px;
+
+}
+
+
+/* small label */
+
+.about-text-label {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 22px;
+
+    color: #d7a85b;
+
+    font-size: 8px;
+
+    font-weight: 700;
+
+    letter-spacing: 2.5px;
+
+}
+
+
+.about-text-label span {
+
+    width: 28px;
+
+    height: 1px;
+
+    background: #d7a85b;
+
+}
+
+
+/* =========================================================
+   TEXT HEADING
+========================================================= */
+
+.about-text h3 {
+
+    margin: 0 0 26px;
+
+    color: #f3eee6;
+
+    font-family:
+        var(--font-display);
+
+    font-size:
+        clamp(38px, 4vw, 56px);
+
+    font-weight: 400;
+
+    line-height: 1.02;
+
+    letter-spacing: -1.8px;
+
+}
+
+
+.about-text h3 em {
+
+    display: block;
+
+    color: #d7a85b;
+
+    font-style: italic;
+
+}
+
+
+/* =========================================================
+   BODY
+========================================================= */
+
+.about-text p {
+
+    margin: 0 0 14px;
+
+    color: #85857f;
+
+    font-size: 12px;
+
+    line-height: 1.85;
+
+}
+
+
+.about-text .about-lead {
+
+    color: #d3d1ca;
+
+    font-size: 15px;
+
+    line-height: 1.7;
+
+    max-width: 450px;
+
+}
+
+
+/* =========================================================
+   VALUES
+========================================================= */
+
+.about-values {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    margin-top: 35px;
+
+    padding-top: 18px;
+
+    border-top:
+        1px solid rgba(255,255,255,.08);
+
+}
+
+
+.about-value {
+
+    display: flex;
+
+    gap: 10px;
+
+    padding-right: 15px;
+
+    border-right:
+        1px solid rgba(255,255,255,.07);
+
+}
+
+
+.about-value:not(:first-child) {
+
+    padding-left: 15px;
+
+}
+
+
+.about-value:last-child {
+
+    border-right: none;
+
+}
+
+
+.about-value > span {
+
+    color: #d7a85b;
+
+    font-size: 7px;
+
+    letter-spacing: 1px;
+
+}
+
+
+.about-value strong {
+
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #ddd9d0;
+
+    font-family:
+        var(--font-display);
+
+    font-size: 14px;
+
+    font-weight: 500;
+
+}
+
+
+.about-value small {
+
+    color: #666660;
+
+    font-size: 8px;
+
+    line-height: 1.5;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:900px) {
+
+    .about-content {
+
+        grid-template-columns: 1fr;
+
+        gap: 55px;
+
+    }
+
+
+    .about-image-area {
+
+        min-height: auto;
+
+    }
+
+
+    .about-image-frame {
+
+        max-width: 100%;
+
+        height: 400px;
+
+    }
+
+
+    .image-caption {
+
+        max-width: 100%;
+
+    }
+
+
+    .about-text {
+
+        max-width: 650px;
+
+    }
+
+}
+
+
+@media(max-width:600px) {
+
+    .about-section {
+
+        padding:
+            90px 20px 90px;
+
+    }
+
+
+    .about-title {
+
+        font-size: 52px;
+
+        letter-spacing: -2.5px;
+
+    }
+
+
+    .about-content {
+
+        margin-top: 40px;
+
+        gap: 45px;
+
+    }
+
+
+    .about-image-frame {
+
+        height: 340px;
+
+    }
+
+
+    .about-text h3 {
+
+        font-size: 40px;
+
+    }
+
+
+    .about-values {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .about-value {
+
+        padding:
+            15px 0 !important;
+
+        border-right: none;
+
+        border-bottom:
+            1px solid rgba(255,255,255,.07);
+
+    }
+
+
+    .about-value:last-child {
+
+        border-bottom: none;
+
+    }
+
+}
+
+/* =========================================
+   ABOUT SECTION
+========================================= */
+
+.about-section {
+    position: relative;
+
+    /* Navbar is ~100px high */
+    padding: 125px 5vw 60px;
+
+    background: #08090b;
+
+    overflow: hidden;
+}
+
+
+/* =========================================
+   HEADING
+========================================= */
+
+.about-heading-wrap {
+    position: relative;
+    z-index: 2;
+}
+
+
+.about-kicker {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #898983;
+
+    font-family: "DM Sans", sans-serif;
+
+    font-size: 8px;
+
+    font-weight: 600;
+
+    letter-spacing: 2.8px;
+
+    text-transform: uppercase;
+}
+
+
+.about-title {
+    margin: 0;
+
+    color: #f5f5f3;
+
+    font-family: "DM Sans", sans-serif;
+
+    font-size: clamp(42px, 5vw, 72px);
+
+    font-weight: 800;
+
+    line-height: .92;
+
+    letter-spacing: -3px;
+}
+
+
+.about-title span {
+    color: #d7a85b;
+}
+
+
+/* =========================================
+   UNDERLINE
+========================================= */
+
+.about-underline {
+    position: relative;
+
+    width: 100%;
+
+    height: 8px;
+
+    margin-top: 17px;
+}
+
+
+.about-underline::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+
+    top: 50%;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(215,168,91,.18),
+            rgba(255,255,255,.05),
+            transparent
+        );
+}
+
+
+.about-underline span {
+    position: absolute;
+
+    left: 0;
+
+    top: 50%;
+
+    width: 55px;
+
+    height: 2px;
+
+    transform: translateY(-50%);
+
+    background:
+        linear-gradient(
+            90deg,
+            #b9853e,
+            #f1c878
+        );
+
+    box-shadow:
+        0 0 10px
+        rgba(215,168,91,.25);
+}
+
+
+.about-underline span::after {
+    content: "";
+
+    position: absolute;
+
+    right: -3px;
+
+    top: 50%;
+
+    width: 6px;
+    height: 6px;
+
+    transform:
+        translateY(-50%)
+        rotate(45deg);
+
+    background: #d7a85b;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 900px) {
+
+    .about-section {
+        padding-top: 120px;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .about-section {
+        padding:
+            105px 22px 55px;
+    }
+
+    .about-kicker {
+        font-size: 7px;
+        letter-spacing: 2.2px;
+    }
+
+    .about-title {
+        font-size: 48px;
+        letter-spacing: -2.5px;
+    }
+
+    .about-underline {
+        margin-top: 16px;
+    }
+
+}
+
+/* =========================================================
+   PARAMPARA — HERITAGE GALLERY
+========================================================= */
+
+.heritage-gallery {
+
+    position: relative;
+
+    width: 100%;
+
+    padding: 40px 0 110px;
+
+    background: #08090b;
+
+    overflow: hidden;
+
+}
+
+
+/* =========================================================
+   INNER
+========================================================= */
+
+.gallery-inner {
+
+    width: min(1120px, calc(100% - 40px));
+
+    margin: auto;
+
+}
+
+
+/* =========================================================
+   MAIN FRAME
+========================================================= */
+
+.gallery-frame {
+
+    position: relative;
+
+    width: 100%;
+
+    height: 590px;
+
+    overflow: hidden;
+
+    border:
+        1px solid rgba(255,255,255,.14);
+
+    border-radius: 5px;
+
+    background: #111;
+
+}
+
+
+/* =========================================================
+   SLIDES
+========================================================= */
+
+.gallery-slide {
+
+    position: absolute;
+
+    inset: 0;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        opacity 1.2s ease;
+
+}
+
+
+.gallery-slide.active {
+
+    opacity: 1;
+
+}
+
+
+/* =========================================================
+   IMAGES
+========================================================= */
+
+.gallery-slide img {
+
+    width: 100%;
+
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    /* DEFAULT = BLACK AND WHITE */
+
+    filter:
+        grayscale(100%)
+        contrast(.92)
+        brightness(.72);
+
+    transform:
+        scale(1.03);
+
+    transition:
+        filter 1.4s ease,
+        transform 6s ease;
+
+}
+
+
+/* =========================================================
+   COLOR STATE
+========================================================= */
+
+/*
+   Added by JS when the user scrolls
+   into the gallery.
+*/
+
+.heritage-gallery.is-color
+.gallery-slide.active img {
+
+    filter:
+        grayscale(0%)
+        sepia(.04)
+        contrast(1.02)
+        brightness(.92)
+        saturate(1.05);
+
+}
+
+
+/* Slight cinematic movement */
+
+.gallery-slide.active img {
+
+    transform:
+        scale(1);
+
+}
+
+
+.heritage-gallery.is-color
+.gallery-slide.active img {
+
+    transform:
+        scale(1.02);
+
+}
+
+
+/* =========================================================
+   DARK OVERLAY
+========================================================= */
+
+.gallery-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 2;
+
+    pointer-events: none;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            rgba(0,0,0,.35),
+            transparent 30%,
+            transparent 65%,
+            rgba(0,0,0,.55)
+        );
+
+}
+
+
+/* =========================================================
+   SUBTLE GRAIN
+========================================================= */
+
+.gallery-frame::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 3;
+
+    pointer-events: none;
+
+    opacity: .08;
+
+    background-image:
+
+        repeating-linear-gradient(
+            0deg,
+            rgba(255,255,255,.12) 0px,
+            rgba(255,255,255,.12) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+
+    mix-blend-mode:
+        overlay;
+
+}
+
+
+/* =========================================================
+   NUMBER
+========================================================= */
+
+.gallery-number {
+
+    position: absolute;
+
+    z-index: 5;
+
+    top: 28px;
+
+    left: 28px;
+
+    color: #aaa59c;
+
+    font-size: 8px;
+
+    letter-spacing: 2.5px;
+
+}
+
+
+/* =========================================================
+   CENTER
+========================================================= */
+
+.gallery-center {
+
+    position: absolute;
+
+    z-index: 5;
+
+    left: 50%;
+
+    top: 50%;
+
+    transform:
+        translate(-50%,-50%);
+
+    text-align: center;
+
+    pointer-events: none;
+
+}
+
+
+.gallery-category {
+
+    display: block;
+
+    margin-bottom: 18px;
+
+    color: #c4a875;
+
+    font-size: 8px;
+
+    letter-spacing: 4px;
+
+}
+
+
+.gallery-center h2 {
+
+    margin: 0;
+
+    color: #f2ede4;
+
+    font-family:
+        var(--font-display);
+
+    font-size:
+        clamp(48px,6vw,72px);
+
+    font-weight: 400;
+
+    line-height: .9;
+
+    letter-spacing: -2px;
+
+    text-shadow:
+        0 5px 30px
+        rgba(0,0,0,.35);
+
+}
+
+
+.gallery-subtitle {
+
+    display: block;
+
+    margin-top: 18px;
+
+    color: #aaa49a;
+
+    font-size: 7px;
+
+    letter-spacing: 3px;
+
+}
+
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+.gallery-progress {
+
+    position: absolute;
+
+    z-index: 6;
+
+    left: 28px;
+
+    right: 28px;
+
+    bottom: 25px;
+
+    height: 1px;
+
+    background:
+        rgba(255,255,255,.18);
+
+}
+
+
+.progress-fill {
+
+    display: block;
+
+    width: 0%;
+
+    height: 100%;
+
+    background:
+        #d7a85b;
+
+}
+
+
+/* =========================================================
+   META
+========================================================= */
+
+.gallery-meta {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding-top: 13px;
+
+    color: #686762;
+
+    font-size: 7px;
+
+    letter-spacing: 2px;
+
+}
+
+
+.gallery-meta b {
+
+    color: #d7a85b;
+
+    font-weight: 500;
+
+}
+
+
+/* =========================================================
+   HOVER
+========================================================= */
+
+.gallery-frame {
+
+    transition:
+        border-color .4s ease;
+
+}
+
+
+.gallery-frame:hover {
+
+    border-color:
+        rgba(215,168,91,.28);
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:700px) {
+
+    .heritage-gallery {
+
+        padding:
+            25px 0 70px;
+
+    }
+
+
+    .gallery-inner {
+
+        width:
+            calc(100% - 30px);
+
+    }
+
+
+    .gallery-frame {
+
+        height: 470px;
+
+    }
+
+
+    .gallery-center h2 {
+
+        font-size: 48px;
+
+    }
+
+
+    .gallery-number {
+
+        top: 20px;
+
+        left: 20px;
+
+    }
+
+
+    .gallery-progress {
+
+        left: 20px;
+
+        right: 20px;
+
+        bottom: 20px;
+
+    }
+
+
+    .gallery-meta {
+
+        font-size: 6px;
+
+    }
+
+}
+
+/* =========================================
+   FIX ABOUT IMAGE + TEXT ALIGNMENT
+   Put this at the VERY END of CSS
+========================================= */
+
+.about-content {
+    display: grid !important;
+
+    grid-template-columns:
+        1.05fr .95fr !important;
+
+    align-items: start !important;
+
+    gap: 85px;
+
+    margin-top: 50px;
+}
+
+
+/* RIGHT TEXT MUST START AT IMAGE TOP */
+
+.about-text {
+    align-self: start !important;
+
+    margin-top: 0 !important;
+
+    padding-top: 0 !important;
+
+    transform: none !important;
+
+    position: relative;
+
+    top: 0 !important;
+}
+
+
+/* LEFT IMAGE */
+
+.about-image-area {
+    align-self: start !important;
+
+    margin-top: 0 !important;
+
+    padding-top: 0 !important;
+
+}
+
+
+/* IMAGE */
+
+.about-image-frame {
+    margin-top: 0 !important;
+}
+
+/* =========================================================
+   PARAMPARA — PREMIUM HERITAGE TIMELINE
+========================================================= */
+
+.heritage-journey {
+    position: relative;
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+
+    width: 100%;
+    margin-top: 45px;
+
+    padding-top: 32px;
+}
+
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+.journey-line {
+    position: absolute;
+
+    top: 32px;
+    left: 0;
+    right: 0;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(215,168,91,.5),
+            rgba(215,168,91,.18) 35%,
+            rgba(255,255,255,.08) 70%,
+            rgba(255,255,255,.04)
+        );
+
+    z-index: 0;
+}
+
+
+/* subtle second line */
+
+.journey-line::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+
+    top: 4px;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(215,168,91,.05),
+            transparent 60%
+        );
+}
+
+
+/* =========================================================
+   GOLD PROGRESS
+========================================================= */
+
+.journey-progress {
+    display: block;
+
+    width: 25%;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #d7a85b,
+            rgba(215,168,91,.35),
+            transparent
+        );
+
+    transition:
+        width .6s cubic-bezier(.2,.8,.2,1);
+}
+
+
+/* =========================================================
+   STEP
+========================================================= */
+
+.journey-step {
+    position: relative;
+
+    padding-right: 45px;
+
+    z-index: 2;
+
+    transition:
+        transform .4s ease;
+}
+
+
+/* =========================================================
+   DOT
+========================================================= */
+
+.journey-dot {
+    position: relative;
+
+    width: 14px;
+    height: 14px;
+
+    margin-bottom: 25px;
+
+    border-radius: 50%;
+
+    background: #08090b;
+
+    border:
+        1px solid rgba(215,168,91,.38);
+
+    z-index: 4;
+
+    transition:
+        border-color .35s ease,
+        box-shadow .35s ease,
+        transform .35s ease;
+}
+
+
+/* inner point */
+
+.journey-dot span {
+    position: absolute;
+
+    width: 4px;
+    height: 4px;
+
+    left: 50%;
+    top: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    background: #555650;
+
+    transition:
+        background .35s ease,
+        box-shadow .35s ease;
+}
+
+
+/* =========================================================
+   ACTIVE DOT
+========================================================= */
+
+.journey-step.active .journey-dot {
+    border-color: #d7a85b;
+
+    box-shadow:
+        0 0 0 4px rgba(215,168,91,.045),
+        0 0 18px rgba(215,168,91,.2);
+}
+
+
+.journey-step.active .journey-dot span {
+    background: #e3b969;
+
+    box-shadow:
+        0 0 9px rgba(215,168,91,.75);
+}
+
+
+/* =========================================================
+   NUMBER
+========================================================= */
+
+.journey-number {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #d7a85b;
+
+    font-size: 7px;
+
+    font-weight: 600;
+
+    letter-spacing: 2.5px;
+
+    opacity: .9;
+}
+
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.journey-content h4 {
+    margin: 0 0 9px;
+
+    color: #e8e2d8;
+
+    font-family:
+        var(--font-display);
+
+    font-size: 23px;
+
+    font-weight: 400;
+
+    line-height: 1;
+
+    letter-spacing: -.3px;
+
+    transition:
+        color .35s ease,
+        transform .35s ease;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+.journey-content p {
+    max-width: 195px;
+
+    margin: 0;
+
+    color: #686963;
+
+    font-size: 9px;
+
+    line-height: 1.75;
+
+    transition:
+        color .35s ease;
+}
+
+
+/* =========================================================
+   HOVER
+========================================================= */
+
+.journey-step:hover {
+    transform:
+        translateY(-5px);
+}
+
+
+.journey-step:hover .journey-dot {
+    border-color: #d7a85b;
+
+    transform:
+        scale(1.12);
+}
+
+
+.journey-step:hover .journey-dot span {
+    background: #d7a85b;
+
+    box-shadow:
+        0 0 12px rgba(215,168,91,.7);
+}
+
+
+.journey-step:hover .journey-content h4 {
+    color: #d7a85b;
+}
+
+
+.journey-step:hover .journey-content p {
+    color: #85847d;
+}
+
+
+/* =========================================================
+   SUBTLE DIVIDER BETWEEN STEPS
+========================================================= */
+
+.journey-step:not(:last-child)::after {
+    content: "";
+
+    position: absolute;
+
+    right: 25px;
+
+    top: 65px;
+
+    width: 1px;
+
+    height: 55px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.07),
+            transparent
+        );
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .heritage-journey {
+        grid-template-columns: 1fr;
+
+        gap: 38px;
+
+        padding:
+            0 0 0 30px;
+
+        margin-top: 35px;
+    }
+
+
+    .journey-line {
+        left: 6px;
+        right: auto;
+
+        top: 6px;
+        bottom: 6px;
+
+        width: 1px;
+        height: auto;
+    }
+
+
+    .journey-progress {
+        width: 1px;
+        height: 25%;
+    }
+
+
+    .journey-step {
+        display: grid;
+
+        grid-template-columns:
+            14px 1fr;
+
+        gap: 20px;
+
+        padding: 0;
+    }
+
+
+    .journey-dot {
+        margin: 0;
+    }
+
+
+    .journey-step:not(:last-child)::after {
+        display: none;
+    }
+
+
+    .journey-content {
+        margin-top: -3px;
+    }
+
+
+    .journey-content p {
+        max-width: 320px;
+    }
+
+}
+
+/* =====================================================
+   KEEP THE STORY ALIVE — NEW TYPOGRAPHY
+===================================================== */
+
+.cta-content {
+    position: relative;
+    z-index: 5;
+
+    width: min(1100px, calc(100% - 60px));
+
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+/* =========================================
+   LABEL
+========================================= */
+
+.cta-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin-bottom: 30px;
+
+    color: #aaa69f;
+
+    font-family:
+        "DM Sans",
+        "Inter",
+        sans-serif;
+
+    font-size: 10px;
+    font-weight: 600;
+
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+}
+
+
+.cta-label span {
+    width: 32px;
+    height: 1px;
+
+    background: #d7a85b;
+}
+
+
+/* =========================================
+   MAIN HEADING
+========================================= */
+
+.cta-title {
+    margin: 0;
+
+    color: #f5f4f1;
+
+    font-family:
+        "DM Sans",
+        "Inter",
+        sans-serif;
+
+    font-size:
+        clamp(72px, 9vw, 132px);
+
+    font-weight: 800;
+
+    line-height: .92;
+
+    letter-spacing: -6px;
+
+    text-transform: none;
+}
+
+
+/* Gold second line */
+
+.cta-title em {
+    display: block;
+
+    color: #d7a85b;
+
+    font-family:
+        "DM Sans",
+        "Inter",
+        sans-serif;
+
+    font-style: normal;
+
+    font-weight: 700;
+}
+
+
+/* =========================================
+   DESCRIPTION
+========================================= */
+
+.cta-description {
+    max-width: 780px;
+
+    margin: 34px auto 0;
+
+    color: #a5a39d;
+
+    font-family:
+        "DM Sans",
+        "Inter",
+        sans-serif;
+
+    font-size: 17px;
+
+    font-weight: 400;
+
+    line-height: 1.75;
+
+    letter-spacing: -.15px;
+}
+
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+.cta-actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-top: 38px;
+}
+
+
+.cta-button {
+    min-height: 54px;
+
+    padding:
+        0 20px 0 24px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 25px;
+
+    border-radius: 5px;
+
+    font-family:
+        "DM Sans",
+        "Inter",
+        sans-serif;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    letter-spacing: .8px;
+
+    text-decoration: none;
+
+    transition:
+        transform .3s ease,
+        background .3s ease,
+        border-color .3s ease;
+}
+
+
+.cta-button b {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    font-size: 13px;
+
+    font-weight: 400;
+}
+
+
+/* =========================================
+   PRIMARY
+========================================= */
+
+.cta-button.primary {
+    color: #17130d;
+
+    background: #d7a85b;
+
+    border: 1px solid #d7a85b;
+}
+
+
+.cta-button.primary b {
+    color: #d7a85b;
+
+    background: #17130d;
+}
+
+
+/* =========================================
+   SECONDARY
+========================================= */
+
+.cta-button.secondary {
+    color: #d0cdc6;
+
+    background:
+        rgba(255,255,255,.025);
+
+    border:
+        1px solid rgba(255,255,255,.16);
+
+    backdrop-filter: blur(12px);
+}
+
+
+.cta-button.secondary b {
+    color: #d7a85b;
+
+    border:
+        1px solid rgba(215,168,91,.35);
+}
+
+
+/* =========================================
+   HOVER
+========================================= */
+
+.cta-button:hover {
+    transform: translateY(-3px);
+}
+
+.cta-button.primary:hover {
+    background: #e1b66a;
+}
+
+.cta-button.secondary:hover {
+    background:
+        rgba(215,168,91,.06);
+
+    border-color:
+        rgba(215,168,91,.45);
+}
+
+/* =====================================================
+   KEEP THE STORY ALIVE — BALANCED VERSION
+===================================================== */
+
+.story-cta {
+    min-height: 560px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+    overflow: hidden;
+}
+
+
+/* =========================================
+   CONTENT
+========================================= */
+
+.cta-content {
+    position: relative;
+    z-index: 5;
+
+    width: min(900px, calc(100% - 40px));
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    text-align: center;
+
+    padding: 70px 0 65px;
+}
+
+
+/* =========================================
+   SMALL LABEL
+========================================= */
+
+.cta-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin-bottom: 25px;
+
+    color: #aaa69f;
+
+    font-family:
+        "DM Sans",
+        "Inter",
+        sans-serif;
+
+    font-size: 9px;
+    font-weight: 600;
+
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+}
+
+.cta-label span {
+    width: 32px;
+    height: 1px;
+
+    background: #d7a85b;
+}
+
+
+/* =========================================
+   MAIN HEADING
+========================================= */
+
+.cta-title {
+    margin: 0;
+
+    max-width: 760px;
+
+    color: #f4f1eb;
+
+    font-family:
+        "DM Sans",
+        "Inter",
+        sans-serif;
+
+    font-size:
+        clamp(54px, 6vw, 78px);
+
+    font-weight: 700;
+
+    line-height: .95;
+
+    letter-spacing: -4px;
+
+    text-align: center;
+}
+
+
+/* GOLD PART */
+
+.cta-title em {
+    display: inline;
+
+    color: #d7a85b;
+
+    font-family:
+        "DM Sans",
+        "Inter",
+        sans-serif;
+
+    font-style: normal;
+
+    font-weight: 700;
+}
+
+
+/* =========================================
+   DESCRIPTION
+========================================= */
+
+.cta-description {
+    max-width: 720px;
+
+    margin: 25px auto 0;
+
+    color: #92918c;
+
+    font-family:
+        "DM Sans",
+        "Inter",
+        sans-serif;
+
+    font-size: 14px;
+
+    font-weight: 400;
+
+    line-height: 1.7;
+
+    letter-spacing: 0;
+}
+
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+.cta-actions {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    margin-top: 28px;
+}
+
+
+/* BUTTON */
+
+.cta-button {
+    min-height: 50px;
+
+    padding:
+        0 18px 0 22px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 22px;
+
+    border-radius: 5px;
+
+    font-family:
+        "DM Sans",
+        "Inter",
+        sans-serif;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    letter-spacing: 1px;
+
+    text-decoration: none;
+
+    transition:
+        transform .3s ease,
+        background .3s ease,
+        border-color .3s ease;
+}
+
+
+/* BUTTON ICON */
+
+.cta-button b {
+    width: 28px;
+    height: 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    font-size: 12px;
+    font-weight: 400;
+}
+
+
+/* =========================================
+   PRIMARY
+========================================= */
+
+.cta-button.primary {
+    color: #17130d;
+
+    background: #d7a85b;
+
+    border: 1px solid #d7a85b;
+}
+
+.cta-button.primary b {
+    color: #d7a85b;
+
+    background: #292015;
+}
+
+
+/* =========================================
+   SECONDARY
+========================================= */
+
+.cta-button.secondary {
+    color: #c2c0bb;
+
+    background:
+        rgba(255,255,255,.025);
+
+    border:
+        1px solid rgba(255,255,255,.15);
+
+    backdrop-filter: blur(10px);
+}
+
+.cta-button.secondary b {
+    color: #d7a85b;
+
+    border:
+        1px solid rgba(215,168,91,.35);
+}
+
+
+/* =========================================
+   HOVER
+========================================= */
+
+.cta-button:hover {
+    transform: translateY(-2px);
+}
+
+.cta-button.primary:hover {
+    background: #e0b468;
+}
+
+.cta-button.secondary:hover {
+    background:
+        rgba(215,168,91,.06);
+
+    border-color:
+        rgba(215,168,91,.4);
+}
+
+
+/* =========================================
+   JOURNEY — KEEP IT BELOW BUTTONS
+========================================= */
+
+.cta-journey {
+    display: flex;
+    align-items: center;
+
+    margin-top: 42px;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+    .story-cta {
+        min-height: 520px;
+    }
+
+    .cta-content {
+        width: calc(100% - 30px);
+
+        padding:
+            55px 0;
+    }
+
+    .cta-title {
+        font-size: 52px;
+
+        letter-spacing: -2.5px;
+
+        line-height: .95;
+    }
+
+    .cta-description {
+        font-size: 12px;
+
+        max-width: 500px;
+
+        margin-top: 20px;
+    }
+
+    .cta-actions {
+        flex-direction: column;
+
+        width: 100%;
+
+        margin-top: 25px;
+    }
+
+    .cta-button {
+        width: 220px;
+
+        justify-content: space-between;
+    }
+
+}
+
+
+/* =====================================================
+   JOURNEY
+===================================================== */
+
+.cta-journey {
+
+    display: flex;
+
+    align-items: center;
+
+    margin-top: 65px;
+
+}
+
+
+.journey-item {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    color: #555550;
+
+}
+
+
+.journey-item span {
+
+    font-size: 6px;
+
+    letter-spacing: 1.5px;
+
+}
+
+
+.journey-item b {
+
+    font-size: 7px;
+
+    font-weight: 600;
+
+    letter-spacing: 2px;
+
+}
+
+
+.journey-item.active {
+
+    color: #d7a85b;
+
+}
+
+
+.journey-item.active span {
+
+    color: #d7a85b;
+
+}
+
+
+/* Connecting dots */
+
+.cta-journey i {
+
+    width: 42px;
+
+    height: 1px;
+
+    margin:
+        0 14px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(215,168,91,.35),
+            rgba(255,255,255,.08)
+        );
+
+}
+
+
+/* =====================================================
+   LOCATION
+===================================================== */
+
+.cta-location {
+
+    position: absolute;
+
+    z-index: 5;
+
+    left: 5%;
+
+    bottom: 28px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    color: #565650;
+
+    font-size: 6px;
+
+    letter-spacing: 2px;
+
+}
+
+
+.cta-location i {
+
+    width: 3px;
+    height: 3px;
+
+    border-radius: 50%;
+
+    background:
+        #d7a85b;
+
+}
+
+
+/* =====================================================
+   DECORATIVE GOLD POINT
+===================================================== */
+
+.story-cta::after {
+
+    content: "";
+
+    position: absolute;
+
+    z-index: 4;
+
+    width: 5px;
+    height: 5px;
+
+    top: 50%;
+
+    right: 7%;
+
+    border-radius: 50%;
+
+    background:
+        #d7a85b;
+
+    box-shadow:
+        0 0 18px
+        rgba(215,168,91,.45);
+
+    opacity: .7;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:600px) {
+
+    .story-cta {
+
+        min-height: 600px;
+
+    }
+
+
+    .cta-content {
+
+        width:
+            calc(100% - 30px);
+
+    }
+
+
+    .cta-title {
+
+        font-size: 58px;
+
+        letter-spacing: -2px;
+
+    }
+
+
+    .cta-description {
+
+        font-size: 11px;
+
+    }
+
+
+    .cta-actions {
+
+        flex-direction: column;
+
+        width: 100%;
+
+    }
+
+
+    .cta-button {
+
+        width: 100%;
+
+        justify-content: space-between;
+
+    }
+
+
+    .cta-journey {
+
+        margin-top: 45px;
+
+    }
+
+
+    .cta-journey i {
+
+        width: 18px;
+
+        margin:
+            0 7px;
+
+    }
+
+
+    .journey-item b {
+
+        font-size: 6px;
+
+        letter-spacing: 1px;
+
+    }
+
+
+    .cta-location {
+
+        left: 20px;
+
+        bottom: 20px;
+
+    }
+
+}

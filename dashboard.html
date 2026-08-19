@@ -23,10 +23,9 @@
 
     <!-- Dashboard CSS -->
 
-    <link
-        rel="stylesheet"
-        href="css/style_dashboard.css"
-    >
+    <link rel="stylesheet" href="css/style_dashboard.css">
+    <link rel="stylesheet" href="style_index.css">
+
 
 </head>
 
@@ -34,51 +33,73 @@
 <body>
 
 
-    <!-- =====================================================
-         NAVBAR
-    ====================================================== -->
+   <!-- Ambient background -->
+    <div class="ambient"></div>
 
-    <header class="dashboard-navbar">
+    <!-- ================= NAVBAR ================= -->
+    <header class="navbar-wrapper">
 
-        <a
-            href="index.html"
-            class="brand"
-        >
+        <nav class="glass-navbar">
 
-            <img
-                src="assets/logo.png"
-                alt="PARAMPARA Logo"
-            >
+            <!-- Logo -->
+            <a href="index.html" class="brand">
+                <div class="brand-icon"><img src="assets/logo.png" alt="PARAMPARA Logo"></div>
 
-            <span>
-                PARAMPARA
-            </span>
+                <div class="brand-name">
+                    <span>PARAM</span><span class="gold-text">PARA</span>
+                </div>
+            </a>
 
-        </a>
+            <!-- Desktop Navigation -->
+            <div class="nav-links">
 
+                <a href="index.html" class="nav-link active">
+                    Home
+                </a>
 
-        <div class="nav-right">
+                <a href="explore.html" class="nav-link">
+                    Explore
+                </a>
 
-            <span
-                id="userNameNav"
-                class="user-name"
-            >
-                Loading...
-            </span>
+                <a href="contribute.html" class="nav-link">
+                    Contribute
+                </a>
 
+                <a href="about.html" class="nav-link">
+                    About
+                </a>
 
-            <button
-                id="logoutBtn"
-                class="logout-btn"
-                type="button"
-            >
-                Logout
+                <a href="login.html" class="login-btn">
+                    Login
+                </a>
+
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+
+                <span></span>
+                <span></span>
+                <span></span>
+
             </button>
+
+        </nav>
+
+        <!-- Mobile Navigation -->
+        <div class="mobile-menu" id="mobileMenu">
+
+            <a href="index.html">Home</a>
+            <a href="explore.html">Explore</a>
+            <a href="contribute.html">Contribute</a>
+            <a href="about.html">About</a>
+            <a href="login.html" class="mobile-login">
+                Login
+            </a>
 
         </div>
 
     </header>
-
 
 
     <!-- =====================================================
@@ -640,45 +661,79 @@
 
     </main>
 
-
-
-    <!-- =====================================================
+<!-- =========================================================
          FOOTER
-    ====================================================== -->
+    ========================================================== -->
 
-    <footer class="dashboard-footer">
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">
+                    <div class="logo-mark">
+                        <img src="assets/logo.png" alt="PARAMPARA Logo">
+                    </div>
+                    <div class="logo-text">
+                        PARAM<span>PARA</span>
+                    </div>
+                </a>
+                <p>
+                    A digital heritage platform preserving
+                    ancestral voices, cultural memories and
+                    community knowledge for future generations.
+                </p>
 
-        <div>
+                <div class="socials">
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-x-twitter"></i>
+                    </a>
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+                </div>
+            </div>
 
-            <strong>
-                PARAMPARA
-            </strong>
+            <div class="footer-column">
+                <h4> Explore </h4>
+                <a href="#explore"> Stories </a>
+                <a href="#"> Heritage Map </a>
+                <a href="#"> Languages </a>
+                <a href="#"> Communities </a>
+            </div>
 
-            <p>
-                Preserving ancestral voices for
-                future generations.
-            </p>
+            <div class="footer-column">
+                <h4> Contribute </h4>
+                <a href="#contribute"> Preserve a Story </a>
+                <a href="#"> Become a Verifier </a>
+                <a href="#"> Guidelines </a>
+                <a href="#"> Report Content </a>
+            </div>
 
+            <div class="footer-column">
+                <h4> PARAMPARA </h4>
+                <a href="#about"> About</a>
+                <a href="#"> Our Team </a>
+                <a href="#"> Contact </a>
+                <a href="#"> Privacy </a>
+            </div>
         </div>
 
-
-        <div class="footer-links">
-
-            <a href="index.html">
-                Home
-            </a>
-
-            <a href="#">
-                Explore
-            </a>
-
-            <a href="#">
-                About
-            </a>
-
+        <div class="footer-bottom">
+            <span>
+                © 2026 PARAMPARA. Preserving heritage, one voice at a time.
+            </span>
+            <span>
+                Built for the future of our past.
+            </span>
         </div>
-
     </footer>
+    <script src="script_index.js" defer></script>
+    <script type="module" src="scripts/script_login.js"></script>
 
 
 

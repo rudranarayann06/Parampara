@@ -183,7 +183,7 @@ body {
 
     padding: 55px;
 
-    border: 1px solid var(--border);
+    border: 2px solid var(--border);
 
     border-radius: 28px;
 
@@ -632,3 +632,4 @@ body {
     line-height: 1.6;
 
 }
+
