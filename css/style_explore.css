@@ -1532,128 +1532,319 @@
     position: relative;
 }
 
+/* =========================================================
+   INDIA HERITAGE MAP
+========================================================= */
 
-.india-map-placeholder {
+.map-visual {
+    height: 100%;
 
-    width: 350px;
-    height: 350px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     position: relative;
 
-    opacity: 0.85;
-
-    border-radius: 45% 55% 50% 50%;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(215,168,91,0.09),
-            rgba(255,255,255,0.025)
-        );
-
-    border:
-        1px solid rgba(215,168,91,0.12);
-
-    clip-path:
-        polygon(
-            50% 2%,
-            66% 14%,
-            78% 29%,
-            89% 43%,
-            80% 53%,
-            83% 67%,
-            69% 73%,
-            64% 91%,
-            52% 99%,
-            44% 83%,
-            31% 72%,
-            20% 62%,
-            22% 47%,
-            10% 36%,
-            25% 25%,
-            34% 11%
-        );
+    min-height: 400px;
 }
 
+
+/* Actual India map */
+
+.india-map {
+    position: relative;
+
+    width: 365px;
+    height: 425px;
+
+    display: block;
+    align-items: center;
+    justify-content: center;
+
+    filter:
+        drop-shadow(
+            0 0 25px rgba(215,168,91,0.07)
+        );
+    z-index: 2;
+}
+
+
+.india-map img {
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+
+    opacity: 0.78;
+
+    filter:
+        sepia(0.35)
+        saturate(0.55)
+        brightness(0.65)
+        contrast(1.05);
+
+    transition:
+        opacity 0.4s ease,
+        filter 0.4s ease,
+        transform 0.5s ease;
+}
+
+
+.map-card:hover .india-map img {
+
+    opacity: 0.92;
+
+    filter:
+        sepia(0.45)
+        saturate(0.7)
+        brightness(0.78)
+        contrast(1.05);
+
+    transform: scale(1.025);
+}
+
+
+/* =========================================================
+   MAP PINS
+========================================================= */
 
 .map-pin {
 
     position: absolute;
 
-    width: 30px;
-    height: 30px;
+    width: 34px;
+    height: 34px;
 
     display: flex;
-
     align-items: center;
-
     justify-content: center;
 
-    color: var(--gold-light);
-
-    font-size: 12px;
-
-    background:
-        rgba(20,20,20,0.75);
-
-    border:
-        1px solid rgba(215,168,91,0.35);
+    border: 1px solid
+        rgba(215,168,91,0.38);
 
     border-radius: 50%;
 
+    background:
+        rgba(15,15,14,0.78);
+
+    color: var(--gold-light);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    cursor: pointer;
+
+    z-index: 5;
+
     box-shadow:
-        0 0 20px rgba(215,168,91,0.18);
+        0 5px 20px rgba(0,0,0,0.4),
+        inset 0 1px 0
+        rgba(255,255,255,0.10);
+
+    transition:
+        transform 0.3s ease,
+        border-color 0.3s ease,
+        background 0.3s ease;
+}
+
+
+.map-pin i {
+
+    position: relative;
+
+    z-index: 2;
+
+    font-size: 11px;
+
+    transition:
+        transform 0.3s ease;
+}
+
+
+/* glowing ring */
+
+.map-pin span {
+
+    position: absolute;
+
+    inset: -7px;
+
+    border-radius: 50%;
+
+    border: 1px solid
+        rgba(215,168,91,0.20);
 
     animation:
-        pinPulse 2.5s ease-in-out infinite;
+        heritagePulse 2.8s ease-out infinite;
 }
 
 
-.pin-odisha {
-    right: 30%;
-    top: 51%;
+.map-pin:hover {
+
+    transform:
+        translateY(-4px) scale(1.08);
+
+    border-color:
+        rgba(215,168,91,0.75);
+
+    background:
+        rgba(215,168,91,0.13);
+
+    box-shadow:
+        0 0 25px
+        rgba(215,168,91,0.18);
 }
 
+
+.map-pin:hover i {
+
+    transform:
+        scale(1.15);
+}
+
+/* =========================================================
+   ACCURATE HERITAGE LOCATION POSITIONS
+========================================================= */
+
+/* =========================================================
+   FINAL MAP LOCATION POSITIONS
+   Based on the current India SVG
+========================================================= */
+/* =========================================================
+   EXACT PIN POSITIONS
+========================================================= */
 
 .pin-rajasthan {
-    left: 29%;
-    top: 28%;
+    left: 50px;
+    top: 100px;
 }
-
-
-.pin-kerala {
-    left: 39%;
-    bottom: 15%;
-}
-
 
 .pin-assam {
-    right: 10%;
-    top: 29%;
+    left: 310px;
+    top: 130px;
 }
 
+.pin-odisha {
+    left: 265px;
+    top: 220px;
+}
+
+.pin-kerala {
+    left: 70px;
+    top: 360px;
+}
 
 .pin-tamil {
-    right: 35%;
-    bottom: 15%;
+    left: 165px;
+    top: 375px;
+}
+/* =========================================================
+   PIN ANIMATION
+========================================================= */
+
+@keyframes heritagePulse {
+
+    0% {
+
+        transform: scale(0.65);
+
+        opacity: 0.75;
+    }
+
+    70% {
+
+        transform: scale(1.35);
+
+        opacity: 0;
+    }
+
+    100% {
+
+        transform: scale(1.35);
+
+        opacity: 0;
+    }
+
 }
 
 
-@keyframes pinPulse {
+/* =========================================================
+   MAP DECORATION
+========================================================= */
 
-    0%,100% {
-        box-shadow:
-            0 0 0 0 rgba(215,168,91,0.20);
+.india-map::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 260px;
+    height: 260px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(215,168,91,0.045);
+
+    filter: blur(70px);
+
+    z-index: -1;
+}
+
+
+/* subtle orbit */
+
+.india-map::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 390px;
+    height: 390px;
+
+    border: 1px solid
+        rgba(215,168,91,0.055);
+
+    border-radius: 50%;
+
+    z-index: -2;
+
+    animation:
+        mapOrbit 12s linear infinite;
+}
+
+
+@keyframes mapOrbit {
+
+    from {
+        transform: rotate(0deg);
     }
 
-    50% {
-        box-shadow:
-            0 0 0 10px rgba(215,168,91,0);
+    to {
+        transform: rotate(360deg);
     }
 
 }
 
+@media(max-width:600px) {
 
+    .map-visual {
+        min-height: 350px;
+    }
+
+    .india-map {
+        width: 270px;
+        height: 310px;
+    }
+
+    .map-pin {
+        width: 30px;
+        height: 30px;
+    }
+
+}
 /* =========================================================
    REVEAL
 ========================================================= */
@@ -2030,6 +2221,592 @@
         animation: none !important;
 
         transition: none !important;
+    }
+
+}
+
+/* =========================================================
+   INDIA MAP
+========================================================= */
+
+.map-visual {
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+
+    min-height: 420px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* =========================================================
+   MAP CONTAINER
+========================================================= */
+
+.india-map {
+
+    position: relative;
+
+    width: 365px;
+    height: 425px;
+
+    display: block;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 2;
+}
+
+
+/* =========================================================
+   REAL INDIA SVG
+========================================================= */
+
+.india-map img {
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: contain;
+
+    opacity: 0.82;
+
+    filter:
+        brightness(0.60)
+        sepia(0.35)
+        saturate(0.55)
+        contrast(1.15)
+        drop-shadow(
+            0 0 22px
+            rgba(215,168,91,0.12)
+        );
+
+    transition:
+        transform 0.5s ease,
+        opacity 0.4s ease,
+        filter 0.5s ease;
+}
+
+
+.map-card:hover .india-map img {
+
+    opacity: 0.95;
+
+    transform: scale(1.025);
+
+    filter:
+        brightness(0.72)
+        sepia(0.45)
+        saturate(0.65)
+        contrast(1.15)
+        drop-shadow(
+            0 0 30px
+            rgba(215,168,91,0.18)
+        );
+}
+
+
+/* =========================================================
+   AMBIENT GLOW
+========================================================= */
+
+.india-map::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 270px;
+    height: 310px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(215,168,91,0.055);
+
+    filter: blur(75px);
+
+    z-index: -1;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   MAP CIRCLE
+========================================================= */
+
+.india-map::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 390px;
+    height: 390px;
+
+    border-radius: 50%;
+
+    border:
+        1px solid
+        rgba(215,168,91,0.045);
+
+    z-index: -2;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   LOCATION PIN
+========================================================= */
+
+.map-pin {
+
+    position: absolute;
+
+    width: 34px;
+    height: 34px;
+
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    border:
+        1px solid
+        rgba(215,168,91,0.48);
+
+    background:
+        rgba(15,15,14,0.88);
+
+    color:
+        var(--gold-light);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,0.45),
+        inset 0 1px 0
+        rgba(255,255,255,0.10);
+
+    cursor: pointer;
+
+    z-index: 10;
+
+    transition:
+        transform 0.3s ease,
+        border-color 0.3s ease,
+        background 0.3s ease;
+}
+
+
+.map-pin i {
+
+    position: relative;
+
+    z-index: 2;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   PIN RIPPLE
+========================================================= */
+
+.map-pin span {
+
+    position: absolute;
+
+    inset: -7px;
+
+    border-radius: 50%;
+
+    border:
+        1px solid
+        rgba(215,168,91,0.20);
+
+    animation:
+        mapPinPulse 2.8s ease-out infinite;
+}
+
+
+@keyframes mapPinPulse {
+
+    0% {
+        transform: scale(0.65);
+        opacity: 0.8;
+    }
+
+    70% {
+        transform: scale(1.35);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1.35);
+        opacity: 0;
+    }
+}
+
+
+/* =========================================================
+   PIN HOVER
+========================================================= */
+
+.map-pin:hover {
+
+    transform:
+        translateY(-4px)
+        scale(1.12);
+
+    border-color:
+        rgba(215,168,91,0.85);
+
+    background:
+        rgba(215,168,91,0.14);
+
+    box-shadow:
+        0 0 28px
+        rgba(215,168,91,0.20);
+}
+
+
+/* =========================================================
+   PIN POSITIONS
+========================================================= */
+
+.pin-rajasthan {
+    left: 27%;
+    top: 29%;
+}
+
+.pin-assam {
+    right: 8%;
+    top: 32%;
+}
+
+.pin-odisha {
+    right: 29%;
+    top: 53%;
+}
+
+.pin-kerala {
+    left: 40%;
+    bottom: 14%;
+}
+
+.pin-tamil {
+    right: 31%;
+    bottom: 13%;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:600px) {
+
+    .map-visual {
+        min-height: 350px;
+    }
+
+    .india-map {
+        width: 270px;
+        height: 315px;
+    }
+
+    .map-pin {
+        width: 30px;
+        height: 30px;
+    }
+
+    .map-pin i {
+        font-size: 9px;
+    }
+
+}
+
+/* =========================================================
+   PARAMPARA — INDIA MAP
+========================================================= */
+
+.map-visual {
+    width: 100%;
+    min-height: 470px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+}
+
+
+/* =========================================================
+   MAP CANVAS
+========================================================= */
+
+.india-map {
+    position: relative;
+
+    width: 405px;
+    height: 470px;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   REAL INDIA MAP
+========================================================= */
+
+.india-map > img {
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+
+    display: block;
+
+    opacity: 0.82;
+
+    filter:
+        brightness(0.62)
+        sepia(0.35)
+        saturate(0.55)
+        contrast(1.12);
+
+    z-index: 1;
+}
+
+
+/* =========================================================
+   MAP GLOW
+========================================================= */
+
+.india-map::before {
+    content: "";
+
+    position: absolute;
+
+    width: 300px;
+    height: 330px;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    background:
+        rgba(215,168,91,0.055);
+
+    filter: blur(70px);
+
+    z-index: 0;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   PINS
+========================================================= */
+
+.map-pin {
+    position: absolute;
+
+    width: 36px;
+    height: 36px;
+
+    padding: 0;
+    margin: 0;
+
+    transform: translate(-50%, -50%);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        rgba(15,15,14,0.88);
+
+    border:
+        1px solid rgba(215,168,91,0.55);
+
+    color: var(--gold-light);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.10);
+
+    cursor: pointer;
+
+    z-index: 10;
+
+    transition:
+        transform 0.25s ease,
+        background 0.25s ease,
+        border-color 0.25s ease;
+}
+
+
+.map-pin i {
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   PIN RIPPLE
+========================================================= */
+
+.map-pin span {
+    position: absolute;
+
+    inset: -7px;
+
+    border-radius: 50%;
+
+    border:
+        1px solid rgba(215,168,91,0.20);
+
+    animation:
+        mapPinPulse 2.8s ease-out infinite;
+}
+
+
+@keyframes mapPinPulse {
+
+    0% {
+        transform: scale(0.65);
+        opacity: 0.8;
+    }
+
+    70% {
+        transform: scale(1.35);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1.35);
+        opacity: 0;
+    }
+}
+
+
+/* =========================================================
+   EXACT LOCATIONS
+========================================================= */
+
+/*
+   Coordinates are relative to the SAME 405 × 470
+   map canvas as the India SVG.
+*/
+
+
+/* Rajasthan */
+
+.pin-rajasthan {
+    left: 20%;
+    top: 32%;
+}
+
+
+/* Assam */
+
+.pin-assam {
+    left: 82%;
+    top: 35%;
+}
+
+
+/* Odisha */
+
+.pin-odisha {
+    left: 58%;
+    top: 57%;
+}
+
+
+/* Kerala */
+
+.pin-kerala {
+    left: 29%;
+    top: 84%;
+}
+
+.pin-tamil {
+    left: 38%;
+    top: 86%;
+}
+
+/* =========================================================
+   HOVER
+========================================================= */
+
+.map-pin:hover {
+    transform:
+        translate(-50%, -50%)
+        scale(1.12);
+
+    background:
+        rgba(215,168,91,0.15);
+
+    border-color:
+        rgba(215,168,91,0.9);
+
+    box-shadow:
+        0 0 28px
+        rgba(215,168,91,0.22);
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width: 600px) {
+
+    .map-visual {
+        min-height: 350px;
+    }
+
+    .india-map {
+        width: 285px;
+        height: 330px;
+    }
+
+    .map-pin {
+        width: 31px;
+        height: 31px;
+    }
+
+    .map-pin i {
+        font-size: 9px;
     }
 
 }
