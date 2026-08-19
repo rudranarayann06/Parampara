@@ -19,6 +19,7 @@
     <!-- About CSS -->
     <link rel="stylesheet" href="css/style_about.css">
     <link rel="stylesheet" href="style_index.css">
+    <link rel="stylesheet" href="css/style_explore.css">
 
 </head>
 
@@ -26,47 +27,56 @@
     <!-- Ambient Background -->
     <div class="ambient"></div>
 
-    <!-- ================= NAVBAR ================= -->
-    <header class="navbar-wrapper">
+
+    <!-- =========================================================
+     NAVBAR
+========================================================= -->
+
+    <div class="navbar-wrapper">
 
         <nav class="glass-navbar">
 
-            <!-- Logo -->
             <a href="index.html" class="brand">
-                <div class="brand-icon"><img src="assets/logo.png" alt="PARAMPARA Logo"></div>
 
-                <div class="brand-name">
-                    <span>PARAM</span><span class="gold-text">PARA</span>
+                <div class="brand-icon">
+                    <!-- Replace with your logo -->
+                    <img src="assets/logo.png" alt="PARAMPARA">
                 </div>
+
+                <span class="brand-name">
+                    PARAM<span class="gold-text">PARA</span>
+                </span>
+
             </a>
 
-            <!-- Desktop Navigation -->
+
             <div class="nav-links">
 
-                <a href="index.html" class="nav-link active">
+                <a href="index.html" class="nav-link">
                     Home
                 </a>
 
-                <a href="explore.html" class="nav-link">
+                <a href="explore.html" class="nav-link active">
                     Explore
-                </a>
-
-                <a href="contribute.html" class="nav-link">
-                    Contribute
                 </a>
 
                 <a href="about.html" class="nav-link">
                     About
                 </a>
 
-                <a href="login.html" class="login-btn">
-                    Login
+                <a href="contribute.html" class="nav-link">
+                    Contribute
                 </a>
 
             </div>
 
-            <!-- Mobile Menu Button -->
-            <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+
+            <a href="login.html" class="login-btn">
+                Login
+            </a>
+
+
+            <button class="menu-toggle" id="menuToggle">
 
                 <span></span>
                 <span></span>
@@ -76,20 +86,34 @@
 
         </nav>
 
-        <!-- Mobile Navigation -->
+
         <div class="mobile-menu" id="mobileMenu">
 
-            <a href="index.html">Home</a>
-            <a href="explore.html">Explore</a>
-            <a href="contribute.html">Contribute</a>
-            <a href="about.html">About</a>
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="explore.html">
+                Explore
+            </a>
+
+            <a href="about.html">
+                About
+            </a>
+
+            <a href="contribute.html">
+                Contribute
+            </a>
+
             <a href="login.html" class="mobile-login">
                 Login
             </a>
 
         </div>
 
-    </header>
+    </div>
+
+
     <section class="about-section" id="about">
 
         <!-- =====================================
@@ -523,17 +547,22 @@
 
     </section>
 
+    <!-- =========================================================
+         FOOTER
+    ========================================================== -->
+
     <footer>
+ <footer>
         <div class="footer-grid">
             <div class="footer-brand">
-                <a href="index.html" class="logo">
-                    <div class="logo-mark">
-                        <img src="assets/logo.png" alt="PARAMPARA Logo">
+                <div class="brand">
+                    <div class="brand-icon">
+                        <img src="assets/logo.png" alt="PARAMPARA">
                     </div>
-                    <div class="logo-text">
-                        PARAM<span>PARA</span>
-                    </div>
-                </a>
+                    <span class="brand-name">
+                        PARAM<span class="gold-text">PARA</span>
+                    </span>
+                </div>
                 <p>
                     A digital heritage platform preserving
                     ancestral voices, cultural memories and
