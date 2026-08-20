@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Story | PARAMPARA</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Story CSS -->
+    <link rel="stylesheet" href="css/style_story.css">
+</head>
+
+<body>
+
+    <!-- =====================================================
+         AMBIENT BACKGROUND
+    ====================================================== -->
+
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+
+    <!-- =====================================================
+         NAVBAR
+    ====================================================== -->
+
+    <div class="navbar-wrapper">
+
+        <nav class="glass-navbar">
+
+            <a href="index.html" class="brand">
+
+                <div class="brand-icon">
+                    <img src="assets/logo.png" alt="PARAMPARA">
+                </div>
+
+                <span class="brand-name">
+                    PARAM<span class="gold-text">PARA</span>
+                </span>
+
+            </a>
+
+            <div class="nav-links">
+
+                <a href="index.html" class="nav-link">
+                    Home
+                </a>
+
+                <a href="explore.html" class="nav-link active">
+                    Explore
+                </a>
+
+                <a href="about.html" class="nav-link">
+                    About
+                </a>
+
+                <a href="contribute.html" class="nav-link">
+                    Contribute
+                </a>
+
+            </div>
+
+            <a href="login.html" class="login-btn">
+                Login
+            </a>
+
+            <button class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+        </nav>
+
+
+        <!-- MOBILE MENU -->
+
+        <div class="mobile-menu" id="mobileMenu">
+
+            <a href="index.html">Home</a>
+
+            <a href="explore.html">Explore</a>
+
+            <a href="about.html">About</a>
+
+            <a href="contribute.html">Contribute</a>
+
+            <a href="login.html" class="mobile-login">
+                Login
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         STORY HERO
+    ====================================================== -->
+
+    <main>
+
+        <section class="story-hero">
+
+            <div class="story-hero-inner">
+
+                <!-- LEFT -->
+
+                <div class="story-intro">
+
+                    <div class="story-breadcrumb">
+                        <a href="explore.html">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            Explore Stories
+                        </a>
+                        <span>/</span>
+                        <span>Story</span>
+                    </div>
+
+
+                    <div class="story-category-row">
+
+                        <span class="story-category">
+                            Folk Tradition
+                        </span>
+
+                        <span class="verified-badge">
+                            <i class="fa-solid fa-circle-check"></i>
+                            Verified
+                        </span>
+
+                    </div>
+
+
+                    <h1 id="storyTitle">
+                        The Song That Guided the Fishermen
+                    </h1>
+
+
+                    <p class="story-lead" id="storyDescription">
+                        An old coastal song passed through generations,
+                        once sung before fishermen ventured into the sea.
+                    </p>
+
+
+                    <!-- STORY META -->
+
+                    <div class="story-meta-grid">
+
+                        <div class="story-meta-item">
+
+                            <div class="meta-icon">
+                                <i class="fa-solid fa-location-dot"></i>
+                            </div>
+
+                            <div>
+                                <span>Location</span>
+                                <strong id="storyLocation">
+                                    Odisha, India
+                                </strong>
+                            </div>
+
+                        </div>
+
+
+                        <div class="story-meta-item">
+
+                            <div class="meta-icon">
+                                <i class="fa-solid fa-language"></i>
+                            </div>
+
+                            <div>
+                                <span>Language</span>
+                                <strong id="storyLanguage">
+                                    Odia
+                                </strong>
+                            </div>
+
+                        </div>
+
+
+                        <div class="story-meta-item">
+
+                            <div class="meta-icon">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+
+                            <div>
+                                <span>Community</span>
+                                <strong id="storyCommunity">
+                                    Coastal Community
+                                </strong>
+                            </div>
+
+                        </div>
+
+
+                        <div class="story-meta-item">
+
+                            <div class="meta-icon">
+                                <i class="fa-regular fa-clock"></i>
+                            </div>
+
+                            <div>
+                                <span>Approx. Period</span>
+                                <strong id="storyEra">
+                                    Early 20th Century
+                                </strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ACTIONS -->
+
+                    <div class="story-actions">
+
+                        <button class="action-btn save-btn" id="saveStory">
+
+                            <i class="fa-regular fa-bookmark"></i>
+
+                            <span>Save Story</span>
+
+                        </button>
+
+
+                        <button class="action-btn share-btn" id="shareStory">
+
+                            <i class="fa-solid fa-share-nodes"></i>
+
+                            <span>Share</span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- RIGHT HERO VISUAL -->
+
+                <div class="story-hero-visual">
+
+                    <div class="hero-orbit orbit-one"></div>
+                    <div class="hero-orbit orbit-two"></div>
+
+
+                    <div class="hero-image-card">
+
+                        <img src="" alt="Cultural heritage artifact" id="heroStoryImage">
+
+                        <div class="hero-image-overlay"></div>
+
+
+                        <div class="image-caption">
+
+                            <span>
+                                <i class="fa-solid fa-camera"></i>
+                                Heritage Archive
+                            </span>
+
+                            <span id="heroStoryLocation">
+                                India
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- FLOATING AUDIO CARD -->
+
+                    <div class="floating-audio-card">
+
+                        <div class="audio-play" id="heroPlay">
+
+                            <i class="fa-solid fa-play"></i>
+
+                        </div>
+
+                        <div class="floating-audio-info">
+
+                            <span>ORAL RECORDING</span>
+
+                            <strong>Original testimony</strong>
+
+                            <div class="mini-wave">
+
+                                <i></i><i></i><i></i><i></i><i></i>
+                                <i></i><i></i><i></i><i></i><i></i>
+                                <i></i><i></i><i></i>
+
+                            </div>
+
+                            <small>
+                                02:18 · Odia
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             MEDIA ARCHIVE
+        ====================================================== -->
+
+        <section class="archive-section">
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <span class="section-label">
+                        Story Archive
+                    </span>
+
+                    <h2>
+                        Hear it. See it. <span>Remember it.</span>
+                    </h2>
+
+                    <p>
+                        Explore the original materials preserved
+                        alongside this cultural memory.
+                    </p>
+
+                </div>
+
+
+                <div class="media-grid">
+
+                    <!-- AUDIO -->
+
+                    <div class="glass-panel audio-panel">
+
+                        <div class="panel-top">
+
+                            <div>
+
+                                <span class="panel-label">
+                                    AUDIO ARCHIVE
+                                </span>
+
+                                <h3>
+                                    Original Oral Account
+                                </h3>
+
+                            </div>
+
+                            <div class="media-icon">
+                                <i class="fa-solid fa-microphone"></i>
+                            </div>
+
+                        </div>
+
+
+                        <div class="audio-player">
+
+                            <button class="main-play" id="mainPlay">
+
+                                <i class="fa-solid fa-play"></i>
+
+                            </button>
+
+
+                            <div class="audio-progress">
+
+                                <div class="audio-wave">
+
+                                    <i></i><i></i><i></i><i></i><i></i>
+                                    <i></i><i></i><i></i><i></i><i></i>
+                                    <i></i><i></i><i></i><i></i><i></i>
+                                    <i></i><i></i><i></i><i></i><i></i>
+                                    <i></i><i></i><i></i><i></i><i></i>
+                                    <i></i><i></i><i></i><i></i><i></i>
+
+                                </div>
+
+                                <div class="progress-line">
+
+                                    <span id="audioProgress"></span>
+
+                                </div>
+
+                                <div class="audio-time">
+
+                                    <span id="currentTime">
+                                        00:00
+                                    </span>
+
+                                    <span>
+                                        02:18
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <button class="volume-btn">
+
+                                <i class="fa-solid fa-volume-high"></i>
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="audio-note">
+
+                            <i class="fa-solid fa-circle-info"></i>
+
+                            Recorded from an oral account
+                            contributed to the PARAMPARA archive.
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- IMAGE -->
+
+                    <div class="glass-panel image-panel">
+
+                        <div class="panel-top">
+
+                            <div>
+
+                                <span class="panel-label">
+                                    VISUAL ARCHIVE
+                                </span>
+
+                                <h3>
+                                    Heritage Image
+                                </h3>
+
+                            </div>
+
+                            <div class="media-icon">
+                                <i class="fa-solid fa-image"></i>
+                            </div>
+
+                        </div>
+
+
+                        <div class="archive-image">
+
+                            <img src="" alt="Archived heritage image" id="archiveStoryImage">
+                            <button class="image-expand" id="imageExpand">
+
+                                <i class="fa-solid fa-expand"></i>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- VIDEO -->
+
+                <div class="glass-panel video-panel">
+
+                    <div class="panel-top">
+
+                        <div>
+
+                            <span class="panel-label">
+                                VIDEO ARCHIVE
+                            </span>
+
+                            <h3>
+                                Related visual testimony
+                            </h3>
+
+                        </div>
+
+                        <div class="media-icon">
+                            <i class="fa-solid fa-video"></i>
+                        </div>
+
+                    </div>
+
+
+                    <div class="video-placeholder">
+
+                        <div class="video-play">
+
+                            <i class="fa-solid fa-play"></i>
+
+                        </div>
+
+                        <span>
+                            Video testimony
+                        </span>
+
+                        <small>
+                            Preserved media will appear here
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             TRANSCRIPT
+        ====================================================== -->
+
+        <section class="transcript-section">
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <span class="section-label">
+                        Story Transcript
+                    </span>
+
+                    <h2>
+                        The voice behind <span>the memory.</span>
+                    </h2>
+
+                </div>
+
+
+                <div class="transcript-layout">
+
+                    <!-- LANGUAGE TABS -->
+
+                    <div class="transcript-tabs">
+
+                        <button class="transcript-tab active" data-tab="original">
+
+                            Original · Odia
+
+                        </button>
+
+                        <button class="transcript-tab" data-tab="translation">
+
+                            Translation · English
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- TRANSCRIPT -->
+
+                    <div class="transcript-card glass-panel">
+
+                        <div class="transcript-top">
+
+                            <span>
+                                <i class="fa-solid fa-quote-left"></i>
+                                Recorded oral account
+                            </span>
+
+                            <button class="listen-btn" id="speakText">
+
+                                <i class="fa-solid fa-volume-high"></i>
+                                Listen
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="transcript-content" id="originalTranscript">
+
+                            <p>
+                                ଆମ ଗାଁର ବୁଢ଼ା ଲୋକମାନେ କହୁଥିଲେ,
+                                ସମୁଦ୍ରକୁ ଯିବା ପୂର୍ବରୁ ଏହି ଗୀତ ଗାଇବା
+                                ଆମର ପୁରୁଣା ପରମ୍ପରା ଥିଲା।
+                            </p>
+
+                            <p>
+                                ଗୀତଟି କେବଳ ଗୀତ ନଥିଲା। ଏହା ଆମକୁ
+                                ସାହସ ଦେଉଥିଲା ଏବଂ ସମୁଦ୍ରର ରାସ୍ତା
+                                ମନେ ପକାଇ ଦେଉଥିଲା।
+                            </p>
+
+                        </div>
+
+
+                        <div class="transcript-content hidden" id="translationTranscript">
+
+                            <p>
+                                The elders of our village used to say
+                                that singing this song before going to
+                                sea was an old tradition.
+                            </p>
+
+                            <p>
+                                It was more than a song. It gave the
+                                fishermen courage and reminded them of
+                                the path across the sea.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             ABOUT STORY
+        ====================================================== -->
+
+        <section class="about-story-section">
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <span class="section-label">
+                        About the Story
+                    </span>
+
+                    <h2>
+                        More than a memory. <span>A provenance.</span>
+                    </h2>
+
+                </div>
+
+
+                <div class="about-story-grid">
+
+
+                    <!-- CONTRIBUTOR -->
+
+                    <div class="glass-panel contributor-card">
+
+                        <div class="panel-label">
+                            CONTRIBUTOR
+                        </div>
+
+
+                        <div class="contributor-profile">
+
+                            <div class="avatar">
+                                RB
+                            </div>
+
+                            <div>
+
+                                <h3>
+                                    Ramesh Behera
+                                </h3>
+
+                                <span>
+                                    Community Contributor
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="contributor-details">
+
+                            <div>
+
+                                <span>
+                                    Relationship
+                                </span>
+
+                                <strong>
+                                    Family & community tradition
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <span>
+                                    Contribution
+                                </span>
+
+                                <strong>
+                                    12 August 2026
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- EVIDENCE -->
+
+                    <div class="glass-panel evidence-card">
+
+                        <div class="panel-label">
+                            EVIDENCE
+                        </div>
+
+
+                        <h3>
+                            Supporting material
+                        </h3>
+
+
+                        <div class="evidence-list">
+
+                            <div class="evidence-item">
+
+                                <div class="evidence-icon">
+                                    <i class="fa-solid fa-microphone"></i>
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Oral testimony
+                                    </strong>
+
+                                    <span>
+                                        First-hand community account
+                                    </span>
+
+                                </div>
+
+                                <i class="fa-solid fa-check evidence-check"></i>
+
+                            </div>
+
+
+                            <div class="evidence-item">
+
+                                <div class="evidence-icon">
+                                    <i class="fa-solid fa-users"></i>
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Community confirmation
+                                    </strong>
+
+                                    <span>
+                                        Reviewed by community members
+                                    </span>
+
+                                </div>
+
+                                <i class="fa-solid fa-check evidence-check"></i>
+
+                            </div>
+
+
+                            <div class="evidence-item">
+
+                                <div class="evidence-icon">
+                                    <i class="fa-solid fa-file-lines"></i>
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Reference material
+                                    </strong>
+
+                                    <span>
+                                        Supporting archival reference
+                                    </span>
+
+                                </div>
+
+                                <i class="fa-solid fa-check evidence-check"></i>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             PROVENANCE TIMELINE
+        ====================================================== -->
+
+        <section class="provenance-section">
+
+            <div class="container">
+
+                <div class="provenance-heading">
+
+                    <span class="section-label">
+                        Provenance
+                    </span>
+
+                    <h2>
+                        Follow the journey<br>
+                        <span>of this story.</span>
+                    </h2>
+
+                    <p>
+                        Every preserved story carries a traceable
+                        history from its original oral account to
+                        verified preservation.
+                    </p>
+
+                </div>
+
+
+                <div class="timeline">
+
+                    <div class="timeline-line">
+                        <span></span>
+                    </div>
+
+
+                    <!-- 01 -->
+
+                    <div class="timeline-item completed">
+
+                        <div class="timeline-node">
+
+                            <i class="fa-solid fa-ear-listen"></i>
+
+                        </div>
+
+
+                        <div class="timeline-card">
+
+                            <span class="timeline-number">
+                                01
+                            </span>
+
+                            <div class="timeline-icon">
+                                <i class="fa-solid fa-comments"></i>
+                            </div>
+
+                            <div>
+
+                                <span class="timeline-status">
+                                    ORIGINAL ORAL ACCOUNT
+                                </span>
+
+                                <h3>
+                                    A memory carried by generations
+                                </h3>
+
+                                <p>
+                                    The story existed within the
+                                    community as an orally transmitted
+                                    tradition.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- 02 -->
+
+                    <div class="timeline-item completed">
+
+                        <div class="timeline-node">
+
+                            <i class="fa-solid fa-microphone"></i>
+
+                        </div>
+
+
+                        <div class="timeline-card">
+
+                            <span class="timeline-number">
+                                02
+                            </span>
+
+                            <div class="timeline-icon">
+                                <i class="fa-solid fa-record-vinyl"></i>
+                            </div>
+
+                            <div>
+
+                                <span class="timeline-status">
+                                    RECORDED
+                                </span>
+
+                                <h3>
+                                    Recorded by Ramesh Behera
+                                </h3>
+
+                                <p>
+                                    The oral account was documented
+                                    as an audio testimony for preservation.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- 03 -->
+
+                    <div class="timeline-item completed">
+
+                        <div class="timeline-node">
+
+                            <i class="fa-solid fa-upload"></i>
+
+                        </div>
+
+
+                        <div class="timeline-card">
+
+                            <span class="timeline-number">
+                                03
+                            </span>
+
+                            <div class="timeline-icon">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                            </div>
+
+                            <div>
+
+                                <span class="timeline-status">
+                                    SUBMITTED
+                                </span>
+
+                                <h3>
+                                    Submitted · 12 Aug 2026
+                                </h3>
+
+                                <p>
+                                    The recorded story was submitted
+                                    to the PARAMPARA archive.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- 04 -->
+
+                    <div class="timeline-item completed">
+
+                        <div class="timeline-node">
+
+                            <i class="fa-solid fa-users"></i>
+
+                        </div>
+
+
+                        <div class="timeline-card">
+
+                            <span class="timeline-number">
+                                04
+                            </span>
+
+                            <div class="timeline-icon">
+                                <i class="fa-solid fa-people-group"></i>
+                            </div>
+
+                            <div>
+
+                                <span class="timeline-status">
+                                    COMMUNITY REVIEW
+                                </span>
+
+                                <h3>
+                                    Reviewed · 15 Aug 2026
+                                </h3>
+
+                                <p>
+                                    Community members reviewed the
+                                    account and supporting information.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- 05 -->
+
+                    <div class="timeline-item completed">
+
+                        <div class="timeline-node">
+
+                            <i class="fa-solid fa-shield-check"></i>
+
+                        </div>
+
+
+                        <div class="timeline-card">
+
+                            <span class="timeline-number">
+                                05
+                            </span>
+
+                            <div class="timeline-icon verified-icon">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+
+                            <div>
+
+                                <span class="timeline-status">
+                                    VERIFIED
+                                </span>
+
+                                <h3>
+                                    Verified · 17 Aug 2026
+                                </h3>
+
+                                <p>
+                                    The story passed the current
+                                    verification process and was
+                                    marked as verified.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- 06 -->
+
+                    <div class="timeline-item final">
+
+                        <div class="timeline-node final-node">
+
+                            <i class="fa-solid fa-box-archive"></i>
+
+                        </div>
+
+
+                        <div class="timeline-card final-timeline-card">
+
+                            <span class="timeline-number">
+                                06
+                            </span>
+
+                            <div class="timeline-icon archive-icon">
+                                <i class="fa-solid fa-box-archive"></i>
+                            </div>
+
+                            <div>
+
+                                <span class="timeline-status">
+                                    PRESERVED
+                                </span>
+
+                                <h3>
+                                    Preserved in PARAMPARA
+                                </h3>
+
+                                <p>
+                                    The story now forms part of the
+                                    permanent digital heritage archive.
+                                </p>
+
+                                <div class="preserved-badge">
+
+                                    <i class="fa-solid fa-check"></i>
+
+                                    Archive Record Active
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             VERIFICATION
+        ====================================================== -->
+
+        <section class="verification-section">
+
+            <div class="container">
+
+                <div class="verification-box glass-panel">
+
+                    <div class="verification-main">
+
+                        <div class="verification-symbol">
+
+                            <i class="fa-solid fa-shield-halved"></i>
+
+                        </div>
+
+
+                        <div>
+
+                            <span class="section-label">
+                                Verification Status
+                            </span>
+
+                            <h2>
+                                Community Verified
+                            </h2>
+
+                            <p>
+                                This story has passed the current
+                                PARAMPARA review process.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="confidence">
+
+                        <div class="confidence-header">
+
+                            <span>
+                                Confidence Score
+                            </span>
+
+                            <strong>
+                                92%
+                            </strong>
+
+                        </div>
+
+
+                        <div class="confidence-bar">
+
+                            <span style="width:92%"></span>
+
+                        </div>
+
+
+                        <small>
+                            Based on available testimony,
+                            community review and supporting evidence.
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             SOURCES
+        ====================================================== -->
+
+        <section class="sources-section">
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <span class="section-label">
+                        Sources & References
+                    </span>
+
+                    <h2>
+                        Where this record <span>comes from.</span>
+                    </h2>
+
+                </div>
+
+
+                <div class="sources-grid">
+
+                    <div class="source-card glass-panel">
+
+                        <div class="source-number">
+                            01
+                        </div>
+
+                        <div class="source-icon">
+                            <i class="fa-solid fa-microphone"></i>
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Community Oral Account
+                            </h3>
+
+                            <p>
+                                Recorded testimony contributed
+                                by the community.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="source-card glass-panel">
+
+                        <div class="source-number">
+                            02
+                        </div>
+
+                        <div class="source-icon">
+                            <i class="fa-solid fa-book"></i>
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Local Heritage Reference
+                            </h3>
+
+                            <p>
+                                Supporting material associated
+                                with the tradition.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="source-card glass-panel">
+
+                        <div class="source-number">
+                            03
+                        </div>
+
+                        <div class="source-icon">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Community Review
+                            </h3>
+
+                            <p>
+                                Confirmation provided through
+                                community participation.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             RELATED STORIES
+        ====================================================== -->
+
+        <section class="related-section">
+
+            <div class="container">
+
+                <div class="related-heading">
+
+                    <div>
+
+                        <span class="section-label">
+                            Continue Exploring
+                        </span>
+
+                        <h2>
+                            Stories connected<br>
+                            by <span>memory.</span>
+                        </h2>
+
+                    </div>
+
+
+                    <a href="explore.html" class="view-all">
+
+                        Explore all stories
+
+                        <i class="fa-solid fa-arrow-right"></i>
+
+                    </a>
+
+                </div>
+
+
+                <div class="related-grid">
+
+
+                    <article class="related-card glass-panel">
+
+                        <div class="related-image">
+
+                            <span>
+                                Oral History
+                            </span>
+
+                            <i class="fa-solid fa-book-open"></i>
+
+                        </div>
+
+
+                        <div class="related-content">
+
+                            <h3>
+                                The Village That Remembered the Flood
+                            </h3>
+
+                            <p>
+                                A first-hand account remembered
+                                through generations.
+                            </p>
+
+                            <div class="related-meta">
+
+                                <span>
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    Assam
+                                </span>
+
+                                <span>
+                                    Assamese
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+
+                    <article class="related-card glass-panel">
+
+                        <div class="related-image related-two">
+
+                            <span>
+                                Craft Tradition
+                            </span>
+
+                            <i class="fa-solid fa-hands"></i>
+
+                        </div>
+
+
+                        <div class="related-content">
+
+                            <h3>
+                                Hands That Remember the Craft
+                            </h3>
+
+                            <p>
+                                A traditional craft passed from
+                                master artisans to the next generation.
+                            </p>
+
+                            <div class="related-meta">
+
+                                <span>
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    Rajasthan
+                                </span>
+
+                                <span>
+                                    Hindi
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+
+                    <article class="related-card glass-panel">
+
+                        <div class="related-image related-three">
+
+                            <span>
+                                Indigenous Knowledge
+                            </span>
+
+                            <i class="fa-solid fa-leaf"></i>
+
+                        </div>
+
+
+                        <div class="related-content">
+
+                            <h3>
+                                The Forest Knows the Way
+                            </h3>
+
+                            <p>
+                                Traditional ecological knowledge
+                                carried across generations.
+                            </p>
+
+                            <div class="related-meta">
+
+                                <span>
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    Jharkhand
+                                </span>
+
+                                <span>
+                                    Santhali
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer>
+
+        <div class="footer-grid">
+
+            <div class="footer-brand">
+
+                <div class="brand">
+
+                    <div class="brand-icon">
+                        <img src="assets/logo.png" alt="PARAMPARA">
+                    </div>
+
+                    <span class="brand-name">
+                        PARAM<span class="gold-text">PARA</span>
+                    </span>
+
+                </div>
+
+                <p>
+                    A digital heritage platform preserving
+                    ancestral voices, cultural memories and
+                    community knowledge for future generations.
+                </p>
+
+
+                <div class="socials">
+
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-x-twitter"></i>
+                    </a>
+
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-linkedin-in"></i>
+                    </a>
+
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="footer-column">
+
+                <h4>Explore</h4>
+
+                <a href="explore.html">Stories</a>
+                <a href="#">Heritage Map</a>
+                <a href="#">Languages</a>
+                <a href="#">Communities</a>
+
+            </div>
+
+
+            <div class="footer-column">
+
+                <h4>Contribute</h4>
+
+                <a href="contribute.html">
+                    Preserve a Story
+                </a>
+
+                <a href="#">
+                    Become a Verifier
+                </a>
+
+                <a href="#">
+                    Guidelines
+                </a>
+
+                <a href="#">
+                    Report Content
+                </a>
+
+            </div>
+
+
+            <div class="footer-column">
+
+                <h4>PARAMPARA</h4>
+
+                <a href="about.html">
+                    About
+                </a>
+
+                <a href="#">
+                    Our Team
+                </a>
+
+                <a href="#">
+                    Contact
+                </a>
+
+                <a href="#">
+                    Privacy
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <span>
+                © 2026 PARAMPARA.
+                Preserving heritage, one voice at a time.
+            </span>
+
+            <span>
+                Built for the future of our past.
+            </span>
+
+        </div>
+
+    </footer>
+
+
+
+    <!-- =====================================================
+         IMAGE LIGHTBOX
+    ====================================================== -->
+
+    <div class="lightbox" id="lightbox">
+
+        <button class="lightbox-close" id="lightboxClose">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <img src="assets/fish.jpeg" id="lightboxImage" alt="Expanded heritage image">
+
+    </div>
+
+
+
+    <!-- =====================================================
+         TOAST
+    ====================================================== -->
+
+    <div class="toast" id="toast">
+
+        <i class="fa-solid fa-check"></i>
+
+        <span id="toastText">
+            Story saved
+        </span>
+
+    </div>
+
+
+    <script src="scripts/script_story.js"></script>
+
+</body>
+
+</html>
