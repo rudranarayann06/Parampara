@@ -5,7 +5,7 @@
    LIVE ARCHIVE
 ========================================================= */
 
-const API_BASE = "https://parampara-backend.onrender.com";
+const API_BASE = "https://parampara-backend-8yt9.onrender.com/";
 
 let archiveRecords = [];
 
