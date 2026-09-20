@@ -5,6 +5,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 
 from models.verification import Verification
+from models.user import User
 from routes.recordings import recordings_bp
 from routes.verifications import verifications_bp
 from routes.auth import auth_bp
@@ -136,12 +137,31 @@ def home():
 
 
 # =========================================================
-# Create database tables
+# Create database tables and seed system user
 # =========================================================
 
 with app.app_context():
 
     db.create_all()
+
+    # PARAMPARA demo/system contributor.
+    # This provides the initial creator referenced by
+    # the current contribution workflow.
+    system_user = User.query.filter_by(id=1).first()
+
+    if not system_user:
+
+        system_user = User(
+            id=1,
+            firebase_uid="parampara-system-user",
+            name="PARAMPARA System Contributor",
+            email="system@parampara.local",
+            role="CONTRIBUTOR",
+            status="ACTIVE"
+        )
+
+        db.session.add(system_user)
+        db.session.commit()
 
 
 # =========================================================
