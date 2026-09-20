@@ -237,7 +237,7 @@ async function loadVerificationQueue() {
 
 
         showStatus(
-            "Unable to connect to the PARAMPARA backend. Make sure Flask is running on http://127.0.0.1:5000.",
+            "Unable to connect to the PARAMPARA backend. Make sure Flask is running on https://parampara-backend-8yt9.onrender.com/.",
             "error"
         );
 

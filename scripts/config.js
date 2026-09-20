@@ -1,3 +1,3 @@
 const API_BASE =
     window.PARAMPARA_API_BASE ||
-    "http://127.0.0.1:5000";
+    "https://parampara-backend-8yt9.onrender.com/";
