@@ -9,7 +9,7 @@ import {
 
 import {
     auth
-} from "./firebase-config.js";
+} from "../firebase-config.js";
 
 
 /* =========================================================
@@ -54,12 +54,6 @@ function initializePreservePage(user) {
         user.email
     );
 
-/* =========================================================
-   PARAMPARA — PRESERVE PAGE JAVASCRIPT
-   Phase 5 Prototype
-========================================================= */
-
-document.addEventListener("DOMContentLoaded", () => {
 
     /* =====================================================
        ELEMENTS
@@ -285,7 +279,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const selected =
                 categoryInput.options[
-                    categoryInput.selectedIndex
+                categoryInput.selectedIndex
                 ];
 
             if (previewCategory) {
@@ -332,82 +326,41 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
 
-    function setupFileInput(
-        inputId,
-        outputId,
-        type
-    ) {
+    function setupFileInput(inputId, outputId, type) {
 
-        const input =
-            document.getElementById(inputId);
-
-        const output =
-            document.getElementById(outputId);
-
+        const input = document.getElementById(inputId);
+        const output = document.getElementById(outputId);
 
         if (!input || !output) {
+            console.warn(`Missing file input: ${inputId}`);
             return;
         }
 
-
         input.addEventListener("change", () => {
 
-            const files =
-                Array.from(input.files);
-
+            const files = Array.from(input.files || []);
 
             if (!files.length) {
-
-                output.textContent =
-                    "No file selected";
-
+                output.textContent = "No file selected";
                 return;
             }
 
+            const file = files[0];
 
-            /* Image uploads */
+            output.textContent = `✓ ${file.name}`;
 
-            if (
-                type === "image" ||
-                type === "document"
-            ) {
-
-                if (files.length === 1) {
-
-                    output.textContent =
-                        files[0].name;
-
-                } else {
-
-                    output.textContent =
-                        `${files.length} files selected`;
-                }
-
-            }
-
-            /* Single media */
-
-            else {
-
-                output.textContent =
-                    files[0].name;
-            }
-
-
-            /* Show selected state */
-
-            const zone =
-                input.closest(".upload-zone");
+            const zone = input.closest(".upload-zone");
 
             if (zone) {
-
-                zone.classList.add(
-                    "has-file"
-                );
+                zone.classList.add("has-file");
             }
 
+            console.log("Audio selected:", {
+                name: file.name,
+                type: file.type,
+                size: file.size
+            });
         });
-
     }
 
 
@@ -587,6 +540,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 event.preventDefault();
 
+                console.log("🔥 PRESERVE FORM SUBMITTED");
+
 
                 /* Validate everything */
 
@@ -620,23 +575,36 @@ document.addEventListener("DOMContentLoaded", () => {
                 setLoadingState(true);
 
 
-                /*
-                    IMPORTANT:
+                /* Send contribution to Flask backend */
 
-                    This is currently a prototype.
+                submitContribution()
+                    .then(result => {
 
-                    Firebase / backend submission
-                    will be connected here later.
-                */
+                        console.log(
+                            "Recording successfully preserved:",
+                            result
+                        );
 
+                        setLoadingState(false);
 
-                setTimeout(() => {
+                        showBackendSuccess(result);
 
-                    setLoadingState(false);
+                    })
+                    .catch(error => {
 
-                    openSuccessModal();
+                        console.error(
+                            "Contribution submission failed:",
+                            error
+                        );
 
-                }, 900);
+                        setLoadingState(false);
+
+                        alert(
+                            "Could not preserve your story.\n\n" +
+                            error.message
+                        );
+
+                    });
 
             }
         );
@@ -1018,6 +986,307 @@ document.addEventListener("DOMContentLoaded", () => {
         "PARAMPARA Preserve System initialized."
     );
 
-});
+} function showBackendSuccess(result) {
+
+    console.log(
+        "Recording successfully preserved:",
+        result.recording_id
+    );
+
+    const recordingId =
+        document.getElementById("resultRecordingId");
+
+    const hash =
+        document.getElementById("resultHash");
+
+    if (recordingId) {
+        recordingId.textContent =
+            `#${result.recording_id}`;
+    }
+
+    if (hash) {
+        hash.textContent =
+            result.audio_hash || "—";
+    }
+
+    // Open success modal
+    const successModal =
+        document.getElementById("successModal");
+
+    if (successModal) {
+
+        successModal.classList.add("show");
+
+        successModal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        document.body.style.overflow = "hidden";
+
+    } else {
+
+        console.error(
+            "Success modal not found in HTML."
+        );
+
+    }
+}
+
+async function submitContribution() {
+    console.log("🚀 submitContribution() started");
+    const audioInput =
+        document.getElementById("audioUpload");
+
+    const titleInput =
+        document.getElementById("storyTitle");
+
+    const descriptionInput =
+        document.getElementById("storyDescription");
+
+    const languageInput =
+        document.getElementById("language");
+
+    const accessLevelInput =
+        document.getElementById("accessLevel");
+
+    const stateInput =
+        document.getElementById("state");
+
+    const districtInput =
+        document.getElementById("district");
+
+    const locationInput =
+        document.getElementById("location");
+
+    const communityInput =
+        document.getElementById("community");
+
+    const categoryInput =
+        document.getElementById("traditionCategory");
+
+    const consentDeclaration =
+        document.getElementById("consentDeclaration");
+
+    const accuracyDeclaration =
+        document.getElementById("accuracyDeclaration");
+
+
+    /* =========================================
+       AUDIO
+    ========================================= */
+
+    if (!audioInput || !audioInput.files.length) {
+
+        throw new Error(
+            "Please upload an audio recording."
+        );
+
+    }
+
+
+    const audioFile =
+        audioInput.files[0];
+    console.log(
+        "🎙️ AUDIO FILE:",
+        audioFile.name,
+        audioFile.type,
+        audioFile.size
+    );
+
+
+    /* =========================================
+       FORM VALUES
+    ========================================= */
+
+    const title =
+        titleInput?.value.trim() || "";
+
+    const description =
+        descriptionInput?.value.trim() || "";
+
+    const language =
+        languageInput?.value.trim() || "";
+
+    const accessLevel =
+        accessLevelInput?.value || "RESTRICTED";
+
+
+    /* =========================================
+       CREATE FORM DATA
+    ========================================= */
+
+    const formData =
+        new FormData();
+
+
+    formData.append(
+        "audio",
+        audioFile
+    );
+
+
+    formData.append(
+        "title",
+        title
+    );
+
+
+    formData.append(
+        "description",
+        description
+    );
+
+
+    formData.append(
+        "language",
+        language
+    );
+
+
+    formData.append(
+        "access_level",
+        accessLevel
+    );
+
+
+    /* =========================================
+       ADDITIONAL HERITAGE METADATA
+    ========================================= */
+
+    formData.append(
+        "state",
+        stateInput?.value.trim() || ""
+    );
+
+
+    formData.append(
+        "district",
+        districtInput?.value.trim() || ""
+    );
+
+
+    formData.append(
+        "location",
+        locationInput?.value.trim() || ""
+    );
+
+
+    formData.append(
+        "community",
+        communityInput?.value.trim() || ""
+    );
+
+
+    formData.append(
+        "category",
+        categoryInput?.value || ""
+    );
+
+
+    /* =========================================
+       CONSENT
+    ========================================= */
+    formData.append(
+        "archive_allowed",
+        document.getElementById("archiveAllowed")?.checked
+            ? "true"
+            : "false"
+    );
+
+    formData.append(
+        "transcription_allowed",
+        document.getElementById("transcriptionAllowed")?.checked
+            ? "true"
+            : "false"
+    );
+
+    formData.append(
+        "translation_allowed",
+        document.getElementById("translationAllowed")?.checked
+            ? "true"
+            : "false"
+    );
+
+    formData.append(
+        "research_allowed",
+        document.getElementById("researchAllowed")?.checked
+            ? "true"
+            : "false"
+    );
+
+
+    formData.append(
+        "public_access_allowed",
+        accessLevel === "PUBLIC"
+            ? "true"
+            : "false"
+    );
+
+
+    formData.append(
+        "commercial_use_allowed",
+        "false"
+    );
+
+
+    formData.append(
+        "ai_processing_allowed",
+        "true"
+    );
+
+
+    formData.append(
+        "ai_training_allowed",
+        "false"
+    );
+
+
+    /* =========================================
+       SEND TO FLASK
+    ========================================= */
+    console.log(
+        "🌐 Sending request to Flask..."
+    );
+    const response =
+        await fetch(
+            "http://127.0.0.1:5000/api/recordings",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+    console.log(
+        "🌐 Flask response:",
+        response.status
+    );
+
+
+    const result =
+        await response.json();
+
+
+    console.log(
+        "PARAMPARA BACKEND RESPONSE:",
+        result
+    );
+
+
+    /* =========================================
+       ERROR HANDLING
+    ========================================= */
+
+    if (!response.ok) {
+
+        throw new Error(
+            result.error ||
+            result.message ||
+            "Server rejected the contribution."
+        );
+
+    }
+
+    return result;
+
 }
 

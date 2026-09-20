@@ -1,32 +1,12 @@
 import {
-    doc,
-    getDoc,
-    setDoc,
-    serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
-const profileRequestedRole =
-    document.getElementById(
-        "profileRequestedRole"
-    );
-profileRole.textContent =
-    formatRole(role);
-profileRequestedRole.textContent =
-    formatRole(
-        data.requestedRole || role
-    );
-profileStatus.textContent =
-    formatStatus(status);
-import {
     auth,
     db
 } from "../firebase-config.js";
-
 
 import {
     onAuthStateChanged,
     signOut
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
-
 
 import {
     doc,
@@ -56,132 +36,21 @@ const profileRole =
 const profileStatus =
     document.getElementById("profileStatus");
 
+const profileRequestedRole =
+    document.getElementById("profileRequestedRole");
+
+const rolePendingNotice =
+    document.getElementById("rolePendingNotice");
+
+const pendingRoleText =
+    document.getElementById("pendingRoleText");
+
 const logoutBtn =
     document.getElementById("logoutBtn");
 
 
 // =========================================================
-// AUTHENTICATION GUARD
-// =========================================================
-
-onAuthStateChanged(
-    auth,
-    async user => {
-
-        // No user logged in
-
-        if (!user) {
-
-            window.location.href =
-                "login.html";
-
-            return;
-
-        }
-
-
-        console.log(
-            "Authenticated user:",
-            user.uid
-        );
-
-
-        try {
-
-            // =============================================
-            // GET USER PROFILE
-            // =============================================
-
-            const userRef =
-                doc(
-                    db,
-                    "users",
-                    user.uid
-                );
-
-
-            const userSnapshot =
-                await getDoc(userRef);
-
-
-            if (!userSnapshot.exists()) {
-
-                console.error(
-                    "User profile not found."
-                );
-
-                return;
-
-            }
-
-
-            const data =
-                userSnapshot.data();
-
-
-            // =============================================
-            // DISPLAY USER INFORMATION
-            // =============================================
-
-            const name =
-                data.name ||
-                user.displayName ||
-                "PARAMPARA User";
-
-
-            const role =
-                data.role ||
-                "community";
-
-
-            const status =
-                data.status ||
-                "active";
-
-
-            userName.textContent =
-                name;
-
-
-            userNameNav.textContent =
-                name;
-
-
-            profileName.textContent =
-                name;
-
-
-            profileEmail.textContent =
-                data.email ||
-                user.email ||
-                "—";
-
-
-            profileRole.textContent =
-                formatRole(role);
-
-
-            profileStatus.textContent =
-                formatStatus(status);
-
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "Error loading user profile:",
-                error
-            );
-
-        }
-
-    }
-);
-
-
-// =========================================================
-// FORMAT ROLE
+// ROLE FORMATTER
 // =========================================================
 
 function formatRole(role) {
@@ -211,14 +80,12 @@ function formatRole(role) {
 
     };
 
-
     return roles[role] || "Community Member";
-
 }
 
 
 // =========================================================
-// FORMAT STATUS
+// STATUS FORMATTER
 // =========================================================
 
 function formatStatus(status) {
@@ -239,34 +106,184 @@ function formatStatus(status) {
 
     };
 
-
-    return statuses[status] || status;
-
+    return statuses[status] || status || "Active";
 }
 
 
 // =========================================================
-// LOGOUT
+// LOAD USER
 // =========================================================
 
-logoutBtn.addEventListener(
-    "click",
-    async () => {
+onAuthStateChanged(
+    auth,
+    async user => {
+
+        // ---------------------------------------------
+        // Not authenticated
+        // ---------------------------------------------
+
+        if (!user) {
+
+            window.location.href =
+                "login.html";
+
+            return;
+        }
+
+
+        console.log(
+            "Authenticated user:",
+            user.email
+        );
+
 
         try {
 
-            await signOut(auth);
+            // -----------------------------------------
+            // Firestore user profile
+            // -----------------------------------------
+
+            const userRef =
+                doc(
+                    db,
+                    "users",
+                    user.uid
+                );
 
 
-            window.location.href =
-                "index.html";
+            const snapshot =
+                await getDoc(userRef);
+
+
+            if (!snapshot.exists()) {
+
+                console.error(
+                    "User profile not found."
+                );
+
+                return;
+            }
+
+
+            const data =
+                snapshot.data();
+
+
+            const name =
+                data.name ||
+                user.displayName ||
+                "PARAMPARA User";
+
+
+            const role =
+                data.role ||
+                "community";
+
+
+            const status =
+                data.status ||
+                "active";
+
+
+            const requestedRole =
+                data.requestedRole ||
+                role;
+
+
+            // -----------------------------------------
+            // Update UI
+            // -----------------------------------------
+
+            if (userName) {
+
+                userName.textContent =
+                    name;
+
+            }
+
+
+            if (userNameNav) {
+
+                userNameNav.textContent =
+                    name;
+
+            }
+
+
+            if (profileName) {
+
+                profileName.textContent =
+                    name;
+
+            }
+
+
+            if (profileEmail) {
+
+                profileEmail.textContent =
+                    data.email ||
+                    user.email ||
+                    "—";
+
+            }
+
+
+            if (profileRole) {
+
+                profileRole.textContent =
+                    formatRole(role);
+
+            }
+
+
+            if (profileStatus) {
+
+                profileStatus.textContent =
+                    formatStatus(status);
+
+            }
+
+
+            if (profileRequestedRole) {
+
+                profileRequestedRole.textContent =
+                    formatRole(requestedRole);
+
+            }
+
+
+            // -----------------------------------------
+            // Pending elevated role
+            // -----------------------------------------
+
+            if (
+                rolePendingNotice &&
+                status === "pending" &&
+                requestedRole !== "community" &&
+                requestedRole !== "student"
+            ) {
+
+                rolePendingNotice.style.display =
+                    "flex";
+
+            }
+
+
+            if (
+                pendingRoleText &&
+                requestedRole
+            ) {
+
+                pendingRoleText.textContent =
+                    `Requested role: ${formatRole(requestedRole)}`;
+
+            }
 
         }
-
         catch (error) {
 
             console.error(
-                "Logout failed:",
+                "Error loading user profile:",
                 error
             );
 
@@ -274,175 +291,36 @@ logoutBtn.addEventListener(
 
     }
 );
-const rolePendingNotice =
-    document.getElementById(
-        "rolePendingNotice"
+
+
+// =========================================================
+// LOGOUT
+// =========================================================
+
+if (logoutBtn) {
+
+    logoutBtn.addEventListener(
+        "click",
+        async () => {
+
+            try {
+
+                await signOut(auth);
+
+                window.location.href =
+                    "index.html";
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Logout failed:",
+                    error
+                );
+
+            }
+
+        }
     );
-profileStatus.textContent =
-    formatStatus(status);
-if (
-    status === "pending" &&
-    data.requestedRole !== "community" &&
-    data.requestedRole !== "student"
-) {
-
-    rolePendingNotice.style.display =
-        "flex";
-
-}
-async function redirectUserByRole(user) {
-
-    const userRef =
-        doc(
-            db,
-            "users",
-            user.uid
-        );
-
-    const snapshot =
-        await getDoc(userRef);
-
-
-    if (!snapshot.exists()) {
-
-        window.location.href =
-            "dashboard.html";
-
-        return;
-
-    }
-
-
-    const data =
-        snapshot.data();
-
-
-    const role =
-        data.role || "community";
-
-
-    const status =
-        data.status || "active";
-
-
-    // ------------------------------------------
-    // PENDING ELEVATED ROLE
-    // ------------------------------------------
-
-    if (status === "pending") {
-
-        window.location.href =
-            "dashboard.html";
-
-        return;
-
-    }
-
-
-    // ------------------------------------------
-    // ROLE ROUTING
-    // ------------------------------------------
-
-    switch (role) {
-
-        case "community":
-
-            window.location.href =
-                "dashboard.html";
-
-            break;
-
-
-        case "student":
-
-            window.location.href =
-                "student.html";
-
-            break;
-
-
-        case "researcher":
-
-            window.location.href =
-                "researcher.html";
-
-            break;
-
-
-        case "linguist":
-
-            window.location.href =
-                "linguist.html";
-
-            break;
-
-
-        case "archaeologist":
-
-            window.location.href =
-                "archaeologist.html";
-
-            break;
-
-
-        case "archivist":
-
-            window.location.href =
-                "archivist.html";
-
-            break;
-
-
-        case "institution":
-
-            window.location.href =
-                "institution.html";
-
-            break;
-
-
-        default:
-
-            window.location.href =
-                "dashboard.html";
-
-    }
-
-}
-showMessage(
-    loginMessage,
-    "Login successful! Redirecting...",
-    "success"
-);
-setTimeout(async () => {
-
-    await redirectUserByRole(user);
-
-}, 1000);
-showMessage(
-    loginMessage,
-    "Google login successful! Redirecting...",
-    "success"
-);
-setTimeout(async () => {
-
-    await redirectUserByRole(user);
-
-}, 1000);
-
-const pendingRoleText =
-    document.getElementById("pendingRoleText");
-const data = userSnapshot.data();
-
-const role = data.role || "community";
-
-const status = data.status || "active";
-if (
-    pendingRoleText &&
-    data.requestedRole
-) {
-
-    pendingRoleText.textContent =
-        `Requested role: ${formatRole(data.requestedRole)}`;
 
 }

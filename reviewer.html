@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Verification Queue | PARAMPARA</title>
+
+    <!-- Google Fonts - same as PARAMPARA public site -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Reviewer CSS -->
+    <link rel="stylesheet" href="css/reviewer.css">
+</head>
+
+<body>
+
+    <!-- =========================================================
+         NAVBAR
+    ========================================================== -->
+
+    <div class="navbar-wrapper">
+
+        <nav class="glass-navbar">
+
+            <a href="index.html" class="brand">
+
+                <div class="brand-icon">
+                    <img src="assets/logo.png" alt="PARAMPARA">
+                </div>
+
+                <span class="brand-name">
+                    PARAM<span class="gold-text">PARA</span>
+                </span>
+
+            </a>
+
+            <div class="nav-links">
+
+                <a href="index.html" class="nav-link">
+                    Home
+                </a>
+
+                <a href="explore.html" class="nav-link">
+                    Explore
+                </a>
+
+                <a href="about.html" class="nav-link">
+                    About
+                </a>
+
+                <a href="contribute.html" class="nav-link">
+                    Contribute
+                </a>
+
+                <a href="reviewer.html" class="nav-link active">
+                    Verification
+                </a>
+
+            </div>
+
+            <a href="index.html" class="login-btn">
+                Main Site
+            </a>
+
+            <button class="menu-toggle" id="menuToggle" aria-label="Open navigation menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+        </nav>
+
+
+        <!-- Mobile Menu -->
+
+        <div class="mobile-menu" id="mobileMenu">
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="explore.html">
+                Explore
+            </a>
+
+            <a href="about.html">
+                About
+            </a>
+
+            <a href="contribute.html">
+                Contribute
+            </a>
+
+            <a href="reviewer.html" class="mobile-active">
+                Verification
+            </a>
+
+            <a href="index.html" class="mobile-login">
+                Main Site
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         MAIN REVIEWER DASHBOARD
+    ========================================================== -->
+
+    <main class="reviewer-main">
+
+        <!-- Header -->
+
+        <section class="reviewer-header">
+
+            <div class="header-copy">
+
+                <div class="eyebrow">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    Trust &amp; Verification
+                </div>
+
+                <h1>
+                    Verification Queue
+                </h1>
+
+                <p>
+                    Review submitted cultural recordings before they
+                    become trusted archive sources.
+                </p>
+
+            </div>
+
+            <button id="refreshBtn" class="refresh-btn" type="button">
+                <i class="fa-solid fa-rotate"></i>
+                Refresh Queue
+            </button>
+
+        </section>
+
+
+        <!-- =====================================================
+             STAT CARDS
+        ====================================================== -->
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+
+                <div class="stat-icon pending">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                </div>
+
+                <div class="stat-content">
+
+                    <span>
+                        Pending Review
+                    </span>
+
+                    <strong id="pendingCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon recordings">
+                    <i class="fa-solid fa-microphone"></i>
+                </div>
+
+                <div class="stat-content">
+
+                    <span>
+                        Source Recordings
+                    </span>
+
+                    <strong id="recordingCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon provenance">
+                    <i class="fa-solid fa-fingerprint"></i>
+                </div>
+
+                <div class="stat-content">
+
+                    <span>
+                        Provenance Protected
+                    </span>
+
+                    <strong id="provenanceCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Connection / status message -->
+
+        <div id="statusMessage" class="status-message" aria-live="polite">
+            Loading verification queue...
+        </div>
+
+
+        <!-- =====================================================
+             VERIFICATION QUEUE
+        ====================================================== -->
+
+        <section class="queue-section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="section-kicker">
+                        Review Workspace
+                    </span>
+
+                    <h2>
+                        Recordings Awaiting Verification
+                    </h2>
+
+                </div>
+
+                <span id="queueBadge" class="queue-badge">
+                    0 pending
+                </span>
+
+            </div>
+
+
+            <!-- Empty State -->
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+
+                <div class="empty-icon">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+
+                <h3>
+                    Queue is clear
+                </h3>
+
+                <p>
+                    There are currently no recordings waiting
+                    for verification.
+                </p>
+
+            </div>
+
+
+            <!-- Queue Container -->
+
+            <div id="verificationList" class="verification-list">
+                <!-- Cards are inserted by reviewer.js -->
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================================================
+         REVIEW MODAL
+    ========================================================== -->
+
+    <div id="reviewModal" class="modal-overlay" aria-hidden="true">
+
+        <div class="review-modal">
+
+            <button id="closeModal" class="modal-close" type="button" aria-label="Close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+
+            <div class="modal-header">
+
+                <div class="modal-icon">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+
+                <div>
+
+                    <span class="section-kicker">
+                        Source Review
+                    </span>
+
+                    <h2 id="modalTitle">
+                        Review Recording
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <!-- Recording information -->
+
+            <div class="review-details">
+
+                <div class="detail-block">
+
+                    <span class="detail-label">
+                        Description
+                    </span>
+
+                    <p id="modalDescription">
+                        —
+                    </p>
+
+                </div>
+
+
+                <div class="detail-grid">
+
+                    <div class="detail-item">
+
+                        <span>
+                            Language
+                        </span>
+
+                        <strong id="modalLanguage">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span>
+                            Access Level
+                        </span>
+
+                        <strong id="modalAccess">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span>
+                            Recording ID
+                        </span>
+
+                        <strong id="modalRecordingId">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span>
+                            Verification ID
+                        </span>
+
+                        <strong id="modalVerificationId">
+                            —
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Provenance -->
+
+                <div class="hash-box">
+
+                    <div class="hash-heading">
+
+                        <i class="fa-solid fa-fingerprint"></i>
+
+                        <span>
+                            SHA-256 Source Fingerprint
+                        </span>
+
+                    </div>
+
+                    <code id="modalHash">
+                        —
+                    </code>
+
+                </div>
+
+
+                <!-- Audio placeholder -->
+                <div class="audio-box">
+
+                    <div class="audio-box-icon">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </div>
+
+                    <div class="audio-content">
+
+                        <strong>
+                            Original Source Audio
+                        </strong>
+
+                        <p id="audioStatus">
+                            Protected source audio.
+                        </p>
+
+                        <audio id="originalAudio" controls preload="metadata">
+                            Your browser does not support audio playback.
+                        </audio>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Reviewer Notes -->
+
+                <div class="notes-group">
+
+                    <label for="reviewerNotes">
+                        Reviewer Notes
+                    </label>
+
+                    <textarea id="reviewerNotes" rows="5"
+                        placeholder="Add observations about authenticity, audio quality, cultural context, or verification..."></textarea>
+
+                </div>
+
+            </div>
+
+
+            <!-- Actions -->
+
+            <div class="review-actions">
+
+                <button id="rejectBtn" type="button" class="action-btn reject-btn">
+                    <i class="fa-solid fa-xmark"></i>
+                    Reject
+                </button>
+
+                <button id="approveBtn" type="button" class="action-btn approve-btn">
+                    <i class="fa-solid fa-check"></i>
+                    Approve as Trusted Source
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         FOOTER
+    ========================================================== -->
+
+    <footer>
+
+        <div class="footer-grid">
+
+            <div class="footer-brand">
+
+                <div class="brand">
+
+                    <div class="brand-icon">
+                        <img src="assets/logo.png" alt="PARAMPARA">
+                    </div>
+
+                    <span class="brand-name">
+                        PARAM<span class="gold-text">PARA</span>
+                    </span>
+
+                </div>
+
+                <p>
+                    A digital heritage platform preserving
+                    ancestral voices, cultural memories and
+                    community knowledge for future generations.
+                </p>
+
+
+                <div class="socials">
+
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-x-twitter"></i>
+                    </a>
+
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-linkedin-in"></i>
+                    </a>
+
+                    <a href="#" class="social">
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="footer-column">
+
+                <h4>
+                    Explore
+                </h4>
+
+                <a href="explore.html">
+                    Stories
+                </a>
+
+                <a href="#">
+                    Heritage Map
+                </a>
+
+                <a href="#">
+                    Languages
+                </a>
+
+                <a href="#">
+                    Communities
+                </a>
+
+            </div>
+
+
+            <div class="footer-column">
+
+                <h4>
+                    Contribute
+                </h4>
+
+                <a href="preserve.html">
+                    Preserve a Story
+                </a>
+
+                <a href="reviewer.html">
+                    Become a Verifier
+                </a>
+
+                <a href="#">
+                    Guidelines
+                </a>
+
+                <a href="#">
+                    Report Content
+                </a>
+
+            </div>
+
+
+            <div class="footer-column">
+
+                <h4>
+                    PARAMPARA
+                </h4>
+
+                <a href="about.html">
+                    About
+                </a>
+
+                <a href="#">
+                    Our Team
+                </a>
+
+                <a href="#">
+                    Contact
+                </a>
+
+                <a href="#">
+                    Privacy
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <span>
+                © 2026 PARAMPARA.
+                Preserving heritage, one voice at a time.
+            </span>
+
+            <span>
+                Built for the future of our past.
+            </span>
+
+        </div>
+
+    </footer>
+
+
+    <!-- Reviewer JavaScript -->
+    <script src="scripts/reviewer.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,55 @@
+from datetime import datetime
+from extensions import db
+
+
+class Recording(db.Model):
+    __tablename__ = "recordings"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+
+    audio_filename = db.Column(db.String(255), nullable=False)
+    audio_path = db.Column(db.String(500), nullable=False)
+
+    audio_hash = db.Column(db.String(64), nullable=False, unique=True)
+    
+
+    language = db.Column(db.String(100), nullable=False)
+
+    speaker_id = db.Column(
+        db.Integer,
+        db.ForeignKey("speakers.id"),
+        nullable=True
+    )
+
+    community_id = db.Column(
+        db.Integer,
+        db.ForeignKey("communities.id"),
+        nullable=True
+    )
+
+    location = db.Column(db.String(255))
+    recorded_at = db.Column(db.DateTime)
+
+    duration = db.Column(db.Float)
+
+    access_level = db.Column(
+        db.String(50),
+        default="PRIVATE",
+        nullable=False
+    )
+
+    created_by = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+    
+    

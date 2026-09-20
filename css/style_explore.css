@@ -2811,3 +2811,744 @@
 
 }
 
+/* =========================================================
+   LIVE PARAMPARA ARCHIVE
+========================================================= */
+
+.live-archive-section {
+    padding: 80px 0;
+}
+
+.live-archive-section .section-heading-row {
+    margin-bottom: 35px;
+}
+
+.archive-count {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.archive-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(280px, 1fr)
+    );
+    gap: 24px;
+}
+
+.archive-card {
+    overflow: hidden;
+    border-radius: 18px;
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.archive-card:hover {
+    transform: translateY(-5px);
+}
+
+.archive-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.archive-verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.archive-card h3 {
+    margin-bottom: 10px;
+}
+
+.archive-description {
+    line-height: 1.6;
+    opacity: 0.75;
+    margin-bottom: 18px;
+}
+
+.archive-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.archive-meta span {
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.archive-hash {
+    font-family: monospace;
+    font-size: 10px;
+    opacity: 0.45;
+    word-break: break-all;
+    margin-bottom: 18px;
+}
+
+.archive-audio {
+    width: 100%;
+}
+
+.archive-empty,
+.archive-error,
+.archive-loading {
+    padding: 40px;
+    text-align: center;
+    border-radius: 18px;
+    opacity: 0.75;
+}
+
+/* =========================================================
+   PROVENANCE
+========================================================= */
+
+.provenance-button {
+    width: 100%;
+    margin-top: 14px;
+    padding: 11px 16px;
+    border: 1px solid currentColor;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+}
+
+.provenance-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.provenance-modal.open {
+    display: flex;
+}
+
+.provenance-panel {
+    position: relative;
+    width: min(650px, 100%);
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 32px;
+    border-radius: 20px;
+    background: #fff;
+}
+
+.provenance-close {
+    position: absolute;
+    top: 15px;
+    right: 18px;
+    border: 0;
+    background: transparent;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.provenance-content {
+    margin-top: 24px;
+}
+
+.provenance-row {
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.provenance-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    opacity: 0.55;
+    margin-bottom: 5px;
+}
+
+.provenance-value {
+    word-break: break-word;
+}
+
+/* =========================================================
+   LIVE PARAMPARA ARCHIVE
+========================================================= */
+
+.live-archive-section {
+    position: relative;
+    display: block;
+    width: 100%;
+    clear: both;
+    margin-top: 80px;
+    padding: 80px 0;
+}
+
+.live-archive-section .explore-container {
+    display: block;
+    width: 100%;
+}
+
+.live-archive-section .section-heading-row {
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.archive-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(280px, 1fr)
+    );
+    gap: 28px;
+    width: 100%;
+    margin: 0;
+    clear: both;
+}
+
+.archive-card {
+    position: relative;
+    display: block;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 28px;
+    border-radius: 22px;
+    overflow: hidden;
+}
+
+.archive-card-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.archive-card-title {
+    margin: 12px 0;
+}
+
+.archive-card-description {
+    margin: 0 0 18px;
+    line-height: 1.6;
+}
+
+.archive-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.archive-audio {
+    display: block;
+    width: 100%;
+    margin: 10px 0 0;
+}
+
+.archive-loading {
+    width: 100%;
+    padding: 40px 0;
+}
+
+/* =========================================================
+   PROVENANCE MODAL
+========================================================= */
+
+.provenance-modal {
+    color: #111;
+}
+
+.provenance-panel {
+    color: #111;
+}
+
+.provenance-panel h2,
+.provenance-panel p,
+.provenance-panel span,
+.provenance-panel div {
+    color: inherit;
+}
+
+.provenance-label {
+    color: #555 !important;
+}
+
+.provenance-value {
+    color: #111 !important;
+}
+
+.provenance-close {
+    color: #111 !important;
+}
+
+/* =========================================================
+   PARAMPARA LIVE ARCHIVE — FINAL LAYOUT
+========================================================= */
+
+.live-archive-section {
+    position: relative;
+    display: block;
+    width: 100%;
+    clear: both;
+    padding: 90px 0;
+    margin: 0;
+}
+
+.live-archive-section .explore-container {
+    width: min(1200px, calc(100% - 64px));
+    margin: 0 auto;
+    display: block;
+}
+
+.live-archive-section .section-heading-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 30px;
+    width: 100%;
+    margin-bottom: 45px;
+}
+
+.archive-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: start;
+}
+
+/* Individual recording card */
+.archive-card {
+    position: relative;
+    display: block;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 28px;
+    margin: 0;
+    border-radius: 22px;
+    overflow: hidden;
+}
+
+/* Card contents */
+.archive-card-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+}
+
+.archive-card .section-label {
+    display: block;
+    margin-bottom: 16px;
+}
+
+.archive-card-title {
+    margin: 0 0 12px;
+    font-size: 26px;
+    line-height: 1.2;
+}
+
+.archive-card-description {
+    margin: 0 0 20px;
+    line-height: 1.6;
+}
+
+.archive-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Audio player */
+.archive-audio {
+    display: block;
+    width: 100%;
+    height: 48px;
+    margin: 8px 0 16px;
+}
+
+/* Provenance button */
+.archive-card .provenance-button {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 0;
+    padding: 12px 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 10px;
+
+    background: rgba(255, 255, 255, 0.05);
+
+    color: #ffffff !important;
+
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+    text-align: center;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.archive-card .provenance-button:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.45);
+}
+
+/* Loading / empty state */
+.archive-loading {
+    width: 100%;
+    padding: 40px 0;
+}
+
+/* =========================================================
+   PROVENANCE MODAL
+========================================================= */
+
+.provenance-modal {
+    color: #111111 !important;
+}
+
+.provenance-panel {
+    color: #111111 !important;
+}
+
+.provenance-panel h2 {
+    color: #111111 !important;
+}
+
+.provenance-panel .provenance-label {
+    color: #555555 !important;
+}
+
+.provenance-panel .provenance-value {
+    color: #111111 !important;
+}
+
+.provenance-panel .provenance-close {
+    color: #111111 !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+    .archive-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .live-archive-section .explore-container {
+        width: min(100% - 32px, 1200px);
+    }
+
+    .live-archive-section .section-heading-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .archive-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .archive-card {
+        padding: 22px;
+    }
+}
+
+/* =========================================================
+   PARAMPARA ARCHIVE — POLISHED LAYOUT
+========================================================= */
+
+.live-archive-section {
+    position: relative;
+    display: block;
+    width: 100%;
+    clear: both;
+
+    padding: 100px 0 120px;
+    margin: 0;
+}
+
+.live-archive-section .explore-container {
+    width: min(1200px, calc(100% - 64px));
+    margin: 0 auto;
+    display: block;
+}
+
+/* Heading */
+.live-archive-section .section-heading-row {
+    position: relative;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 40px;
+
+    width: 100%;
+
+    margin: 0 0 55px;
+}
+
+.live-archive-section .section-heading-row > div {
+    max-width: 850px;
+}
+
+.live-archive-section .section-title {
+    margin-bottom: 18px;
+}
+
+.live-archive-section .section-heading-row p {
+    margin: 0;
+    max-width: 800px;
+    line-height: 1.6;
+}
+
+.archive-count {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* Archive grid */
+.archive-grid {
+    position: relative;
+
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 26px;
+
+    width: 100%;
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+    align-items: start;
+}
+
+/* Archive card */
+.archive-card {
+    position: relative;
+
+    display: block;
+
+    width: 100%;
+    min-width: 0;
+
+    box-sizing: border-box;
+
+    padding: 30px;
+
+    margin: 0;
+
+    border-radius: 22px;
+
+    overflow: hidden;
+}
+
+/* Card content */
+.archive-card-content {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    min-width: 0;
+}
+
+.archive-card .section-label {
+    display: block;
+    margin-bottom: 18px;
+}
+
+.archive-card-title {
+    margin: 0 0 12px;
+
+    font-size: 26px;
+    line-height: 1.2;
+}
+
+.archive-card-description {
+    margin: 0 0 22px;
+
+    line-height: 1.6;
+
+    min-height: 26px;
+}
+
+.archive-card-meta {
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+
+    margin-bottom: 22px;
+
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Audio */
+.archive-audio {
+    display: block;
+
+    width: 100%;
+    height: 48px;
+
+    margin: 4px 0 18px;
+}
+
+/* Provenance */
+.archive-card .provenance-button {
+    display: block;
+
+    width: 100%;
+    box-sizing: border-box;
+
+    margin: 0;
+
+    padding: 13px 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.22);
+
+    border-radius: 10px;
+
+    background: rgba(255, 255, 255, 0.045);
+
+    color: #ffffff !important;
+
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    text-align: center;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.archive-card .provenance-button:hover {
+    background: rgba(255, 255, 255, 0.10);
+
+    border-color:
+        rgba(255, 255, 255, 0.40);
+
+    transform: translateY(-1px);
+}
+
+/* Loading */
+.archive-loading {
+    width: 100%;
+
+    padding: 40px 0;
+}
+
+
+/* =========================================================
+   PROVENANCE MODAL
+========================================================= */
+
+.provenance-modal {
+    color: #111111 !important;
+}
+
+.provenance-panel {
+    color: #111111 !important;
+}
+
+.provenance-panel h2 {
+    color: #111111 !important;
+}
+
+.provenance-panel .provenance-label {
+    color: #555555 !important;
+}
+
+.provenance-panel .provenance-value {
+    color: #111111 !important;
+}
+
+.provenance-panel .provenance-close {
+    color: #111111 !important;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+
+    .archive-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+@media (max-width: 700px) {
+
+    .live-archive-section {
+        padding: 70px 0 90px;
+    }
+
+    .live-archive-section .explore-container {
+        width: calc(100% - 32px);
+    }
+
+    .live-archive-section .section-heading-row {
+        flex-direction: column;
+        align-items: flex-start;
+
+        margin-bottom: 35px;
+    }
+
+    .archive-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .archive-card {
+        padding: 24px;
+    }
+
+}

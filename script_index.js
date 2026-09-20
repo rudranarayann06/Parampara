@@ -61,19 +61,24 @@ function animateCounters() {
 const impactSection =
     document.querySelector(".impact-section");
 
-const impactObserver =
-    new IntersectionObserver(
-        entries => {
-            if (entries[0].isIntersecting) {
-                animateCounters();
-            }
-        },
-        {
-            threshold: 0.35
-        }
-    );
+if (impactSection) {
 
-impactObserver.observe(impactSection);
+    const impactObserver =
+        new IntersectionObserver(
+            entries => {
+
+                if (entries[0].isIntersecting) {
+                    animateCounters();
+                }
+
+            },
+            {
+                threshold: 0.35
+            }
+        );
+
+    impactObserver.observe(impactSection);
+}
 
 /* =====================================================
    STORY CARD INTERACTION
