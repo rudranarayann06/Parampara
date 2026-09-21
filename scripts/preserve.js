@@ -11,6 +11,18 @@ import {
     auth
 } from "../firebase-config.js";
 
+/* =========================================================
+   PARAMPARA API CONFIGURATION
+   ========================================================= */
+
+const API_BASE =
+    "https://parampara-backend-8yt9.onrender.com";
+
+console.log(
+    "🔥 PARAMPARA API BASE:",
+    API_BASE
+);
+
 
 /* =========================================================
    AUTHENTICATION GUARD
@@ -1067,7 +1079,7 @@ function initializePreservePage(user) {
 
     console.log(
         "Recording successfully preserved:",
-        result.recording_id
+        result?.recording_id ?? result
     );
 
     const recordingId =
@@ -1351,9 +1363,39 @@ async function submitContribution() {
     );
 
 
-    const result =
-        await response.json();
+    /* =========================================
+       READ BACKEND RESPONSE SAFELY
+    ========================================= */
 
+    const responseText =
+        await response.text();
+
+    console.log(
+        "🔥 RAW BACKEND RESPONSE:",
+        responseText
+    );
+
+    let result = {};
+
+    try {
+
+        result =
+            responseText
+                ? JSON.parse(responseText)
+                : {};
+
+    } catch (parseError) {
+
+        console.error(
+            "🔥 Backend returned non-JSON:",
+            parseError
+        );
+
+        throw new Error(
+            `Backend returned HTTP ${response.status}: ${responseText || "Empty response"}`
+        );
+
+    }
 
     console.log(
         "PARAMPARA BACKEND RESPONSE:",
@@ -1370,7 +1412,8 @@ async function submitContribution() {
         throw new Error(
             result.error ||
             result.message ||
-            "Server rejected the contribution."
+            result.detail ||
+            `Server rejected the contribution (HTTP ${response.status}).`
         );
 
     }
