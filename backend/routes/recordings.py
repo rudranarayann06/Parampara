@@ -67,11 +67,14 @@ def create_recording():
         community_id = request.form.get("community_id")
 
         upload_folder = current_app.config["UPLOAD_FOLDER"]
-        filename = f"{uuid.uuid4().hex}.{extension}"
-        file_path = upload_folder / filename
+        filename, file_path = save_audio(
+            audio,
+            upload_folder
+            )
 
-        # Calculate SHA-256 hash of the uploaded audio
-        file_hash = calculate_sha256(file_path)
+        file_hash = calculate_sha256(
+            file_path
+        )
 
         # Check whether this audio already exists
         existing_recording = Recording.query.filter_by(
@@ -95,7 +98,7 @@ def create_recording():
             title=title,
             description=description,
             audio_filename=filename,
-            audio_path=file_path,
+            audio_path=str(file_path),
             audio_hash=file_hash,
             language=language,
             speaker_id=speaker_id or None,
@@ -418,11 +421,6 @@ def delete_recording(recording_id):
         return jsonify({
             "error": str(e)
         }), 500
-        
-@recordings_bp.route(
-    "/public/<int:recording_id>/audio",
-    methods=["GET"]
-)
 
 @recordings_bp.route(
     "/public/<int:recording_id>/audio",

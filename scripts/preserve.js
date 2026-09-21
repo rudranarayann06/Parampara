@@ -348,6 +348,57 @@ function initializePreservePage(user) {
             const file = files[0];
 
             output.textContent = `✓ ${file.name}`;
+            if (type === "audio") {
+
+    const zone =
+        input.closest(".upload-zone");
+
+    if (zone) {
+
+        let preview =
+            zone.querySelector(
+                "audio.audio-preview"
+            );
+
+        if (!preview) {
+
+            preview =
+                document.createElement("audio");
+
+            preview.className =
+                "audio-preview";
+
+            preview.controls = true;
+
+            preview.preload = "metadata";
+
+            preview.style.display = "block";
+
+            preview.style.width = "100%";
+
+            preview.style.marginTop = "12px";
+
+            zone.appendChild(preview);
+        }
+
+        if (preview.dataset.objectUrl) {
+
+            URL.revokeObjectURL(
+                preview.dataset.objectUrl
+            );
+        }
+
+        const objectUrl =
+            URL.createObjectURL(file);
+
+        preview.dataset.objectUrl =
+            objectUrl;
+
+        preview.src = objectUrl;
+
+        preview.load();
+    }
+}
 
             const zone = input.closest(".upload-zone");
 
@@ -1248,11 +1299,23 @@ async function submitContribution() {
     console.log(
         "🌐 Sending request to Flask..."
     );
+    const user = auth.currentUser;
+
+    if (!user) {
+        throw new Error(
+            "Please sign in before preserving a story."
+        );
+    }
+
+    const token = await user.getIdToken();
     const response =
         await fetch(
-           `${API_BASE}/api/recordings`,
+            `${API_BASE}/api/recordings`,
             {
                 method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
                 body: formData
             }
         );

@@ -1,17 +1,50 @@
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+import {
+    auth
+} from "../firebase-config.js";
+
 /* ============================================================
    PARAMPARA REVIEWER DASHBOARD
 ============================================================ */
-
-const API_BASE = "https://parampara-backend-8yt9.onrender.com/";
-
 
 console.log("🔥 PARAMPARA NEW REVIEWER.JS LOADED");
 console.log("🔥 API BASE:", API_BASE);
 
 let verificationQueue = [];
 let selectedRecording = null;
+let currentAudioObjectUrl = null;
 
+async function getAuthHeaders(json = false) {
 
+    const user =
+        auth.currentUser;
+
+    if (!user) {
+
+        throw new Error(
+            "Please sign in before using the reviewer dashboard."
+        );
+    }
+
+    const token =
+        await user.getIdToken();
+
+    const headers = {
+        "Authorization":
+            `Bearer ${token}`
+    };
+
+    if (json) {
+
+        headers["Content-Type"] =
+            "application/json";
+    }
+
+    return headers;
+}
 /* ============================================================
    DOM
 ============================================================ */
@@ -104,8 +137,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setupModal();
 
-    loadVerificationQueue();
-
 });
 
 
@@ -182,10 +213,14 @@ async function loadVerificationQueue() {
 
     try {
 
-        const response = await fetch(
-            `${API_BASE}/api/verifications/pending`
-        );
-
+        const response =
+            await fetch(
+                `${API_BASE}/api/verifications/pending`,
+                {
+                    headers:
+                        await getAuthHeaders()
+                }
+            );
 
         if (!response.ok) {
 
@@ -239,7 +274,7 @@ async function loadVerificationQueue() {
 
 
         showStatus(
-            "Unable to connect to the PARAMPARA backend. Make sure Flask is running on https://parampara-backend-8yt9.onrender.com/.",
+            "Unable to connect to the PARAMPARA backend. Make sure Flask is running on https://parampara-backend-8yt9.onrender.com.",
             "error"
         );
 
@@ -669,6 +704,14 @@ function openReviewModal(
 ============================================================ */
 
 function closeReviewModal() {
+    if (currentAudioObjectUrl) {
+
+        URL.revokeObjectURL(
+            currentAudioObjectUrl
+        );
+
+        currentAudioObjectUrl = null;
+    }
 
     selectedRecording = null;
     if (originalAudio) {
@@ -750,10 +793,8 @@ async function approveRecording() {
                 {
                     method: "POST",
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
+                    headers:
+                        await getAuthHeaders(true),
 
                     body: JSON.stringify({
                         reviewer_notes: notes
@@ -874,10 +915,8 @@ async function rejectRecording() {
                 {
                     method: "POST",
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
+                    headers:
+                        await getAuthHeaders(true),
 
                     body: JSON.stringify({
                         reviewer_notes: notes
@@ -1010,70 +1049,126 @@ if (refreshBtn) {
 /* ============================================================
    LOAD PROTECTED ORIGINAL AUDIO
 ============================================================ */
+async function loadOriginalAudio(recordingId) {
 
-function loadOriginalAudio(
-    recordingId
-) {
+    if (currentAudioObjectUrl) {
+
+        URL.revokeObjectURL(
+            currentAudioObjectUrl
+        );
+
+        currentAudioObjectUrl = null;
+    }
 
     if (!originalAudio) {
         return;
     }
 
-
     originalAudio.pause();
-
     originalAudio.removeAttribute("src");
-
     originalAudio.load();
-
 
     if (audioStatus) {
-
         audioStatus.textContent =
             "Loading protected source audio...";
-
     }
 
+    try {
 
-    const audioUrl =
-        `${API_BASE}/api/verifications/${recordingId}/audio`;
+        const audioUrl =
+            `${API_BASE}/api/verifications/${recordingId}/audio`;
 
-    console.log("🔥 REVIEW AUDIO URL:", audioUrl);
-
-    originalAudio.src = audioUrl;
-
-
-    originalAudio.src =
-        audioUrl;
-
-
-    originalAudio.load();
-
-
-    originalAudio.onloadedmetadata = () => {
-
-        if (audioStatus) {
-
-            audioStatus.textContent =
-                "Original source audio • Protected playback";
-        }
-
-    };
-
-
-    originalAudio.onerror = () => {
-
-        console.error(
-            "Unable to load original audio."
+        console.log(
+            "🔥 REVIEW AUDIO URL:",
+            audioUrl
         );
 
+        const response =
+            await fetch(
+                audioUrl,
+                {
+                    headers:
+                        await getAuthHeaders()
+                }
+            );
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Audio request failed: HTTP ${response.status}`
+            );
+        }
+
+        const audioBlob =
+            await response.blob();
+
+        currentAudioObjectUrl =
+            URL.createObjectURL(audioBlob);
+
+        originalAudio.src =
+            currentAudioObjectUrl;
+
+        originalAudio.load();
+
+        originalAudio.onloadedmetadata = () => {
+
+            if (audioStatus) {
+
+                audioStatus.textContent =
+                    "Original source audio • Protected playback";
+            }
+        };
+
+    } catch (error) {
+
+        console.error(
+            "Unable to load original audio:",
+            error
+        );
 
         if (audioStatus) {
 
             audioStatus.textContent =
+                error.message ||
                 "Original audio could not be loaded.";
         }
-
-    };
-
+    }
 }
+
+onAuthStateChanged(
+    auth,
+    async (user) => {
+
+        if (!user) {
+
+            showStatus(
+                "Please sign in with a reviewer account to access the verification queue.",
+                "error"
+            );
+
+            return;
+        }
+
+        console.log(
+            "🔥 Reviewer authenticated:",
+            user.email
+        );
+
+        try {
+
+            await loadVerificationQueue();
+
+        } catch (error) {
+
+            console.error(
+                "Verification queue error:",
+                error
+            );
+
+            showStatus(
+                error.message,
+                "error"
+            );
+        }
+    }
+);

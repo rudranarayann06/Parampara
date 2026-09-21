@@ -84,6 +84,8 @@ def get_pending_verifications():
     "/<int:recording_id>/audio",
     methods=["GET"]
 )
+@require_auth
+@require_role("REVIEWER", "ADMIN")
 def reviewer_audio(recording_id):
 
     try:
