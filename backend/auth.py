@@ -1,7 +1,9 @@
-from functools import wraps
+import json
+import os
 
 import firebase_admin
 from firebase_admin import auth as firebase_auth
+from firebase_admin import credentials
 from flask import g, jsonify, request
 
 from models.user import User
@@ -12,9 +14,35 @@ from models.user import User
 # ---------------------------------------------------------
 
 if not firebase_admin._apps:
-    firebase_admin.initialize_app()
 
+    firebase_service_account = os.getenv(
+        "FIREBASE_SERVICE_ACCOUNT_JSON"
+    )
 
+    if firebase_service_account:
+
+        service_account_info = json.loads(
+            firebase_service_account
+        )
+
+        cred = credentials.Certificate(
+            service_account_info
+        )
+
+        firebase_admin.initialize_app(
+            cred,
+            {
+                "projectId": "parampara-27428"
+            }
+        )
+
+    else:
+
+        firebase_admin.initialize_app(
+            options={
+                "projectId": "parampara-27428"
+            }
+        )
 # ---------------------------------------------------------
 # Authentication
 # ---------------------------------------------------------
