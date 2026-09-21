@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, current_app
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -12,6 +12,7 @@ from routes.auth import auth_bp
 
 from extensions import db
 import models
+from sqlalchemy import text
 
 
 # =========================================================
@@ -26,7 +27,6 @@ load_dotenv()
 # =========================================================
 
 app = Flask(__name__)
-
 
 # =========================================================
 # Configuration
@@ -121,7 +121,6 @@ app.register_blueprint(recordings_bp)
 app.register_blueprint(verifications_bp)
 app.register_blueprint(auth_bp)
 
-
 # =========================================================
 # Health check
 # =========================================================
@@ -134,12 +133,70 @@ def home():
         "project": "PARAMPARA",
         "message": "Cultural Archive Backend is running"
     })
+    # =========================================================
+# Health check
+# =========================================================
 
+@app.route("/api/health", methods=["GET"])
+def health():
 
+    try:
+        db.session.execute(text("SELECT 1"))
+
+        return jsonify({
+            "status": "ok",
+            "database": "connected"
+        }), 200
+
+    except Exception:
+        current_app.logger.exception(
+            "Health check failed"
+        )
+
+        return jsonify({
+            "status": "error",
+            "database": "unavailable"
+        }), 503
 # =========================================================
 # Create database tables and seed system user
 # =========================================================
+@app.errorhandler(400)
+def bad_request(error):
+    return jsonify({
+        "error": "Bad request."
+    }), 400
 
+
+@app.errorhandler(401)
+def unauthorized(error):
+    return jsonify({
+        "error": "Authentication required."
+    }), 401
+
+
+@app.errorhandler(403)
+def forbidden(error):
+    return jsonify({
+        "error": "Access denied."
+    }), 403
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({
+        "error": "Resource not found."
+    }), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    current_app.logger.exception(
+        "Unhandled server error"
+    )
+
+    return jsonify({
+        "error": "Internal server error."
+    }), 500
 with app.app_context():
 
     db.create_all()

@@ -1,65 +1,162 @@
-import firebase_admin
-from firebase_admin import auth as firebase_auth
 from functools import wraps
 
-from flask import request, jsonify, g
+import firebase_admin
+from firebase_admin import auth as firebase_auth
+from flask import g, jsonify, request
 
 from models.user import User
 
 
-# Initialize Firebase Admin only once
+# ---------------------------------------------------------
+# Initialize Firebase Admin SDK
+# ---------------------------------------------------------
+
 if not firebase_admin._apps:
     firebase_admin.initialize_app()
 
 
+# ---------------------------------------------------------
+# Authentication
+# ---------------------------------------------------------
+
 def require_auth(f):
     """
-    Verify Firebase ID token and load the corresponding
-    PARAMPARA user.
+    Require a valid Firebase ID token.
+
+    The authenticated PARAMPARA user is stored in:
+        g.current_user
+
+    The decoded Firebase user is stored in:
+        g.firebase_user
     """
 
     @wraps(f)
     def decorated(*args, **kwargs):
 
-        auth_header = request.headers.get("Authorization", "")
+        # ---------------------------------------------
+        # Read Authorization header
+        # ---------------------------------------------
+
+        auth_header = request.headers.get(
+            "Authorization",
+            ""
+        ).strip()
+
+        if not auth_header:
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "AUTH_REQUIRED",
+                    "message": "Authorization token is required."
+                }
+            }), 401
+
+        # ---------------------------------------------
+        # Validate Bearer format
+        # ---------------------------------------------
 
         if not auth_header.startswith("Bearer "):
+
             return jsonify({
-                "error": "Authorization token is required."
+                "success": False,
+                "error": {
+                    "code": "INVALID_AUTH_HEADER",
+                    "message": (
+                        "Authorization header must use "
+                        "Bearer <token> format."
+                    )
+                }
             }), 401
 
-        token = auth_header.split(" ", 1)[1].strip()
+        token = auth_header[7:].strip()
 
         if not token:
+
             return jsonify({
-                "error": "Authorization token is missing."
+                "success": False,
+                "error": {
+                    "code": "TOKEN_MISSING",
+                    "message": "Authentication token is missing."
+                }
             }), 401
+
+        # ---------------------------------------------
+        # Verify Firebase token
+        # ---------------------------------------------
 
         try:
-            decoded_token = firebase_auth.verify_id_token(token)
+
+            decoded_token = firebase_auth.verify_id_token(
+                token
+            )
 
         except Exception:
+
             return jsonify({
-                "error": "Invalid or expired authentication token."
+                "success": False,
+                "error": {
+                    "code": "INVALID_TOKEN",
+                    "message": (
+                        "Invalid or expired authentication token."
+                    )
+                }
             }), 401
 
+        # ---------------------------------------------
+        # Get Firebase UID
+        # ---------------------------------------------
+
         firebase_uid = decoded_token.get("uid")
+
+        if not firebase_uid:
+
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "INVALID_TOKEN",
+                    "message": "Firebase user ID is missing."
+                }
+            }), 401
+
+        # ---------------------------------------------
+        # Find PARAMPARA user
+        # ---------------------------------------------
 
         user = User.query.filter_by(
             firebase_uid=firebase_uid
         ).first()
 
         if not user:
+
             return jsonify({
-                "error": "User profile not found."
+                "success": False,
+                "error": {
+                    "code": "USER_NOT_FOUND",
+                    "message": (
+                        "Authenticated Firebase user does not "
+                        "have a PARAMPARA profile."
+                    )
+                }
             }), 403
+
+        # ---------------------------------------------
+        # Check account status
+        # ---------------------------------------------
 
         if user.status != "ACTIVE":
+
             return jsonify({
-                "error": "User account is not active."
+                "success": False,
+                "error": {
+                    "code": "ACCOUNT_INACTIVE",
+                    "message": "Your PARAMPARA account is not active."
+                }
             }), 403
 
-        # Store authenticated user for this request
+        # ---------------------------------------------
+        # Store authenticated identity
+        # ---------------------------------------------
+
         g.current_user = user
         g.firebase_user = decoded_token
 
@@ -68,9 +165,20 @@ def require_auth(f):
     return decorated
 
 
+# ---------------------------------------------------------
+# Role authorization
+# ---------------------------------------------------------
+
 def require_role(*allowed_roles):
     """
-    Allow access only to users with one of the supplied roles.
+    Restrict an endpoint to one or more PARAMPARA roles.
+
+    Example:
+
+        @require_auth
+        @require_role("REVIEWER", "ADMIN")
+        def approve_recording(...):
+            ...
     """
 
     def decorator(f):
@@ -78,16 +186,33 @@ def require_role(*allowed_roles):
         @wraps(f)
         def decorated(*args, **kwargs):
 
-            user = getattr(g, "current_user", None)
+            user = getattr(
+                g,
+                "current_user",
+                None
+            )
 
             if not user:
+
                 return jsonify({
-                    "error": "Authentication required."
+                    "success": False,
+                    "error": {
+                        "code": "AUTH_REQUIRED",
+                        "message": "Authentication required."
+                    }
                 }), 401
 
             if user.role not in allowed_roles:
+
                 return jsonify({
-                    "error": "You do not have permission to perform this action."
+                    "success": False,
+                    "error": {
+                        "code": "FORBIDDEN",
+                        "message": (
+                            "You do not have permission "
+                            "to perform this action."
+                        )
+                    }
                 }), 403
 
             return f(*args, **kwargs)

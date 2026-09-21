@@ -1,7 +1,13 @@
 import os
-from flask import Blueprint, request, jsonify, current_app, send_file
-import mimetypes
-
+from flask import (
+    Blueprint,
+    request,
+    jsonify,
+    current_app,
+    send_file,
+    g
+)
+import uuid
 from extensions import db
 from models.recording import Recording
 from models.consent import Consent
@@ -10,6 +16,8 @@ from models.verification import Verification
 from services.audio_service import save_audio
 from services.hash_service import calculate_sha256
 from pathlib import Path
+from auth import require_auth, require_role
+from werkzeug.utils import secure_filename
 
 
 
@@ -20,6 +28,7 @@ recordings_bp = Blueprint(
 )
 
 @recordings_bp.route("", methods=["POST"])
+@require_auth
 def create_recording():
 
     try:
@@ -30,11 +39,25 @@ def create_recording():
             return jsonify({
                 "error": "Audio file is required"
             }), 400
-
+            
+        if not audio.filename:
+            return jsonify({
+        "error": "Audio filename is missing."
+    }), 400
         title = request.form.get("title")
         description = request.form.get("description")
         language = request.form.get("language")
+        
+        if not title or not title.strip():
+            return jsonify({
+                "error": "Title is required."
+            }), 400
 
+        if not language or not language.strip():
+            return jsonify({
+                "error": "Language is required."
+            }), 400
+            
         access_level = request.form.get(
             "access_level",
             "PRIVATE"
@@ -44,11 +67,8 @@ def create_recording():
         community_id = request.form.get("community_id")
 
         upload_folder = current_app.config["UPLOAD_FOLDER"]
-
-        filename, file_path = save_audio(
-            audio,
-            upload_folder
-        )
+        filename = f"{uuid.uuid4().hex}.{extension}"
+        file_path = upload_folder / filename
 
         # Calculate SHA-256 hash of the uploaded audio
         file_hash = calculate_sha256(file_path)
@@ -81,7 +101,7 @@ def create_recording():
             speaker_id=speaker_id or None,
             community_id=community_id or None,
             access_level=access_level,
-            created_by=1
+            created_by=g.current_user.id
         )
 
         db.session.add(recording)
@@ -304,7 +324,9 @@ def public_recordings():
                 Recording.created_at.desc()
             )
             .all()
+            
         )
+        
 
         results = []
 
@@ -342,6 +364,8 @@ def public_recordings():
         }), 500
         
 @recordings_bp.route("/<int:recording_id>", methods=["DELETE"])
+@require_auth
+@require_role("ADMIN")
 def delete_recording(recording_id):
     try:
         recording = Recording.query.get(recording_id)

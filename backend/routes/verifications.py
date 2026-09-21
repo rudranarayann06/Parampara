@@ -6,8 +6,10 @@ from flask import (
     Blueprint,
     jsonify,
     request,
-    send_file
+    send_file,
+    g
 )
+from auth import require_auth, require_role
 
 from extensions import db
 from models.recording import Recording
@@ -25,6 +27,8 @@ verifications_bp = Blueprint(
 # =========================================================
 
 @verifications_bp.route("/pending", methods=["GET"])
+@require_auth
+@require_role("REVIEWER", "ADMIN")
 def get_pending_verifications():
 
     try:
@@ -165,6 +169,8 @@ def reviewer_audio(recording_id):
     "/<int:recording_id>/approve",
     methods=["POST"]
 )
+@require_auth
+@require_role("REVIEWER", "ADMIN")
 def approve_recording(recording_id):
 
     try:
@@ -201,7 +207,7 @@ def approve_recording(recording_id):
 
         # Temporary reviewer until authentication/RBAC
         # is connected to the reviewer dashboard.
-        verification.reviewer_id = 1
+        verification.reviewer_id = g.current_user.id
 
         db.session.commit()
 
@@ -228,6 +234,8 @@ def approve_recording(recording_id):
     "/<int:recording_id>/reject",
     methods=["POST"]
 )
+@require_auth
+@require_role("REVIEWER", "ADMIN")
 def reject_recording(recording_id):
 
     try:
@@ -270,7 +278,7 @@ def reject_recording(recording_id):
 
         # Temporary reviewer until authentication/RBAC
         # is connected to the reviewer dashboard.
-        verification.reviewer_id = 1
+        verification.reviewer_id = g.current_user.id
 
         db.session.commit()
 
