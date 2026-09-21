@@ -1345,7 +1345,7 @@ async function submitContribution() {
         );
     }
 
-    const token = await user.getIdToken();
+    const token = await auth.currentUser.getIdToken(true);
     const response =
         await fetch(
             `${API_BASE}/api/recordings`,
@@ -1409,16 +1409,28 @@ async function submitContribution() {
 
     if (!response.ok) {
 
+        const backendError =
+            typeof result.error === "object"
+                ? (
+                    result.error.message ||
+                    result.error.detail ||
+                    JSON.stringify(result.error)
+                )
+                : (
+                    result.error ||
+                    result.message ||
+                    result.detail
+                );
+
         throw new Error(
-            result.error ||
-            result.message ||
-            result.detail ||
+            backendError ||
             `Server rejected the contribution (HTTP ${response.status}).`
         );
-
     }
 
-    return result;
+
+
+return result;
 
 }
 
