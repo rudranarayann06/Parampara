@@ -1250,7 +1250,7 @@ async function submitContribution() {
     );
     const response =
         await fetch(
-            "https://parampara-backend-8yt9.onrender.com//api/recordings",
+           `${API_BASE}/api/recordings`,
             {
                 method: "POST",
                 body: formData
