@@ -350,55 +350,55 @@ function initializePreservePage(user) {
             output.textContent = `✓ ${file.name}`;
             if (type === "audio") {
 
-    const zone =
-        input.closest(".upload-zone");
+                const zone =
+                    input.closest(".upload-zone");
 
-    if (zone) {
+                if (zone) {
 
-        let preview =
-            zone.querySelector(
-                "audio.audio-preview"
-            );
+                    let preview =
+                        zone.querySelector(
+                            "audio.audio-preview"
+                        );
 
-        if (!preview) {
+                    if (!preview) {
 
-            preview =
-                document.createElement("audio");
+                        preview =
+                            document.createElement("audio");
 
-            preview.className =
-                "audio-preview";
+                        preview.className =
+                            "audio-preview";
 
-            preview.controls = true;
+                        preview.controls = true;
 
-            preview.preload = "metadata";
+                        preview.preload = "metadata";
 
-            preview.style.display = "block";
+                        preview.style.display = "block";
 
-            preview.style.width = "100%";
+                        preview.style.width = "100%";
 
-            preview.style.marginTop = "12px";
+                        preview.style.marginTop = "12px";
 
-            zone.appendChild(preview);
-        }
+                        zone.appendChild(preview);
+                    }
 
-        if (preview.dataset.objectUrl) {
+                    if (preview.dataset.objectUrl) {
 
-            URL.revokeObjectURL(
-                preview.dataset.objectUrl
-            );
-        }
+                        URL.revokeObjectURL(
+                            preview.dataset.objectUrl
+                        );
+                    }
 
-        const objectUrl =
-            URL.createObjectURL(file);
+                    const objectUrl =
+                        URL.createObjectURL(file);
 
-        preview.dataset.objectUrl =
-            objectUrl;
+                    preview.dataset.objectUrl =
+                        objectUrl;
 
-        preview.src = objectUrl;
+                    preview.src = objectUrl;
 
-        preview.load();
-    }
-}
+                    preview.load();
+                }
+            }
 
             const zone = input.closest(".upload-zone");
 
@@ -650,11 +650,37 @@ function initializePreservePage(user) {
 
                         setLoadingState(false);
 
+                        let errorMessage = "Unknown error";
+
+                        if (error instanceof Error) {
+
+                            errorMessage =
+                                error.message;
+
+                        } else if (
+                            typeof error === "string"
+                        ) {
+
+                            errorMessage =
+                                error;
+
+                        } else if (
+                            error &&
+                            typeof error === "object"
+                        ) {
+
+                            errorMessage =
+                                error.error ||
+                                error.message ||
+                                error.detail ||
+                                JSON.stringify(error);
+
+                        }
+
                         alert(
                             "Could not preserve your story.\n\n" +
-                            error.message
+                            errorMessage
                         );
-
                     });
 
             }
