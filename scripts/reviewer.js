@@ -11,40 +11,53 @@ import {
 ============================================================ */
 
 console.log("🔥 PARAMPARA NEW REVIEWER.JS LOADED");
+const API_BASE = window.PARAMPARA_API_BASE || "https://parampara-backend-8yt9.onrender.com";
 console.log("🔥 API BASE:", API_BASE);
 
 let verificationQueue = [];
 let selectedRecording = null;
 let currentAudioObjectUrl = null;
 
-async function getAuthHeaders(json = false) {
+async function getAuthHeaders(json = false, forceRefresh = false) {
 
-    const user =
-        auth.currentUser;
+    const user = auth.currentUser;
 
     if (!user) {
-
         throw new Error(
             "Please sign in before using the reviewer dashboard."
         );
     }
 
-    const token =
-        await user.getIdToken();
+    const token = await user.getIdToken(forceRefresh);
 
     const headers = {
-        "Authorization":
-            `Bearer ${token}`
+        "Authorization": `Bearer ${token}`
     };
 
     if (json) {
-
-        headers["Content-Type"] =
-            "application/json";
+        headers["Content-Type"] = "application/json";
     }
 
     return headers;
 }
+
+async function authenticatedFetch(url, options = {}, json = false) {
+
+    let response = await fetch(url, {
+        ...options,
+        headers: await getAuthHeaders(json, false)
+    });
+
+    if (response.status === 401) {
+        response = await fetch(url, {
+            ...options,
+            headers: await getAuthHeaders(json, true)
+        });
+    }
+
+    return response;
+}
+
 /* ============================================================
    DOM
 ============================================================ */
@@ -214,12 +227,8 @@ async function loadVerificationQueue() {
     try {
 
         const response =
-            await fetch(
-                `${API_BASE}/api/verifications/pending`,
-                {
-                    headers:
-                        await getAuthHeaders()
-                }
+            await authenticatedFetch(
+                `${API_BASE}/api/verifications/pending`
             );
 
         if (!response.ok) {
@@ -788,18 +797,15 @@ async function approveRecording() {
     try {
 
         const response =
-            await fetch(
+            await authenticatedFetch(
                 `${API_BASE}/api/verifications/${recordingId}/approve`,
                 {
                     method: "POST",
-
-                    headers:
-                        await getAuthHeaders(true),
-
                     body: JSON.stringify({
                         reviewer_notes: notes
                     })
-                }
+                },
+                true
             );
 
 
@@ -910,18 +916,15 @@ async function rejectRecording() {
     try {
 
         const response =
-            await fetch(
+            await authenticatedFetch(
                 `${API_BASE}/api/verifications/${recordingId}/reject`,
                 {
                     method: "POST",
-
-                    headers:
-                        await getAuthHeaders(true),
-
                     body: JSON.stringify({
                         reviewer_notes: notes
                     })
-                }
+                },
+                true
             );
 
 
@@ -1084,13 +1087,7 @@ async function loadOriginalAudio(recordingId) {
         );
 
         const response =
-            await fetch(
-                audioUrl,
-                {
-                    headers:
-                        await getAuthHeaders()
-                }
-            );
+            await authenticatedFetch(audioUrl);
 
         if (!response.ok) {
 

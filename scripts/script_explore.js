@@ -5,7 +5,7 @@
    LIVE ARCHIVE
 ========================================================= */
 
-const API_BASE = "https://parampara-backend-8yt9.onrender.com";
+const API_BASE = window.PARAMPARA_API_BASE || "https://parampara-backend-8yt9.onrender.com";
 
 let archiveRecords = [];
 
@@ -145,6 +145,16 @@ function renderArchiveRecords(records) {
             </div>
         </article>
     `).join("");
+
+    // Make broken/missing files visible instead of leaving a silent 0:00 player.
+    archiveGrid.querySelectorAll(".archive-audio").forEach(audio => {
+        audio.addEventListener("error", () => {
+            audio.insertAdjacentHTML(
+                "afterend",
+                '<small class="audio-error">Audio file is currently unavailable.</small>'
+            );
+        }, { once: true });
+    });
 
     console.log(
         "Rendered archive records:",

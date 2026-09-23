@@ -5,7 +5,7 @@
 
 import {
     onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
 import {
     auth
@@ -16,6 +16,7 @@ import {
    ========================================================= */
 
 const API_BASE =
+    window.PARAMPARA_API_BASE ||
     "https://parampara-backend-8yt9.onrender.com";
 
 console.log(
@@ -23,35 +24,51 @@ console.log(
     API_BASE
 );
 
+// Firebase ID tokens can expire while a page is open. Retry one 401
+// with a freshly refreshed token instead of immediately failing.
+async function authenticatedFetch(url, options = {}) {
+
+    const user = auth.currentUser;
+
+    const headers = new Headers(
+        options.headers || {}
+    );
+
+    // If logged in, attach Firebase token.
+    // If not logged in, send the request without one.
+    if (user) {
+
+        try {
+
+            const token =
+                await user.getIdToken(false);
+
+            headers.set(
+                "Authorization",
+                `Bearer ${token}`
+            );
+
+        } catch (error) {
+
+            console.warn(
+                "Firebase token unavailable. Sending request without authentication.",
+                error
+            );
+        }
+    }
+
+    return fetch(url, {
+        ...options,
+        headers
+    });
+}
 
 /* =========================================================
    AUTHENTICATION GUARD
 ========================================================= */
 
-onAuthStateChanged(auth, (user) => {
-
-    if (!user) {
-
-        /*
-         * User is NOT logged in.
-         * Redirect them to login page.
-         */
-
-        window.location.replace(
-            "login.html?redirect=preserve.html"
-        );
-
-        return;
-    }
-
-
-    /*
-     * User IS logged in.
-     * Now initialize the preserve page.
-     */
-
-    initializePreservePage(user);
-
+document.addEventListener("DOMContentLoaded", () => {
+    initializePreservePage(auth.currentUser);
 });
 
 
@@ -1345,15 +1362,11 @@ async function submitContribution() {
         );
     }
 
-    const token = await auth.currentUser.getIdToken(true);
     const response =
-        await fetch(
+        await authenticatedFetch(
             `${API_BASE}/api/recordings`,
             {
                 method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                },
                 body: formData
             }
         );
