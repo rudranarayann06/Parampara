@@ -1,26 +1,291 @@
-from flask import Blueprint, jsonify, g
+import json
+import os
+from functools import wraps
 
-from auth import require_auth
+import firebase_admin
+from firebase_admin import auth as firebase_auth
+from firebase_admin import credentials
+from flask import g, jsonify, request
+
+from models.user import User
 
 
-auth_bp = Blueprint(
-    "auth",
-    __name__,
-    url_prefix="/api/auth"
+# ---------------------------------------------------------
+# Initialize Firebase Admin SDK
+# ---------------------------------------------------------
+
+FIREBASE_PROJECT_ID = os.getenv(
+    "FIREBASE_PROJECT_ID",
+    "parampara-27428"
 )
 
+FIREBASE_STORAGE_BUCKET = os.getenv(
+    "FIREBASE_STORAGE_BUCKET",
+    "parampara-27428.firebasestorage.app"
+)
 
-@auth_bp.route("/me", methods=["GET"])
-@require_auth
-def get_current_user():
+if not firebase_admin._apps:
 
-    user = g.current_user
+    firebase_service_account = os.getenv(
+        "FIREBASE_SERVICE_ACCOUNT_JSON"
+    )
 
-    return jsonify({
-        "id": user.id,
-        "firebase_uid": user.firebase_uid,
-        "name": user.name,
-        "email": user.email,
-        "role": user.role,
-        "status": user.status
-    }), 200
+    if firebase_service_account:
+        try:
+            service_account_info = json.loads(
+                firebase_service_account
+            )
+            cred = credentials.Certificate(
+                service_account_info
+            )
+            firebase_admin.initialize_app(
+                cred,
+                {
+                    "projectId": FIREBASE_PROJECT_ID,
+                    "storageBucket": FIREBASE_STORAGE_BUCKET
+                }
+            )
+        except Exception:
+            # Do not hide a broken Render secret. The service would otherwise
+            # start and every request would misleadingly look like a bad token.
+            raise RuntimeError(
+                "FIREBASE_SERVICE_ACCOUNT_JSON is invalid. "
+                "Paste the Firebase service-account JSON for project "
+                f"{FIREBASE_PROJECT_ID} into the Render environment."
+            )
+    else:
+        # Local development may use Application Default Credentials.
+        firebase_admin.initialize_app(
+            options={
+                "projectId": FIREBASE_PROJECT_ID,
+                "storageBucket": FIREBASE_STORAGE_BUCKET
+            }
+        )
+
+# ---------------------------------------------------------
+# Authentication
+# ---------------------------------------------------------
+
+def require_auth(f):
+    """
+    Require a valid Firebase ID token.
+
+    The authenticated PARAMPARA user is stored in:
+        g.current_user
+
+    The decoded Firebase user is stored in:
+        g.firebase_user
+    """
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+
+        # ---------------------------------------------
+        # Read Authorization header
+        # ---------------------------------------------
+
+        auth_header = request.headers.get(
+            "Authorization",
+            ""
+        ).strip()
+
+        if not auth_header:
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "AUTH_REQUIRED",
+                    "message": "Authorization token is required."
+                }
+            }), 401
+
+        # ---------------------------------------------
+        # Validate Bearer format
+        # ---------------------------------------------
+
+        if not auth_header.startswith("Bearer "):
+
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "INVALID_AUTH_HEADER",
+                    "message": (
+                        "Authorization header must use "
+                        "Bearer <token> format."
+                    )
+                }
+            }), 401
+
+        token = auth_header[7:].strip()
+
+        if not token:
+
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "TOKEN_MISSING",
+                    "message": "Authentication token is missing."
+                }
+            }), 401
+
+        # ---------------------------------------------
+        # Verify Firebase token
+        # ---------------------------------------------
+
+        try:
+
+            decoded_token = firebase_auth.verify_id_token(
+                token
+            )
+
+        except firebase_auth.ExpiredIdTokenError:
+
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "TOKEN_EXPIRED",
+                    "message": "Authentication token has expired."
+                }
+            }), 401
+
+        except firebase_auth.InvalidIdTokenError:
+
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "INVALID_TOKEN",
+                    "message": "Invalid Firebase authentication token."
+                }
+            }), 401
+
+        except Exception:
+            # Configuration/credential errors are server errors, not bad user tokens.
+            from flask import current_app
+            current_app.logger.exception(
+                "Firebase ID-token verification failed"
+            )
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "FIREBASE_ADMIN_ERROR",
+                    "message": "Firebase Admin authentication is not configured correctly on the backend."
+                }
+            }), 500
+
+        # ---------------------------------------------
+        # Get Firebase UID
+        # ---------------------------------------------
+
+        firebase_uid = decoded_token.get("uid")
+
+        if not firebase_uid:
+
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "INVALID_TOKEN",
+                    "message": "Firebase user ID is missing."
+                }
+            }), 401
+
+        # ---------------------------------------------
+        # Find PARAMPARA user
+        # ---------------------------------------------
+
+        user = User.query.filter_by(
+            firebase_uid=firebase_uid
+        ).first()
+
+        if not user:
+
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "USER_NOT_FOUND",
+                    "message": (
+                        "Authenticated Firebase user does not "
+                        "have a PARAMPARA profile."
+                    )
+                }
+            }), 403
+
+        # ---------------------------------------------
+        # Check account status
+        # ---------------------------------------------
+
+        if user.status != "ACTIVE":
+
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "ACCOUNT_INACTIVE",
+                    "message": "Your PARAMPARA account is not active."
+                }
+            }), 403
+
+        # ---------------------------------------------
+        # Store authenticated identity
+        # ---------------------------------------------
+
+        g.current_user = user
+        g.firebase_user = decoded_token
+
+        return f(*args, **kwargs)
+
+    return decorated
+
+
+# ---------------------------------------------------------
+# Role authorization
+# ---------------------------------------------------------
+
+def require_role(*allowed_roles):
+    """
+    Restrict an endpoint to one or more PARAMPARA roles.
+
+    Example:
+
+        @require_auth
+        @require_role("REVIEWER", "ADMIN")
+        def approve_recording(...):
+            ...
+    """
+
+    def decorator(f):
+
+        @wraps(f)
+        def decorated(*args, **kwargs):
+
+            user = getattr(
+                g,
+                "current_user",
+                None
+            )
+
+            if not user:
+
+                return jsonify({
+                    "success": False,
+                    "error": {
+                        "code": "AUTH_REQUIRED",
+                        "message": "Authentication required."
+                    }
+                }), 401
+
+            if user.role not in allowed_roles:
+
+                return jsonify({
+                    "success": False,
+                    "error": {
+                        "code": "FORBIDDEN",
+                        "message": (
+                            "You do not have permission "
+                            "to perform this action."
+                        )
+                    }
+                }), 403
+
+            return f(*args, **kwargs)
+
+        return decorated
+
+    return decorator

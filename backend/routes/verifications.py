@@ -2,6 +2,8 @@ from datetime import datetime
 from pathlib import Path
 import mimetypes
 
+from services.audio_service import read_audio
+
 from flask import (
     Blueprint,
     jsonify,
@@ -128,33 +130,23 @@ def reviewer_audio(recording_id):
 
 
         if not recording.audio_path:
-
             return jsonify({
                 "error": "Audio path is not available."
             }), 404
 
-
-        file_path = Path(
+        audio_file, mimetype = read_audio(
             recording.audio_path
         )
 
-
-        if not file_path.exists():
-
+        if audio_file is None:
             return jsonify({
                 "error": "Original audio file is unavailable."
             }), 404
 
-
-        mimetype, _ = mimetypes.guess_type(
-            str(file_path)
-        )
-
-
         return send_file(
-            str(file_path),
+            audio_file,
             mimetype=mimetype or "application/octet-stream",
-            conditional=True
+            conditional=False
         )
 
 

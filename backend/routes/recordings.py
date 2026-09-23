@@ -13,7 +13,12 @@ from models.recording import Recording
 from models.consent import Consent
 from models.verification import Verification
 
-from services.audio_service import save_audio
+from services.audio_service import (
+    save_audio,
+    upload_audio_to_storage,
+    read_audio,
+    delete_audio
+)
 from services.hash_service import calculate_sha256
 from pathlib import Path
 from auth import require_auth, require_role
@@ -76,6 +81,24 @@ def create_recording():
             file_path
         )
 
+        # Firebase Storage is the durable source of truth. Render's local
+        # filesystem is ephemeral, so never store only the local path.
+        storage_object = f"recordings/{filename}"
+        try:
+            durable_audio_path = upload_audio_to_storage(
+                file_path,
+                storage_object
+            )
+        except Exception:
+            current_app.logger.exception(
+                "Firebase Storage upload failed"
+            )
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            return jsonify({
+                "error": "Audio storage is not configured correctly on the backend."
+            }), 503
+
         # Check whether this audio already exists
         existing_recording = Recording.query.filter_by(
             audio_hash=file_hash
@@ -86,6 +109,13 @@ def create_recording():
             # Delete the newly uploaded duplicate file
             if os.path.exists(file_path):
                 os.remove(file_path)
+
+            try:
+                delete_audio(durable_audio_path)
+            except Exception:
+                current_app.logger.exception(
+                    "Duplicate audio cleanup failed"
+                )
 
             return jsonify({
                 "error": "This audio recording has already been preserved.",
@@ -98,7 +128,7 @@ def create_recording():
             title=title,
             description=description,
             audio_filename=filename,
-            audio_path=str(file_path),
+            audio_path=durable_audio_path,
             audio_hash=file_hash,
             language=language,
             speaker_id=speaker_id or None,
@@ -180,6 +210,7 @@ def create_recording():
     "/<int:recording_id>/audio",
     methods=["GET"]
 )
+@require_auth
 def stream_original_audio(recording_id):
 
     try:
@@ -205,8 +236,7 @@ def stream_original_audio(recording_id):
 
         audio_path = recording.audio_path
 
-        if not audio_path or not os.path.isfile(audio_path):
-
+        if not audio_path:
             return jsonify({
                 "error": "Original audio file is unavailable."
             }), 404
@@ -286,10 +316,17 @@ def stream_original_audio(recording_id):
         # 7. Stream the original file
         # ----------------------------------------------------
 
+        audio_file, mimetype = read_audio(audio_path)
+
+        if audio_file is None:
+            return jsonify({
+                "error": "Original audio file is unavailable."
+            }), 404
+
         return send_file(
-            audio_path,
-            conditional=True,
-            etag=True,
+            audio_file,
+            mimetype=mimetype,
+            conditional=False,
             max_age=0
         )
 
@@ -378,12 +415,9 @@ def delete_recording(recording_id):
                 "error": "Recording not found."
             }), 404
 
-        # Delete uploaded audio file
+        # Delete durable audio from Firebase Storage (or legacy local file).
         if recording.audio_path:
-            file_path = Path(recording.audio_path)
-
-            if file_path.exists():
-                file_path.unlink()
+            delete_audio(recording.audio_path)
 
         # Delete related verification
         verification = Verification.query.filter_by(
@@ -469,21 +503,19 @@ def public_recording_audio(recording_id):
                 "error": "Audio file is unavailable."
             }), 404
 
-        file_path = Path(recording.audio_path)
-
-        if not file_path.exists():
-            return jsonify({
-                "error": "Audio file is missing."
-            }), 404
-
-        mimetype, _ = mimetypes.guess_type(
-            str(file_path)
+        audio_file, mimetype = read_audio(
+            recording.audio_path
         )
 
+        if audio_file is None:
+            return jsonify({
+                "error": "Audio file is missing from storage."
+            }), 404
+
         return send_file(
-            str(file_path),
+            audio_file,
             mimetype=mimetype or "audio/wav",
-            conditional=True
+            conditional=False
         )
 
     except Exception as e:

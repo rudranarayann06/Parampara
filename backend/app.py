@@ -63,16 +63,24 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 frontend_url = os.getenv(
     "FRONTEND_URL",
-    "http://127.0.0.1:5500"
-)
+    "https://rudranarayann06.github.io"
+).rstrip("/")
 
 allowed_origins = [
     frontend_url,
+    "https://rudranarayann06.github.io",
     "http://127.0.0.1:5500",
     "http://localhost:5500"
 ]
 
-# Remove duplicate origins
+# Optional comma-separated extra origins for future deployments.
+extra_origins = os.getenv("CORS_ORIGINS", "")
+allowed_origins.extend(
+    origin.strip().rstrip("/")
+    for origin in extra_origins.split(",")
+    if origin.strip()
+)
+
 allowed_origins = list(dict.fromkeys(allowed_origins))
 
 CORS(
