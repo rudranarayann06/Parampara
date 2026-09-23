@@ -1,7 +1,6 @@
 import base64
 import json
 import os
-from pathlib import Path
 
 import firebase_admin
 from firebase_admin import credentials, storage
@@ -12,33 +11,27 @@ DEFAULT_BUCKET = "parampara-27428.firebasestorage.app"
 
 
 def _load_service_account():
-    raw = os.getenv(
-        "FIREBASE_SERVICE_ACCOUNT_JSON",
-        ""
-    ).strip()
+    raw = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON", "").strip()
 
     if raw:
         try:
             value = json.loads(raw)
 
-            # Handles JSON that has accidentally been
-            # JSON-encoded one extra time.
+            # Handles accidentally double-encoded JSON.
             if isinstance(value, str):
                 value = json.loads(value)
 
             if not isinstance(value, dict):
                 raise ValueError(
-                    "Service account JSON must be an object."
+                    "FIREBASE_SERVICE_ACCOUNT_JSON must contain a JSON object."
                 )
 
             return value
 
         except Exception as exc:
-
             raise RuntimeError(
-                "FIREBASE_SERVICE_ACCOUNT_JSON is not valid JSON."
+                "FIREBASE_SERVICE_ACCOUNT_JSON is not valid service-account JSON."
             ) from exc
-
 
     encoded = os.getenv(
         "FIREBASE_SERVICE_ACCOUNT_JSON_BASE64",
@@ -46,91 +39,56 @@ def _load_service_account():
     ).strip()
 
     if encoded:
-
         try:
-
-            decoded = base64.b64decode(
-                encoded
-            ).decode("utf-8")
-
+            decoded = base64.b64decode(encoded).decode("utf-8")
             value = json.loads(decoded)
 
             if not isinstance(value, dict):
                 raise ValueError(
-                    "Service account JSON must be an object."
+                    "Decoded service-account JSON must be an object."
                 )
 
             return value
 
         except Exception as exc:
-
             raise RuntimeError(
                 "FIREBASE_SERVICE_ACCOUNT_JSON_BASE64 is invalid."
             ) from exc
 
-
-    credentials_path = os.getenv(
-        "GOOGLE_APPLICATION_CREDENTIALS",
-        ""
-    ).strip()
-
-    if (
-        credentials_path
-        and Path(credentials_path).exists()
-    ):
-        return None
-
-
-    return None
+    raise RuntimeError(
+        "Firebase service-account credentials are not configured. "
+        "Set FIREBASE_SERVICE_ACCOUNT_JSON in Render."
+    )
 
 
 def initialize_firebase():
-
     if firebase_admin._apps:
-
         return firebase_admin.get_app()
-
 
     project_id = os.getenv(
         "FIREBASE_PROJECT_ID",
         DEFAULT_PROJECT_ID
     ).strip()
 
-
     bucket_name = os.getenv(
         "FIREBASE_STORAGE_BUCKET",
         DEFAULT_BUCKET
     ).strip()
 
-
-    service_account = (
-        _load_service_account()
-    )
-
+    service_account = _load_service_account()
 
     options = {
         "projectId": project_id,
         "storageBucket": bucket_name,
     }
 
-
-    if service_account:
-
-        return firebase_admin.initialize_app(
-            credentials.Certificate(
-                service_account
-            ),
-            options=options
-        )
-
-
     return firebase_admin.initialize_app(
+        credentials.Certificate(service_account),
         options=options
     )
 
 
 def get_storage_bucket():
-
     initialize_firebase()
 
     bucket_name = os.getenv(
@@ -138,6 +96,4 @@ def get_storage_bucket():
         DEFAULT_BUCKET
     ).strip()
 
-    return storage.bucket(
-        name=bucket_name
-    )
+    return storage.bucket(name=bucket_name)
