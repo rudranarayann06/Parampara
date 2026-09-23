@@ -33,7 +33,7 @@ recordings_bp = Blueprint(
 )
 
 @recordings_bp.route("", methods=["POST"])
-@require_auth
+
 def create_recording():
 
     try:
