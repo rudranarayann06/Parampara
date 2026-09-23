@@ -3496,3 +3496,22 @@ a {
 
 }
 
+
+
+/* =========================================================
+   AUDIO CHOOSER
+========================================================= */
+.audio-choose-button {
+    border: 1px solid rgba(215,168,91,0.45);
+    border-radius: 8px;
+    padding: 9px 16px;
+    background: rgba(215,168,91,0.10);
+    color: #dcd8d0;
+    font: inherit;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+.audio-choose-button:hover {
+    background: rgba(215,168,91,0.18);
+}

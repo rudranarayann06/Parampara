@@ -824,9 +824,15 @@
                         </div>
 
 
-                        <label for="audioUpload" class="upload-zone">
+                        <div class="upload-zone" id="audioUploadZone">
 
-                            <input type="file" id="audioUpload" name="audioUpload" accept="audio/*" hidden>
+                            <input
+                                type="file"
+                                id="audioUpload"
+                                name="audioUpload"
+                                accept=".mp3,.wav,.m4a,.webm,.ogg,audio/mpeg,audio/wav,audio/x-wav,audio/mp4,audio/webm,application/ogg"
+                                hidden
+                            >
 
                             <i class="fa-solid fa-cloud-arrow-up"></i>
 
@@ -835,14 +841,22 @@
                             </strong>
 
                             <span>
-                                MP3, WAV, M4A · Max 50 MB
+                                MP3, WAV, M4A, WEBM, OGG · Max 50 MB
                             </span>
+
+                            <button
+                                type="button"
+                                id="audioChooseButton"
+                                class="audio-choose-button"
+                            >
+                                Choose audio file
+                            </button>
 
                             <small id="audioName">
                                 No file selected
                             </small>
 
-                        </label>
+                        </div>
 
                     </div>
 
@@ -1505,7 +1519,7 @@
     ====================================================== -->
         <script src="scripts/config.js"></script>
 
-        <script type="module" src="scripts/preserve.js"></script>
+        <script type="module" src="scripts/preserve.js?v=final1"></script>
         
 </body>
 

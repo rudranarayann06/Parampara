@@ -149,10 +149,12 @@ function renderArchiveRecords(records) {
     // Make broken/missing files visible instead of leaving a silent 0:00 player.
     archiveGrid.querySelectorAll(".archive-audio").forEach(audio => {
         audio.addEventListener("error", () => {
-            audio.insertAdjacentHTML(
-                "afterend",
-                '<small class="audio-error">Audio file is currently unavailable.</small>'
-            );
+            if (!audio.nextElementSibling?.classList.contains("audio-error")) {
+                audio.insertAdjacentHTML(
+                    "afterend",
+                    '<small class="audio-error">Audio file is currently unavailable.</small>'
+                );
+            }
         }, { once: true });
     });
 

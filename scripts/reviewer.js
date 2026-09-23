@@ -19,17 +19,13 @@ let selectedRecording = null;
 let currentAudioObjectUrl = null;
 
 async function getAuthHeaders(json = false, forceRefresh = false) {
-
     const user = auth.currentUser;
 
     if (!user) {
-        throw new Error(
-            "Please sign in before using the reviewer dashboard."
-        );
+        throw new Error("Please sign in with a reviewer account to continue.");
     }
 
     const token = await user.getIdToken(forceRefresh);
-
     const headers = {
         "Authorization": `Bearer ${token}`
     };
@@ -42,7 +38,6 @@ async function getAuthHeaders(json = false, forceRefresh = false) {
 }
 
 async function authenticatedFetch(url, options = {}, json = false) {
-
     let response = await fetch(url, {
         ...options,
         headers: await getAuthHeaders(json, false)
@@ -57,6 +52,7 @@ async function authenticatedFetch(url, options = {}, json = false) {
 
     return response;
 }
+
 
 /* ============================================================
    DOM

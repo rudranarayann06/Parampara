@@ -12,7 +12,7 @@ from routes.auth import auth_bp
 
 from extensions import db
 import models
-from sqlalchemy import text
+from sqlalchemy import text, inspect
 
 
 # =========================================================
@@ -166,8 +166,72 @@ def health():
             "database": "unavailable"
         }), 503
 # =========================================================
-# Create database tables and seed system user
+# Create database tables and keep older Render PostgreSQL schemas
+# compatible with the current models.
 # =========================================================
+def ensure_legacy_columns():
+    inspector = inspect(db.engine)
+    definitions = {
+        "users": {
+            "firebase_uid": "VARCHAR(255)",
+            "name": "VARCHAR(255)",
+            "email": "VARCHAR(255)",
+            "role": "VARCHAR(50)",
+            "status": "VARCHAR(50)",
+        },
+        "recordings": {
+            "description": "TEXT",
+            "audio_filename": "VARCHAR(255)",
+            "audio_path": "VARCHAR(500)",
+            "audio_hash": "VARCHAR(64)",
+            "language": "VARCHAR(100)",
+            "speaker_id": "INTEGER",
+            "community_id": "INTEGER",
+            "location": "VARCHAR(255)",
+            "recorded_at": "TIMESTAMP",
+            "duration": "DOUBLE PRECISION",
+            "access_level": "VARCHAR(50)",
+            "created_by": "INTEGER",
+            "created_at": "TIMESTAMP",
+        },
+        "consents": {
+            "archive_allowed": "BOOLEAN",
+            "transcription_allowed": "BOOLEAN",
+            "translation_allowed": "BOOLEAN",
+            "research_allowed": "BOOLEAN",
+            "public_access_allowed": "BOOLEAN",
+            "commercial_use_allowed": "BOOLEAN",
+            "ai_processing_allowed": "BOOLEAN",
+            "ai_training_allowed": "BOOLEAN",
+            "consent_method": "VARCHAR(100)",
+            "consent_date": "TIMESTAMP",
+        },
+        "verifications": {
+            "reviewer_id": "INTEGER",
+            "reviewer_notes": "TEXT",
+            "reviewed_at": "TIMESTAMP",
+            "created_at": "TIMESTAMP",
+        },
+    }
+    dialect = db.engine.dialect.name
+    tables = set(inspector.get_table_names())
+    for table, columns in definitions.items():
+        if table not in tables:
+            continue
+        existing = {column["name"] for column in inspector.get_columns(table)}
+        for column, sql_type in columns.items():
+            if column not in existing:
+                db.session.execute(text(
+                    f"ALTER TABLE {table} ADD COLUMN {column} {sql_type}"
+                ))
+    if "users" in tables and dialect == "postgresql":
+        db.session.execute(text(
+            "CREATE UNIQUE INDEX IF NOT EXISTS uq_users_firebase_uid "
+            "ON users (firebase_uid) WHERE firebase_uid IS NOT NULL"
+        ))
+    db.session.commit()
+
+
 @app.errorhandler(400)
 def bad_request(error):
     return jsonify({
@@ -208,6 +272,7 @@ def internal_server_error(error):
 with app.app_context():
 
     db.create_all()
+    ensure_legacy_columns()
 
     # PARAMPARA demo/system contributor.
     # This provides the initial creator referenced by

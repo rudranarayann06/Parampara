@@ -4,10 +4,6 @@
 ========================================================= */
 
 import {
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
-
-import {
     auth
 } from "../firebase-config.js";
 
@@ -28,32 +24,17 @@ console.log(
 // with a freshly refreshed token instead of immediately failing.
 async function authenticatedFetch(url, options = {}) {
 
+    const headers = new Headers(options.headers || {});
     const user = auth.currentUser;
 
-    const headers = new Headers(
-        options.headers || {}
-    );
-
-    // If logged in, attach Firebase token.
-    // If not logged in, send the request without one.
+    // Login is optional on Preserve. If Firebase has a logged-in user,
+    // attach the token; otherwise the backend creates an anonymous contributor.
     if (user) {
-
         try {
-
-            const token =
-                await user.getIdToken(false);
-
-            headers.set(
-                "Authorization",
-                `Bearer ${token}`
-            );
-
+            const token = await user.getIdToken(false);
+            headers.set("Authorization", `Bearer ${token}`);
         } catch (error) {
-
-            console.warn(
-                "Firebase token unavailable. Sending request without authentication.",
-                error
-            );
+            console.warn("Firebase token unavailable; continuing as anonymous contributor.", error);
         }
     }
 
@@ -62,6 +43,7 @@ async function authenticatedFetch(url, options = {}) {
         headers
     });
 }
+
 
 /* =========================================================
    AUTHENTICATION GUARD
@@ -79,8 +61,8 @@ document.addEventListener("DOMContentLoaded", () => {
 function initializePreservePage(user) {
 
     console.log(
-        "Authenticated user:",
-        user.email
+        "Preserve page initialized. Firebase user:",
+        user?.email || "anonymous"
     );
 
 
@@ -336,6 +318,27 @@ function initializePreservePage(user) {
         "audio"
     );
 
+    const audioInput = document.getElementById("audioUpload");
+    const audioUploadZone = document.getElementById("audioUploadZone");
+    const audioChooseButton = document.getElementById("audioChooseButton");
+
+    if (audioChooseButton && audioInput) {
+        audioChooseButton.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            audioInput.click();
+        });
+    }
+
+    if (audioUploadZone && audioInput) {
+        audioUploadZone.addEventListener("click", (event) => {
+            const target = event.target;
+            if (target === audioUploadZone || target.closest(".upload-zone > strong") || target.closest(".upload-zone > span")) {
+                audioInput.click();
+            }
+        });
+    }
+
     setupFileInput(
         "imageUpload",
         "imageName",
@@ -375,6 +378,26 @@ function initializePreservePage(user) {
             }
 
             const file = files[0];
+
+            if (type === "audio") {
+                const allowedExtensions = [".mp3", ".wav", ".m4a", ".webm", ".ogg"];
+                const lowerName = file.name.toLowerCase();
+                const validExtension = allowedExtensions.some(ext => lowerName.endsWith(ext));
+
+                if (!validExtension) {
+                    input.value = "";
+                    output.textContent = "Unsupported audio format";
+                    alert("Please choose an MP3, WAV, M4A, WEBM, or OGG audio file.");
+                    return;
+                }
+
+                if (file.size > 50 * 1024 * 1024) {
+                    input.value = "";
+                    output.textContent = "File is larger than 50 MB";
+                    alert("Audio file must be smaller than 50 MB.");
+                    return;
+                }
+            }
 
             output.textContent = `✓ ${file.name}`;
             if (type === "audio") {
@@ -1354,14 +1377,6 @@ async function submitContribution() {
     console.log(
         "🌐 Sending request to Flask..."
     );
-    const user = auth.currentUser;
-
-    if (!user) {
-        throw new Error(
-            "Please sign in before preserving a story."
-        );
-    }
-
     const response =
         await authenticatedFetch(
             `${API_BASE}/api/recordings`,

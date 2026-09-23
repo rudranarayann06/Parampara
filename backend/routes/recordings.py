@@ -7,7 +7,6 @@ from flask import (
     send_file,
     g
 )
-import uuid
 from extensions import db
 from models.recording import Recording
 from models.consent import Consent
@@ -20,9 +19,7 @@ from services.audio_service import (
     delete_audio
 )
 from services.hash_service import calculate_sha256
-from pathlib import Path
-from auth import require_auth, require_role
-from werkzeug.utils import secure_filename
+from auth import require_auth, optional_auth, require_role
 
 
 
@@ -33,7 +30,7 @@ recordings_bp = Blueprint(
 )
 
 @recordings_bp.route("", methods=["POST"])
-
+@optional_auth
 def create_recording():
 
     try:
@@ -198,6 +195,15 @@ def create_recording():
 
         db.session.rollback()
 
+        # If the database failed after Firebase Storage upload, remove the
+        # orphaned object when the variable is available.
+        try:
+            if "durable_audio_path" in locals():
+                delete_audio(durable_audio_path)
+        except Exception:
+            current_app.logger.exception("Failed to clean up orphaned audio")
+
+        current_app.logger.exception("Recording creation failed")
         return jsonify({
             "error": str(e)
         }), 500
