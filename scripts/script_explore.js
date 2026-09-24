@@ -130,9 +130,8 @@ function renderArchiveRecords(records) {
                 <audio
                     class="archive-audio"
                     controls
-                    preload="none"
-                    src="${API_BASE}/api/recordings/public/${record.id}/audio"
                     preload="metadata"
+                    src="${API_BASE}/api/recordings/public/${encodeURIComponent(record.id)}/audio"
                     crossorigin="anonymous"
                 ></audio>
 
@@ -152,10 +151,7 @@ function renderArchiveRecords(records) {
     archiveGrid.querySelectorAll(".archive-audio").forEach(audio => {
         const showAudioError = () => {
             if (!audio.nextElementSibling?.classList.contains("audio-error")) {
-                audio.insertAdjacentHTML(
-                    "afterend",
-                    '<small class="audio-error">Audio could not be loaded. Refresh once if the Render service was asleep.</small>'
-                );
+                audio.insertAdjacentHTML("afterend", '<small class="audio-error">Audio unavailable from the archive server. Open the browser Network/Console details if this persists.</small>');
             }
         };
         audio.addEventListener("error", showAudioError, { once: true });

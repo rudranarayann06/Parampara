@@ -11,7 +11,7 @@ import {
 ============================================================ */
 
 console.log("🔥 PARAMPARA NEW REVIEWER.JS LOADED");
-const API_BASE = window.PARAMPARA_API_BASE || "";
+const API_BASE = window.PARAMPARA_API_BASE || "https://parampara-backend-8yt9.onrender.com";
 console.log("🔥 API BASE:", API_BASE);
 
 let verificationQueue = [];
@@ -1283,16 +1283,18 @@ async function loadOriginalAudio(recordingId) {
             );
         }
 
-        const audioBlob =
-            await response.blob();
-
-        currentAudioObjectUrl =
-            URL.createObjectURL(audioBlob);
-
-        originalAudio.src =
-            currentAudioObjectUrl;
-
+        const audioBlob = await response.blob();
+        if (!audioBlob.size) throw new Error("Backend returned an empty audio file.");
+        currentAudioObjectUrl = URL.createObjectURL(audioBlob);
+        originalAudio.src = currentAudioObjectUrl;
+        originalAudio.preload = "metadata";
         originalAudio.load();
+        originalAudio.oncanplay = () => {
+            if (audioStatus) audioStatus.textContent = "Original source audio ready • Protected playback";
+        };
+        originalAudio.onerror = () => {
+            if (audioStatus) audioStatus.textContent = "The browser could not decode this audio format.";
+        };
 
         originalAudio.onloadedmetadata = () => {
 

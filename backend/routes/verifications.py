@@ -77,12 +77,19 @@ def reviewer_audio(recording_id):
     /api/recordings/<id>/audio.
     """
     from flask import current_app, send_file
-    from services.audio_service import read_audio
+    from services.audio_service import read_audio_candidates
 
     recording = Recording.query.get_or_404(recording_id)
-    audio_file, mimetype = read_audio(recording.audio_path)
+    candidates = []
+    if recording.audio_hash and recording.audio_filename:
+        import os
+        candidates.append(f"supabase://{os.getenv('SUPABASE_AUDIO_BUCKET', 'parampara-audio')}/recordings/{recording.audio_hash[:2]}/{recording.audio_hash}/{recording.audio_filename}")
+        bucket = os.getenv('FIREBASE_STORAGE_BUCKET', os.getenv('DEFAULT_BUCKET', ''))
+        if bucket:
+            candidates.append(f"gs://{bucket}/recordings/{recording.audio_hash[:2]}/{recording.audio_hash}/{recording.audio_filename}")
+    audio_file, mimetype, _ = read_audio_candidates(recording.audio_path, candidates)
     if audio_file is None:
-        return jsonify({"error": "Original audio file is unavailable."}), 404
+        return jsonify({"error": "Original audio file is unavailable in durable storage.", "recording_id": recording.id}), 404
 
     response = send_file(
         audio_file,

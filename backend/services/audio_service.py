@@ -226,3 +226,24 @@ def delete_audio(audio_path):
         path = Path(audio_path)
         if path.exists():
             path.unlink()
+
+
+def read_audio_candidates(audio_path, candidates=None):
+    """Read durable audio, trying the stored URI first and then known storage keys.
+
+    Older PARAMPARA records may contain a stale/local URI even though the same
+    object was migrated to Supabase. This helper makes playback resilient to
+    that migration without exposing storage credentials to the browser.
+    """
+    tried = []
+    for candidate in [audio_path, *(candidates or [])]:
+        if not candidate or candidate in tried:
+            continue
+        tried.append(candidate)
+        try:
+            audio_file, mimetype = read_audio(candidate)
+            if audio_file is not None:
+                return audio_file, mimetype, candidate
+        except Exception:
+            continue
+    return None, None, None

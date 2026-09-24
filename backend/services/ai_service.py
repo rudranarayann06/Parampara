@@ -105,9 +105,14 @@ def transcribe_audio(audio_path, language_code):
         return transcribe_gcs(value, language_code)
 
     if value.startswith("supabase://"):
-        from services.audio_service import read_audio
+        from services.audio_service import read_audio_candidates
 
-        audio_file, _ = read_audio(value)
+        bucket = os.getenv("SUPABASE_AUDIO_BUCKET", "parampara-audio")
+        candidates = []
+        name = value.split("/", 3)[-1] if value.startswith("supabase://") else ""
+        # The caller's stored URI is tried first; this branch primarily handles
+        # migrated records whose URI points at an older object key.
+        audio_file, _, _ = read_audio_candidates(value, candidates)
         if audio_file is None:
             raise FileNotFoundError("Original audio file is unavailable in durable storage.")
 

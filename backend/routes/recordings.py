@@ -9,7 +9,7 @@ from models.recording import Recording
 from models.consent import Consent
 from models.verification import Verification
 from models.enrichment import TranscriptVersion, Translation, AuditEvent, HeritagePassport, CommunityVerification
-from services.audio_service import save_audio, upload_audio_to_storage, read_audio, delete_audio
+from services.audio_service import save_audio, upload_audio_to_storage, read_audio, read_audio_candidates, delete_audio
 from services.hash_service import calculate_sha256
 from services.audit_service import audit
 from services.passport_service import ensure_passport
@@ -203,9 +203,9 @@ def stream_original_audio(recording_id):
     public_ok = verification and verification.status == "APPROVED" and consent and consent.public_access_allowed
     if not reviewer and not public_ok:
         return jsonify({"error": "Audio playback is restricted."}), 403
-    audio_file, mimetype = read_audio(recording.audio_path)
+    audio_file, mimetype, resolved_path = _recording_audio(recording)
     if audio_file is None:
-        return jsonify({"error": "Original audio file is unavailable."}), 404
+        return jsonify({"error": "Original audio file is unavailable in durable storage.", "recording_id": recording.id}), 404
     download = _bool("download")
     response = send_file(
         audio_file,
@@ -241,6 +241,16 @@ def public_recordings():
     return jsonify({"recordings": [_serialize(r) for r in records], "count": len(records)})
 
 
+def _recording_audio(recording):
+    candidates = []
+    filename = recording.audio_filename or ""
+    digest = recording.audio_hash or ""
+    if digest and filename:
+        candidates.append(f"supabase://{os.getenv('SUPABASE_AUDIO_BUCKET', 'parampara-audio')}/recordings/{digest[:2]}/{digest}/{filename}")
+        candidates.append(f"gs://{os.getenv('FIREBASE_STORAGE_BUCKET', os.getenv('DEFAULT_BUCKET', ''))}/recordings/{digest[:2]}/{digest}/{filename}")
+    return read_audio_candidates(recording.audio_path, candidates)
+
+
 @recordings_bp.route("/public/<int:recording_id>/audio", methods=["GET"])
 def public_audio(recording_id):
     recording = Recording.query.get_or_404(recording_id)
@@ -248,9 +258,9 @@ def public_audio(recording_id):
     consent = Consent.query.filter_by(recording_id=recording.id).first()
     if not (verification and verification.status == "APPROVED" and consent and consent.public_access_allowed):
         return jsonify({"error": "Audio is not public."}), 403
-    audio_file, mimetype = read_audio(recording.audio_path)
+    audio_file, mimetype, resolved_path = _recording_audio(recording)
     if audio_file is None:
-        return jsonify({"error": "Audio unavailable."}), 404
+        return jsonify({"error": "Audio unavailable. The durable storage object could not be found.", "recording_id": recording.id, "audio_path": bool(recording.audio_path)}), 404
     download = _bool("download")
     response = send_file(
         audio_file,

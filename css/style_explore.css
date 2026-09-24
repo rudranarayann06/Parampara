@@ -3552,3 +3552,14 @@
     }
 
 }
+/* PARAMPARA provenance + media reliability patch */
+.provenance-modal{position:fixed!important;inset:0!important;z-index:99999!important;display:none!important;align-items:center!important;justify-content:center!important;padding:24px!important;background:rgba(5,4,3,.78)!important;backdrop-filter:blur(12px)!important;overflow:auto!important}
+.provenance-modal.open{display:flex!important}
+.provenance-modal .provenance-dialog{position:relative!important;width:min(760px,calc(100vw - 32px))!important;max-height:min(82vh,820px)!important;overflow:auto!important;margin:auto!important;background:#171310!important;border:1px solid rgba(217,173,106,.28)!important;border-radius:24px!important;box-shadow:0 30px 100px rgba(0,0,0,.55)!important;color:#f6eee4!important;padding:28px!important}
+.provenance-modal .provenance-content{display:grid!important;gap:10px!important;color:#eee!important}
+.provenance-modal .provenance-row{display:grid!important;grid-template-columns:150px 1fr!important;gap:16px!important;padding:13px 0!important;border-bottom:1px solid rgba(255,255,255,.08)!important}
+.provenance-modal .provenance-label{color:#b9afa4!important;font-size:12px!important;text-transform:uppercase!important;letter-spacing:.08em!important}
+.provenance-modal .provenance-value{color:#f7efe6!important;word-break:break-word!important}
+.audio-error{display:block;margin-top:8px;color:#e8b7a4;font-size:12px}
+.archive-audio{display:block;width:100%;min-height:48px;margin:18px 0 8px}
+@media(max-width:600px){.provenance-modal{padding:12px!important}.provenance-modal .provenance-dialog{padding:20px!important;border-radius:18px!important}.provenance-modal .provenance-row{grid-template-columns:1fr!important;gap:5px!important}}
