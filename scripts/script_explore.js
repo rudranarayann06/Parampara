@@ -528,112 +528,141 @@ document.addEventListener(
    PROVENANCE MODAL
 ========================================================= */
 
-function openProvenance(recordingId) {
-
-    const modal =
-        document.getElementById("provenanceModal");
-
-    const title =
-        document.getElementById("provenanceTitle");
-
-    const content =
-        document.getElementById("provenanceContent");
+async function openProvenance(recordingId) {
+    const modal = document.getElementById("provenanceModal");
+    const title = document.getElementById("provenanceTitle");
+    const content = document.getElementById("provenanceContent");
 
     if (!modal || !title || !content) {
-        console.error(
-            "Provenance modal elements are missing."
-        );
+        console.error("Provenance modal elements are missing.");
         return;
     }
 
-    const record = archiveRecords.find(
-        item => Number(item.id) === Number(recordingId)
-    );
-
-    if (!record) {
-        console.error(
-            "Archive record not found:",
-            recordingId
-        );
-        return;
-    }
-
-    title.textContent =
-        record.title || "Record provenance";
-
+    title.textContent = "Record provenance";
     content.innerHTML = `
         <div class="provenance-row">
-            <span class="provenance-label">
-                Verification
-            </span>
             <span class="provenance-value">
-                ✓ Verified by PARAMPARA review process
-            </span>
-        </div>
-
-        <div class="provenance-row">
-            <span class="provenance-label">
-                Community access
-            </span>
-            <span class="provenance-value">
-                Public archive access granted
-            </span>
-        </div>
-
-        <div class="provenance-row">
-            <span class="provenance-label">
-                Language
-            </span>
-            <span class="provenance-value">
-                ${escapeHtml(
-                    record.language || "Not specified"
-                )}
-            </span>
-        </div>
-
-        <div class="provenance-row">
-            <span class="provenance-label">
-                Recording ID
-            </span>
-            <span class="provenance-value">
-                PARAMPARA-${record.id}
-            </span>
-        </div>
-
-        <div class="provenance-row">
-            <span class="provenance-label">
-                SHA-256 integrity fingerprint
-            </span>
-            <span class="provenance-value">
-                ${escapeHtml(
-                    record.audio_hash || "Unavailable"
-                )}
-            </span>
-        </div>
-
-        <div class="provenance-row">
-            <span class="provenance-label">
-                Preservation date
-            </span>
-            <span class="provenance-value">
-                ${
-                    record.created_at
-                        ? new Date(
-                            record.created_at
-                        ).toLocaleString()
-                        : "Not available"
-                }
+                Loading provenance...
             </span>
         </div>
     `;
 
     modal.classList.add("open");
-    modal.setAttribute(
-        "aria-hidden",
-        "false"
-    );
-
+    modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
+
+    try {
+        const response = await fetch(
+            `${API_BASE}/api/recordings/${recordingId}/provenance`
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error || `Provenance request failed: ${response.status}`
+            );
+        }
+
+        const record = data.recording || {};
+        const events = data.events || [];
+
+        title.textContent =
+            record.title || "Record provenance";
+
+        content.innerHTML = `
+            <div class="provenance-row">
+                <span class="provenance-label">Verification</span>
+                <span class="provenance-value">
+                    ✓ Verified by PARAMPARA review process
+                </span>
+            </div>
+
+            <div class="provenance-row">
+                <span class="provenance-label">Community access</span>
+                <span class="provenance-value">
+                    Public archive access granted
+                </span>
+            </div>
+
+            <div class="provenance-row">
+                <span class="provenance-label">Language</span>
+                <span class="provenance-value">
+                    ${escapeHtml(record.language || "Not specified")}
+                </span>
+            </div>
+
+            <div class="provenance-row">
+                <span class="provenance-label">Recording ID</span>
+                <span class="provenance-value">
+                    PARAMPARA-${record.id || recordingId}
+                </span>
+            </div>
+
+            <div class="provenance-row">
+                <span class="provenance-label">
+                    SHA-256 integrity fingerprint
+                </span>
+                <span class="provenance-value">
+                    ${escapeHtml(record.audio_hash || "Unavailable")}
+                </span>
+            </div>
+
+            <div class="provenance-row">
+                <span class="provenance-label">Preservation date</span>
+                <span class="provenance-value">
+                    ${
+                        record.created_at
+                            ? new Date(record.created_at).toLocaleString()
+                            : "Not available"
+                    }
+                </span>
+            </div>
+
+            ${
+                events.length
+                    ? `
+                        <div class="provenance-panel">
+                            <strong>Audit history</strong>
+                            <div class="provenance-timeline">
+                                ${events.map(event => `
+                                    <div class="provenance-event">
+                                        <span class="dot"></span>
+                                        <div>
+                                            <strong>
+                                                ${escapeHtml(
+                                                    event.type || "Archive event"
+                                                )}
+                                            </strong>
+                                            <small>
+                                                ${
+                                                    event.created_at
+                                                        ? new Date(
+                                                            event.created_at
+                                                        ).toLocaleString()
+                                                        : ""
+                                                }
+                                            </small>
+                                        </div>
+                                    </div>
+                                `).join("")}
+                            </div>
+                        </div>
+                    `
+                    : ""
+            }
+        `;
+    } catch (error) {
+        console.error("Provenance error:", error);
+
+        content.innerHTML = `
+            <div class="provenance-row">
+                <span class="provenance-value">
+                    Unable to load provenance.
+                </span>
+            </div>
+        `;
+    }
 }
 
 
