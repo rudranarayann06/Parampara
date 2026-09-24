@@ -129,7 +129,6 @@ def _storage_blob_from_uri(audio_path):
         bucket = storage.bucket(name=bucket_name)
     return bucket.blob(object_name)
 
-
 def _read_supabase(audio_path):
     bucket, object_name = _parse_supabase_uri(audio_path)
 
@@ -155,9 +154,7 @@ def _read_supabase(audio_path):
         print(f"[SUPABASE AUDIO] status={response.status_code}")
 
         if response.status_code != 200:
-            print(
-                f"[SUPABASE AUDIO] error={response.text[:1000]}"
-            )
+            print(f"[SUPABASE AUDIO] error={response.text[:1000]}")
             response.close()
             return None, None
 
@@ -166,9 +163,7 @@ def _read_supabase(audio_path):
             mode="w+b",
         )
 
-        for chunk in response.iter_content(
-            chunk_size=1024 * 1024
-        ):
+        for chunk in response.iter_content(chunk_size=1024 * 1024):
             if chunk:
                 stream.write(chunk)
 
@@ -181,16 +176,12 @@ def _read_supabase(audio_path):
         response.close()
         stream.seek(0)
 
-        print(
-            f"[SUPABASE AUDIO] SUCCESS mimetype={mimetype}"
-        )
+        print(f"[SUPABASE AUDIO] SUCCESS mimetype={mimetype}")
 
         return stream, mimetype
 
     except Exception as exc:
-        print(
-            f"[SUPABASE AUDIO] EXCEPTION: {type(exc).__name__}: {exc}"
-        )
+        print(f"[SUPABASE AUDIO] EXCEPTION: {type(exc).__name__}: {exc}")
         return None, None
 def read_audio(audio_path):
     if audio_path and audio_path.startswith("supabase://"):
