@@ -156,8 +156,13 @@ async function handleSubmit(event) {
         const result = await submitOnline(form, audio);
         notify(`✓ Preserved successfully. Record ${result.recording?.id ? `#${result.recording.id}` : "created"} is now awaiting verification.`, "success");
       } catch (networkError) {
+        // Only fall back to the offline queue for a genuine network failure.
+        // HTTP 4xx/5xx responses are server validation/auth/storage errors and
+        // must be shown to the contributor instead of being hidden as "offline".
+        const isNetworkFailure = networkError?.name === "TypeError" || /failed to fetch|networkerror|load failed/i.test(String(networkError?.message || ""));
+        if (!isNetworkFailure) throw networkError;
         const saved = await window.ParamparaPWA.saveOffline(form, audio);
-        notify(saved.duplicate ? "This source already exists in the local queue." : "Backend unavailable. Saved safely to this device; sync will retry automatically.", "success");
+        notify(saved.duplicate ? "This source already exists in the local queue." : "The archive server could not be reached. Your recording was saved safely to this device and will retry automatically.", "success");
       }
     }
     await renderOfflineQueue();
@@ -177,7 +182,51 @@ document.addEventListener("DOMContentLoaded", async () => {
   ensureConsentControls(); ensureOfflinePanel(form); setupPreviews();
   form.addEventListener("submit", handleSubmit);
   const audioInput = document.getElementById("audioUpload");
-  audioInput?.addEventListener("change", () => { const label = document.getElementById("audioName"); if (label && audioInput.files[0]) label.textContent = `✓ ${audioInput.files[0].name}`; });
+  const audioZone = document.getElementById("audioUploadZone");
+  const audioChooseButton = document.getElementById("audioChooseButton");
+
+  const chooseAudio = (event) => {
+    event?.preventDefault();
+    event?.stopPropagation();
+    audioInput?.click();
+  };
+
+  // The visible "Choose audio file" button and the upload card must both
+  // open the hidden file input. The previous build had the input hidden but
+  // never wired either control to it, so the UI appeared clickable while
+  // nothing happened.
+  audioChooseButton?.addEventListener("click", chooseAudio);
+  audioZone?.addEventListener("click", (event) => {
+    if (event.target?.closest("button, input, a, label")) return;
+    chooseAudio(event);
+  });
+  audioZone?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") chooseAudio(event);
+  });
+  if (audioZone) {
+    audioZone.tabIndex = 0;
+    audioZone.setAttribute("role", "button");
+    audioZone.setAttribute("aria-controls", "audioUpload");
+    audioZone.setAttribute("aria-label", "Choose an audio recording");
+  }
+
+  audioInput?.addEventListener("change", () => {
+    const file = audioInput.files?.[0];
+    const label = document.getElementById("audioName");
+    if (!file) {
+      if (label) label.textContent = "No file selected";
+      return;
+    }
+    const maxBytes = 50 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      audioInput.value = "";
+      if (label) label.textContent = "File is larger than 50 MB";
+      notify("Please choose an audio file smaller than 50 MB.", "error");
+      return;
+    }
+    if (label) label.textContent = `✓ ${file.name} · ${(file.size / 1024 / 1024).toFixed(1)} MB`;
+    notify(`Audio selected: ${file.name}`, "success");
+  });
   window.addEventListener("parampara:sync", renderOfflineQueue);
   await renderOfflineQueue();
 });

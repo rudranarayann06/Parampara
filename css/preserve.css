@@ -3532,3 +3532,32 @@ a {
 .offline-contribution-panel .offline-rec-status{margin-top:14px;color:#a9a29a}
 .offline-contribution-panel .offline-queue{margin-top:14px;display:grid;gap:9px}
 @media(max-width:700px){.offline-contribution-panel .offline-actions{display:grid;grid-template-columns:1fr}.offline-contribution-panel .offline-action{width:100%}}
+
+
+/* =========================================================
+   AUDIO UPLOAD INTERACTION — FINAL
+========================================================= */
+.upload-zone {
+    cursor: pointer;
+    position: relative;
+}
+
+.upload-zone:focus-visible {
+    outline: 2px solid var(--preserve-gold-light);
+    outline-offset: 4px;
+}
+
+.audio-choose-button {
+    position: relative;
+    z-index: 2;
+    cursor: pointer;
+}
+
+.upload-zone.drag-active {
+    border-color: var(--preserve-gold);
+    background: rgba(215,168,91,0.08);
+}
+
+#paramparaFormNotice {
+    margin: 0 0 18px;
+}
