@@ -14,25 +14,41 @@ def get_or_create_parampara_user(decoded_token):
         return None
     user = User.query.filter_by(firebase_uid=firebase_uid).first()
     claims = decoded_token.get("role") or decoded_token.get("parampara_role")
+    allowed_roles = {
+    "ADMIN",
+    "REVIEWER",
+    "COMMUNITY_KEEPER",
+    "CONTRIBUTOR",
+}
+    role = claims if claims in allowed_roles else None
     if user:
-        if claims in {"ADMIN", "REVIEWER", "COMMUNITY_KEEPER", "CONTRIBUTOR"} and user.role != claims:
-            user.role = claims
-            db.session.commit()
-        return user
-    if email:
-        user = User.query.filter_by(email=email).first()
-        if user:
-            user.firebase_uid = firebase_uid
-            user.name = user.name or name
-            user.role = claims if claims in {"ADMIN", "REVIEWER", "COMMUNITY_KEEPER", "CONTRIBUTOR"} else (user.role or "CONTRIBUTOR")
-            user.status = user.status or "ACTIVE"
+        if role and user.role != role:
+            user.role = role
             db.session.commit()
             return user
-    user = User(firebase_uid=firebase_uid, name=name, email=email, role=claims if claims in {"ADMIN", "REVIEWER", "COMMUNITY_KEEPER", "CONTRIBUTOR"} else "CONTRIBUTOR", status="ACTIVE")
-    db.session.add(user)
-    db.session.commit()
-    return user
+        if email:
+            user = User.query.filter_by(email=email).first()
+            if user:
+                user.firebase_uid = firebase_uid
+                user.name = user.name or name
+                if role:
+                    user.role = role
+                else:
+                    user.role = user.role or "CONTRIBUTOR"
+                user.status = user.status or "ACTIVE"
+                db.session.commit()
+                return user
 
+        user = User(    
+            firebase_uid=firebase_uid,
+            name=name,
+            email=email,
+            role=role or "CONTRIBUTOR",
+            status="ACTIVE",
+    )
+        db.session.add(user)
+        db.session.commit()
+        return user
 
 def _verify_request_token():
     header = request.headers.get("Authorization", "").strip()
