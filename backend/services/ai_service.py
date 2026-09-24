@@ -4,6 +4,54 @@ import tempfile
 from pathlib import Path
 
 
+
+
+def _google_credentials():
+    """Build Google credentials from the same Render service-account secret used by Firebase.
+
+    Google client libraries otherwise fall back to Application Default Credentials, which
+    do not exist on a normal Render service unless GOOGLE_APPLICATION_CREDENTIALS is set.
+    """
+    try:
+        from google.oauth2 import service_account
+    except ImportError as exc:
+        raise RuntimeError("Google authentication dependencies are not installed.") from exc
+
+    raw = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON", "").strip()
+    if raw:
+        import json
+        try:
+            value = json.loads(raw)
+            if isinstance(value, str):
+                value = json.loads(value)
+            if isinstance(value, dict) and value.get("client_email") and value.get("private_key"):
+                return service_account.Credentials.from_service_account_info(value)
+        except Exception as exc:
+            raise RuntimeError("FIREBASE_SERVICE_ACCOUNT_JSON is configured but is not valid service-account JSON.") from exc
+
+    encoded = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON_BASE64", "").strip()
+    if encoded:
+        import base64, json
+        try:
+            value = json.loads(base64.b64decode(encoded).decode("utf-8"))
+            if isinstance(value, dict) and value.get("client_email") and value.get("private_key"):
+                return service_account.Credentials.from_service_account_info(value)
+        except Exception as exc:
+            raise RuntimeError("FIREBASE_SERVICE_ACCOUNT_JSON_BASE64 is configured but is invalid.") from exc
+
+    credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "").strip()
+    if credentials_path:
+        return service_account.Credentials.from_service_account_file(credentials_path)
+
+    # Preserve normal ADC behaviour if the deployment explicitly provides ADC.
+    return None
+
+
+def _google_client_credentials():
+    creds = _google_credentials()
+    return {"credentials": creds} if creds is not None else {}
+
+
 def _normalise_lang(code):
     value = (code or "en-IN").strip().replace("_", "-")
     aliases = {"odia": "or-IN", "ଓଡ଼ିଆ": "or-IN", "hindi": "hi-IN", "हिन्दी": "hi-IN", "english": "en-IN", "bengali": "bn-IN", "বাংলা": "bn-IN"}
@@ -26,7 +74,7 @@ def transcribe_gcs(gcs_uri, language_code):
     project_id = os.getenv("GOOGLE_CLOUD_PROJECT") or os.getenv("FIREBASE_PROJECT_ID")
     if not project_id:
         raise RuntimeError("GOOGLE_CLOUD_PROJECT is not configured.")
-    client = speech_v2.SpeechClient()
+    client = speech_v2.SpeechClient(**_google_client_credentials())
     recognizer = f"projects/{project_id}/locations/global/recognizers/_"
     config = speech_v2.RecognitionConfig(
         auto_decoding_config=speech_v2.AutoDetectDecodingConfig(),
@@ -85,7 +133,7 @@ def transcribe_local(file_path, language_code):
     if suffix in encoding_map:
         config_kwargs["encoding"] = encoding_map[suffix]
     audio = speech.RecognitionAudio(content=data)
-    client = speech.SpeechClient()
+    client = speech.SpeechClient(**_google_client_credentials())
     operation = client.long_running_recognize(config=speech.RecognitionConfig(**config_kwargs), audio=audio)
     response = operation.result(timeout=int(os.getenv("SPEECH_TIMEOUT_SECONDS", "600")))
     chunks, confidences = [], []
@@ -190,7 +238,7 @@ def _translate_google(text, source_language, target_language):
     project_id = os.getenv("GOOGLE_CLOUD_PROJECT") or os.getenv("FIREBASE_PROJECT_ID")
     if not project_id:
         raise RuntimeError("GOOGLE_CLOUD_PROJECT is not configured.")
-    client = translate_v3.TranslationServiceClient()
+    client = translate_v3.TranslationServiceClient(**_google_client_credentials())
     parent = f"projects/{project_id}/locations/global"
     response = client.translate_text(request={"parent": parent, "source_language_code": _translate_lang(source_language), "target_language_code": _translate_lang(target_language), "mime_type": "text/plain", "contents": [text]})
     translated = "\n".join(t.translated_text for t in response.translations).strip()
