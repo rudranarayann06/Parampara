@@ -88,38 +88,25 @@ def internal_server_error(_):
 
 def bootstrap():
     with app.app_context():
-        # Import every model before create_all().
-        # This is important because Recording references
-        # communities, speakers and users through foreign keys.
-        from models.user import User
-        from models.community import Community
-        from models.speaker import Speaker
-        from models.recording import Recording
-        from models.consent import Consent
-        from models.verification import Verification
+
+        # Explicitly import every model before create_all().
+        # This guarantees that all model tables are registered
+        # in SQLAlchemy metadata.
+        from models.user import User as _User
+        from models.community import Community as _Community
+        from models.speaker import Speaker as _Speaker
+        from models.recording import Recording as _Recording
+        from models.consent import Consent as _Consent
+        from models.verification import Verification as _Verification
         from models.enrichment import (
-            TranscriptVersion,
-            Translation,
-            AuditEvent,
-            HeritagePassport,
-            CommunityVerification,
+            TranscriptVersion as _TranscriptVersion,
+            Translation as _Translation,
+            AuditEvent as _AuditEvent,
+            HeritagePassport as _HeritagePassport,
+            CommunityVerification as _CommunityVerification,
         )
 
-        # Create all missing tables without deleting existing data.
-        db.create_all()
-
-        from sqlalchemy import inspect
-
-        inspector = inspect(db.engine)
-        tables = set(inspector.get_table_names())
-
-        current_app.logger.info(
-            "PARAMPARA database tables: %s",
-            sorted(tables)
-        )
-
-        # These are the tables required by the reviewer workflow.
-        required_tables = {
+        expected_model_tables = {
             "users",
             "communities",
             "speakers",
@@ -133,27 +120,45 @@ def bootstrap():
             "community_verifications",
         }
 
-        missing_tables = required_tables - tables
+        # Check SQLAlchemy metadata BEFORE creating database tables.
+        metadata_tables = set(db.metadata.tables.keys())
 
-        if missing_tables:
-            current_app.logger.warning(
-                "PARAMPARA missing database tables: %s",
-                sorted(missing_tables)
+        current_app.logger.info(
+            "PARAMPARA SQLAlchemy metadata tables: %s",
+            sorted(metadata_tables)
+        )
+
+        missing_metadata = expected_model_tables - metadata_tables
+
+        if missing_metadata:
+            raise RuntimeError(
+                "PARAMPARA model metadata is missing tables: "
+                + ", ".join(sorted(missing_metadata))
             )
 
-            # Run create_all() once more after all model imports.
-            db.create_all()
+        # Create missing tables without deleting existing data.
+        db.create_all()
 
-            inspector = inspect(db.engine)
-            tables = set(inspector.get_table_names())
+        from sqlalchemy import inspect
 
-            still_missing = required_tables - tables
+        inspector = inspect(db.engine)
 
-            if still_missing:
-                raise RuntimeError(
-                    "PARAMPARA database is missing required tables: "
-                    + ", ".join(sorted(still_missing))
-                )
+        tables = set(
+            inspector.get_table_names()
+        )
+
+        current_app.logger.info(
+            "PARAMPARA database tables after bootstrap: %s",
+            sorted(tables)
+        )
+
+        missing_db_tables = expected_model_tables - tables
+
+        if missing_db_tables:
+            raise RuntimeError(
+                "PARAMPARA database is missing tables: "
+                + ", ".join(sorted(missing_db_tables))
+            )
 
         # Keep existing prototype/Render databases compatible
         # without destructive migrations.
@@ -168,35 +173,39 @@ def bootstrap():
         }
 
         for table, cols in legacy.items():
+
             if table not in tables:
                 continue
 
             existing = {
-                c["name"]
-                for c in inspector.get_columns(table)
+                column["name"]
+                for column in inspector.get_columns(table)
             }
 
-            for col, typ in cols.items():
-                if col not in existing:
+            for column_name, column_type in cols.items():
+
+                if column_name not in existing:
+
                     current_app.logger.info(
                         "Adding legacy column %s.%s",
                         table,
-                        col
+                        column_name
                     )
 
                     db.session.execute(
                         text(
                             f"ALTER TABLE {table} "
-                            f"ADD COLUMN {col} {typ}"
+                            f"ADD COLUMN {column_name} {column_type}"
                         )
                     )
 
         db.session.commit()
 
-        # Create the system user if it does not already exist.
+        # Create the system user if it doesn't already exist.
         system_user = User.query.filter_by(id=1).first()
 
         if not system_user:
+
             db.session.add(
                 User(
                     id=1,
@@ -207,12 +216,12 @@ def bootstrap():
                     status="ACTIVE",
                 )
             )
+
             db.session.commit()
 
         current_app.logger.info(
             "PARAMPARA database bootstrap completed successfully."
         )
-
 bootstrap()
 
 if __name__ == "__main__":
