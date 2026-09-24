@@ -81,7 +81,27 @@ function ensureOfflinePanel(form) {
     } catch (error) { panel.querySelector("#offlineRecorderStatus").textContent = `Microphone unavailable: ${error.message}`; }
   });
   stop.addEventListener("click", () => recorder?.state === "recording" && recorder.stop());
-  panel.querySelector("#syncNow").addEventListener("click", () => window.ParamparaPWA?.syncQueue());
+  panel.querySelector("#syncNow").addEventListener("click", async () => {
+    const button = panel.querySelector("#syncNow");
+    const status = panel.querySelector("#offlineRecorderStatus");
+    if (!window.ParamparaPWA) return;
+    button.disabled = true;
+    const original = button.innerHTML;
+    button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Syncing…';
+    if (status) status.textContent = navigator.onLine ? "Trying to synchronize queued records…" : "You are offline. Connect to the internet and try again.";
+    try {
+      const result = await window.ParamparaPWA.syncQueue();
+      if (status) {
+        status.textContent = result.failed
+          ? `Sync finished: ${result.synced} synchronized, ${result.failed} still waiting. Check the queue for the server error.`
+          : `✓ Sync finished: ${result.synced} record(s) synchronized.`;
+      }
+      await renderOfflineQueue();
+    } finally {
+      button.disabled = false;
+      button.innerHTML = original;
+    }
+  });
 }
 
 async function renderOfflineQueue() {

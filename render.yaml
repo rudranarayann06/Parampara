@@ -22,8 +22,10 @@ services:
       - key: FIREBASE_SERVICE_ACCOUNT_JSON
         sync: false
       - key: GOOGLE_CLOUD_PROJECT
-        value: parampara-27428
+        value: ""
       - key: MAX_CONTENT_LENGTH
         value: 78643200
       - key: ALLOW_LOCAL_STORAGE_FALLBACK
-        value: "false"
+        value: "true"
+      - key: TRANSLATION_PROVIDER
+        value: mymemory
