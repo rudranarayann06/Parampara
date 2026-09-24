@@ -99,6 +99,47 @@ def transcribe_local(file_path, language_code):
     return text, (sum(confidences) / len(confidences) if confidences else None), "Google Cloud Speech-to-Text (local upload)"
 
 
+def transcribe_recording(recording, language_code):
+    """Transcribe a DB recording after resolving its durable audio object."""
+    from services.audio_service import read_audio_for_recording
+
+    # GCS-native objects can be passed directly to Speech-to-Text.
+    stored = str(getattr(recording, "audio_path", "") or "")
+    if stored.startswith("gs://"):
+        try:
+            return transcribe_gcs(stored, language_code)
+        except Exception:
+            # Fall through to the durable resolver; older records may point to
+            # a stale Firebase object path.
+            pass
+
+    audio_file, mimetype, resolved = read_audio_for_recording(recording)
+    if audio_file is None:
+        raise FileNotFoundError("Original audio file is unavailable in durable storage.")
+
+    filename = getattr(recording, "audio_filename", "") or "recording.webm"
+    suffix = Path(filename).suffix or ".webm"
+    temp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp:
+            temp_path = temp.name
+            while True:
+                chunk = audio_file.read(1024 * 1024)
+                if not chunk:
+                    break
+                temp.write(chunk)
+        return transcribe_local(temp_path, language_code)
+    finally:
+        try:
+            audio_file.close()
+        except Exception:
+            pass
+        if temp_path:
+            try:
+                os.remove(temp_path)
+            except OSError:
+                pass
+
 def transcribe_audio(audio_path, language_code):
     value = str(audio_path or "")
     if value.startswith("gs://"):

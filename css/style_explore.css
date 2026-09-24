@@ -3563,3 +3563,86 @@
 .audio-error{display:block;margin-top:8px;color:#e8b7a4;font-size:12px}
 .archive-audio{display:block;width:100%;min-height:48px;margin:18px 0 8px}
 @media(max-width:600px){.provenance-modal{padding:12px!important}.provenance-modal .provenance-dialog{padding:20px!important;border-radius:18px!important}.provenance-modal .provenance-row{grid-template-columns:1fr!important;gap:5px!important}}
+
+/* =========================================================
+   PROVENANCE MODAL — FINAL OVERRIDE
+   The legacy stylesheet contains several conflicting light-theme
+   provenance rules. Keep this block last so the modal is always
+   readable above the archive page.
+========================================================= */
+#provenanceModal.provenance-modal {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 2147483000 !important;
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 18px !important;
+    background: rgba(0,0,0,.82) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+#provenanceModal.provenance-modal.open {
+    display: flex !important;
+}
+#provenanceModal .provenance-panel {
+    position: relative !important;
+    width: min(820px, calc(100vw - 28px)) !important;
+    max-height: min(86vh, 860px) !important;
+    overflow: auto !important;
+    margin: auto !important;
+    padding: 30px !important;
+    border: 1px solid rgba(215,168,91,.24) !important;
+    border-radius: 26px !important;
+    background: linear-gradient(145deg,#1b1714,#0f0e0d) !important;
+    color: #f5eee5 !important;
+    box-shadow: 0 35px 120px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.05) !important;
+    transform: translateY(0) scale(1) !important;
+    opacity: 1 !important;
+}
+#provenanceModal .provenance-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background: linear-gradient(120deg,rgba(215,168,91,.055),transparent 38%,transparent 72%,rgba(200,117,61,.035));
+}
+#provenanceModal .provenance-panel > * { position: relative; z-index: 1; }
+#provenanceModal #provenanceTitle { color:#f8f0e7 !important; margin:10px 45px 20px 0 !important; font-size:clamp(24px,4vw,34px) !important; }
+#provenanceModal .section-label { color:#d7a85b !important; font-size:10px !important; font-weight:800 !important; letter-spacing:.16em !important; }
+#provenanceModal .provenance-close {
+    position:absolute !important; top:17px !important; right:17px !important;
+    width:42px !important; height:42px !important; padding:0 !important;
+    display:grid !important; place-items:center !important;
+    border:1px solid rgba(255,255,255,.12) !important; border-radius:50% !important;
+    background:rgba(255,255,255,.055) !important; color:#f5eee5 !important;
+    font-size:27px !important; line-height:1 !important; cursor:pointer !important;
+}
+#provenanceModal .provenance-close:hover { background:rgba(215,168,91,.14) !important; border-color:rgba(215,168,91,.45) !important; }
+#provenanceModal .provenance-content { display:grid !important; gap:0 !important; margin-top:8px !important; color:#f5eee5 !important; }
+#provenanceModal .provenance-row {
+    display:grid !important; grid-template-columns:minmax(135px,180px) 1fr !important;
+    gap:18px !important; padding:17px 0 !important;
+    border-bottom:1px solid rgba(255,255,255,.075) !important;
+}
+#provenanceModal .provenance-label { color:#9d948b !important; font-size:10px !important; font-weight:800 !important; letter-spacing:.10em !important; text-transform:uppercase !important; }
+#provenanceModal .provenance-value { color:#f1e9e1 !important; font-size:14px !important; line-height:1.65 !important; word-break:break-word !important; }
+#provenanceModal .provenance-history {
+    margin-top:20px !important; padding:19px !important; border:1px solid rgba(255,255,255,.08) !important;
+    border-radius:18px !important; background:rgba(0,0,0,.18) !important;
+}
+#provenanceModal .provenance-history-title { color:#f4ece4 !important; font-weight:800 !important; margin-bottom:14px !important; }
+#provenanceModal .provenance-timeline { display:grid !important; gap:12px !important; }
+#provenanceModal .provenance-event { display:grid !important; grid-template-columns:10px 1fr !important; gap:12px !important; align-items:start !important; }
+#provenanceModal .provenance-event .dot { width:8px !important; height:8px !important; margin-top:6px !important; border-radius:50% !important; background:#d7a85b !important; box-shadow:0 0 0 4px rgba(215,168,91,.10) !important; }
+#provenanceModal .provenance-event strong { display:block !important; color:#eee5dc !important; font-size:13px !important; }
+#provenanceModal .provenance-event small { display:block !important; margin-top:3px !important; color:#827a73 !important; font-size:11px !important; }
+#provenanceModal .audio-error { color:#e8b7a4 !important; }
+@media(max-width:600px){
+  #provenanceModal.provenance-modal { padding:10px !important; }
+  #provenanceModal .provenance-panel { width:100% !important; max-height:91vh !important; padding:22px !important; border-radius:20px !important; }
+  #provenanceModal .provenance-row { grid-template-columns:1fr !important; gap:5px !important; }
+}

@@ -76,3 +76,12 @@ For the current $0 prototype:
 - Google AI credentials remain optional
 
 Do not treat Render local media or Free PostgreSQL as the final permanent heritage archive.
+
+## 2026-09-24 — SIH audio + passport/provenance hardening v3
+- Replaced conflicting provenance light-theme rules with a final isolated dark modal layer.
+- Added dedicated passport.css so global styles cannot wash out passport controls/card styling.
+- Public Explore audio now loads through fetch/blob, exposing real HTTP errors and avoiding direct-media caching issues.
+- Passport audio/download now resolve through the same public media path and use an object URL when available.
+- Durable audio resolver now checks the stored URI, current/legacy Supabase bucket names, multiple historical object layouts, and the Firebase default bucket.
+- Reviewer compatibility audio endpoint now uses the same durable resolver.
+- Transcription now resolves the actual Recording object from durable storage before sending it to the speech provider.

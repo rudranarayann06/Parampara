@@ -228,6 +228,82 @@ def delete_audio(audio_path):
             path.unlink()
 
 
+
+def _firebase_bucket_name():
+    return (
+        os.getenv("FIREBASE_STORAGE_BUCKET", "").strip()
+        or os.getenv("DEFAULT_BUCKET", "").strip()
+        or "parampara-27428.firebasestorage.app"
+    )
+
+def _supabase_object_variants(digest, filename):
+    """Known PARAMPARA object layouts used across prototype generations."""
+    if not filename:
+        return []
+    variants = []
+    if digest:
+        variants.extend([
+            f"recordings/{digest[:2]}/{digest}/{filename}",
+            f"recordings/{digest}/{filename}",
+            f"audio/{digest[:2]}/{digest}/{filename}",
+            f"audio/{digest}/{filename}",
+            f"uploads/{digest[:2]}/{digest}/{filename}",
+            f"uploads/{digest}/{filename}",
+        ])
+    variants.append(filename)
+    # Preserve order while removing duplicates.
+    return list(dict.fromkeys(variants))
+
+def _supabase_bucket_names(preferred=None):
+    names = []
+    if preferred:
+        names.append(preferred)
+    configured = _supabase_bucket()
+    if configured:
+        names.append(configured)
+    # If the configured bucket was renamed or the record predates the current
+    # Render environment, discover buckets using the server-side key.
+    if _supabase_configured():
+        try:
+            response = requests.get(
+                f"{_supabase_base_url()}/storage/v1/bucket",
+                headers=_supabase_headers(), timeout=15
+            )
+            if response.ok:
+                for item in response.json() or []:
+                    name = (item.get("name") if isinstance(item, dict) else None)
+                    if name:
+                        names.append(name)
+        except Exception as exc:
+            print(f"[SUPABASE AUDIO] bucket discovery failed: {type(exc).__name__}: {exc}")
+    return list(dict.fromkeys(names))
+
+def read_audio_for_recording(recording):
+    """Resolve audio for a Recording across current and legacy storage layouts."""
+    candidates = []
+    stored = getattr(recording, "audio_path", None)
+    filename = getattr(recording, "audio_filename", None) or ""
+    digest = getattr(recording, "audio_hash", None) or ""
+
+    if stored:
+        candidates.append(stored)
+
+    variants = _supabase_object_variants(digest, filename)
+    if _supabase_configured():
+        preferred_bucket = None
+        if str(stored or "").startswith("supabase://"):
+            preferred_bucket, _ = _parse_supabase_uri(str(stored))
+        for bucket in _supabase_bucket_names(preferred_bucket):
+            for obj in variants:
+                candidates.append(f"supabase://{bucket}/{obj}")
+
+    if digest and filename:
+        firebase_bucket = _firebase_bucket_name()
+        for obj in _supabase_object_variants(digest, filename):
+            candidates.append(f"gs://{firebase_bucket}/{obj}")
+
+    return read_audio_candidates(None, candidates)
+
 def read_audio_candidates(audio_path, candidates=None):
     """Read durable audio, trying the stored URI first and then known storage keys.
 

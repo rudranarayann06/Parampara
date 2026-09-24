@@ -148,16 +148,31 @@ function renderArchiveRecords(records) {
     `).join("");
 
     // Surface playback failures instead of leaving a silent 0:00 player.
-    archiveGrid.querySelectorAll(".archive-audio").forEach(audio => {
-        const showAudioError = () => {
+    archiveGrid.querySelectorAll(".archive-audio").forEach(async (audio) => {
+        const source = audio.getAttribute("src");
+        const showAudioError = (message = "Audio unavailable from the archive server.") => {
             if (!audio.nextElementSibling?.classList.contains("audio-error")) {
-                audio.insertAdjacentHTML("afterend", '<small class="audio-error">Audio unavailable from the archive server. Open the browser Network/Console details if this persists.</small>');
+                audio.insertAdjacentHTML("afterend", `<small class="audio-error">${escapeHtml(message)}</small>`);
             }
         };
-        audio.addEventListener("error", showAudioError, { once: true });
-        audio.addEventListener("stalled", () => {
-            if (audio.readyState === 0) showAudioError();
-        }, { once: true });
+        try {
+            const response = await fetch(source, { cache: "no-store" });
+            if (!response.ok) {
+                let detail = "";
+                try { detail = (await response.json())?.error || ""; } catch (_) {}
+                throw new Error(detail || `Audio request failed (HTTP ${response.status}).`);
+            }
+            const blob = await response.blob();
+            if (!blob.size) throw new Error("The archive server returned an empty audio file.");
+            const objectUrl = URL.createObjectURL(blob);
+            audio.dataset.objectUrl = objectUrl;
+            audio.src = objectUrl;
+            audio.load();
+            audio.addEventListener("error", () => showAudioError("The browser could not decode this audio format."), { once:true });
+        } catch (error) {
+            console.error("Public audio load failed:", source, error);
+            showAudioError(error?.message || "Audio unavailable from the archive server.");
+        }
     });
 
     console.log(
@@ -556,7 +571,7 @@ async function openProvenance(recordingId) {
 
     try {
         const response = await fetch(
-            `${API_BASE}/api/recordings/${recordingId}/provenance`
+            `${API_BASE}/api/recordings/${encodeURIComponent(recordingId)}/provenance`
         );
 
         const data = await response.json();
@@ -625,8 +640,8 @@ async function openProvenance(recordingId) {
             ${
                 events.length
                     ? `
-                        <div class="provenance-panel">
-                            <strong>Audit history</strong>
+                        <div class="provenance-history">
+                            <div class="provenance-history-title">Audit history</div>
                             <div class="provenance-timeline">
                                 ${events.map(event => `
                                     <div class="provenance-event">

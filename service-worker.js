@@ -1,9 +1,9 @@
-const CACHE = "parampara-shell-v6";
+const CACHE = "parampara-shell-v8";
 let API_BASE = "https://parampara-backend-8yt9.onrender.com";
 const SHELL = [
   "./", "./index.html", "./preserve.html", "./explore.html", "./about.html",
   "./contribute.html", "./login.html", "./dashboard.html", "./reviewer.html",
-  "./passport.html", "./research.html", "./style_index.css", "./pwa.css",
+  "./passport.html", "./research.html", "./style_index.css", "./pwa.css", "./css/passport.css",
   "./offline-db.js", "./pwa.js", "./scripts/preserve.js", "./scripts/reviewer.js",
   "./scripts/script_explore.js", "./scripts/config.js", "./scripts/live-stats.js",
   "./i18n.js", "./assets/logo.png", "./manifest.webmanifest"

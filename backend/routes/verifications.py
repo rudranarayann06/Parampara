@@ -70,38 +70,26 @@ def pending_alias():
 @require_auth
 @require_role("REVIEWER", "ADMIN", "COMMUNITY_KEEPER")
 def reviewer_audio(recording_id):
-    """Protected audio endpoint for the reviewer workspace.
-
-    Kept under /api/verifications/... for backward compatibility with the
-    older reviewer frontend. The canonical authenticated audio endpoint is
-    /api/recordings/<id>/audio.
-    """
-    from flask import current_app, send_file
-    from services.audio_service import read_audio_candidates
+    """Compatibility endpoint; use the same durable resolver as public/canonical audio."""
+    from flask import send_file
+    from services.audio_service import read_audio_for_recording
 
     recording = Recording.query.get_or_404(recording_id)
-    candidates = []
-    if recording.audio_hash and recording.audio_filename:
-        import os
-        candidates.append(f"supabase://{os.getenv('SUPABASE_AUDIO_BUCKET', 'parampara-audio')}/recordings/{recording.audio_hash[:2]}/{recording.audio_hash}/{recording.audio_filename}")
-        bucket = os.getenv('FIREBASE_STORAGE_BUCKET', os.getenv('DEFAULT_BUCKET', ''))
-        if bucket:
-            candidates.append(f"gs://{bucket}/recordings/{recording.audio_hash[:2]}/{recording.audio_hash}/{recording.audio_filename}")
-    audio_file, mimetype, _ = read_audio_candidates(recording.audio_path, candidates)
+    audio_file, mimetype, resolved_path = read_audio_for_recording(recording)
     if audio_file is None:
-        return jsonify({"error": "Original audio file is unavailable in durable storage.", "recording_id": recording.id}), 404
-
+        return jsonify({
+            "error": "Original audio file is unavailable in durable storage.",
+            "recording_id": recording.id,
+            "storage_resolution": "failed",
+        }), 404
     response = send_file(
-        audio_file,
-        mimetype=mimetype,
-        conditional=True,
-        etag=recording.audio_hash,
-        max_age=0,
-        as_attachment=False,
+        audio_file, mimetype=mimetype, conditional=True,
+        etag=recording.audio_hash, max_age=0, as_attachment=False,
         download_name=recording.audio_filename,
     )
     response.headers["Accept-Ranges"] = "bytes"
     response.headers["Cache-Control"] = "private, no-cache, must-revalidate"
+    response.headers["X-PARAMPARA-Audio-Source"] = str(resolved_path or "resolved")[:180]
     return response
 
 

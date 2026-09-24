@@ -9,7 +9,7 @@ from models.recording import Recording
 from models.consent import Consent
 from models.verification import Verification
 from models.enrichment import TranscriptVersion, Translation, AuditEvent, HeritagePassport, CommunityVerification
-from services.audio_service import save_audio, upload_audio_to_storage, read_audio, read_audio_candidates, delete_audio
+from services.audio_service import save_audio, upload_audio_to_storage, read_audio, read_audio_candidates, read_audio_for_recording, delete_audio
 from services.hash_service import calculate_sha256
 from services.audit_service import audit
 from services.passport_service import ensure_passport
@@ -203,7 +203,7 @@ def stream_original_audio(recording_id):
     public_ok = verification and verification.status == "APPROVED" and consent and consent.public_access_allowed
     if not reviewer and not public_ok:
         return jsonify({"error": "Audio playback is restricted."}), 403
-    audio_file, mimetype, resolved_path = _recording_audio(recording)
+    audio_file, mimetype, resolved_path = read_audio_for_recording(recording)
     if audio_file is None:
         return jsonify({"error": "Original audio file is unavailable in durable storage.", "recording_id": recording.id}), 404
     download = _bool("download")
@@ -242,13 +242,7 @@ def public_recordings():
 
 
 def _recording_audio(recording):
-    candidates = []
-    filename = recording.audio_filename or ""
-    digest = recording.audio_hash or ""
-    if digest and filename:
-        candidates.append(f"supabase://{os.getenv('SUPABASE_AUDIO_BUCKET', 'parampara-audio')}/recordings/{digest[:2]}/{digest}/{filename}")
-        candidates.append(f"gs://{os.getenv('FIREBASE_STORAGE_BUCKET', os.getenv('DEFAULT_BUCKET', ''))}/recordings/{digest[:2]}/{digest}/{filename}")
-    return read_audio_candidates(recording.audio_path, candidates)
+    return read_audio_for_recording(recording)
 
 
 @recordings_bp.route("/public/<int:recording_id>/audio", methods=["GET"])
@@ -258,7 +252,7 @@ def public_audio(recording_id):
     consent = Consent.query.filter_by(recording_id=recording.id).first()
     if not (verification and verification.status == "APPROVED" and consent and consent.public_access_allowed):
         return jsonify({"error": "Audio is not public."}), 403
-    audio_file, mimetype, resolved_path = _recording_audio(recording)
+    audio_file, mimetype, resolved_path = read_audio_for_recording(recording)
     if audio_file is None:
         return jsonify({"error": "Audio unavailable. The durable storage object could not be found.", "recording_id": recording.id, "audio_path": bool(recording.audio_path)}), 404
     download = _bool("download")
@@ -284,8 +278,8 @@ def transcribe(recording_id):
     if not consent or not consent.transcription_allowed or not consent.ai_processing_allowed:
         return jsonify({"error": "Transcription is not allowed by consent."}), 403
     try:
-        from services.ai_service import transcribe_audio
-        text_value, confidence, model = transcribe_audio(recording.audio_path, recording.language_code or _language_code(recording.language))
+        from services.ai_service import transcribe_recording
+        text_value, confidence, model = transcribe_recording(recording, recording.language_code or _language_code(recording.language))
         latest = TranscriptVersion.query.filter_by(recording_id=recording.id).order_by(TranscriptVersion.version.desc()).first()
         version = (latest.version + 1) if latest else 1
         row = TranscriptVersion(recording_id=recording.id, version=version, language=recording.language_code or recording.language, text=text_value, source="AI", model=model, confidence=confidence)
