@@ -380,7 +380,77 @@ def get_recording(recording_id):
             return jsonify({"error": "This record is not public."}), 403
     return jsonify({"recording": _serialize(recording, include_private=False)})
 
+@recordings_bp.route("/<int:recording_id>", methods=["DELETE"])
+@require_auth
+@require_role("REVIEWER", "ADMIN")
+def delete_recording(recording_id):
+    recording = Recording.query.get_or_404(recording_id)
 
+    recording_id_value = recording.id
+    audio_path = recording.audio_path
+
+    try:
+        # Delete dependent records first
+        AuditEvent.query.filter_by(
+            recording_id=recording_id_value
+        ).delete(synchronize_session=False)
+
+        CommunityVerification.query.filter_by(
+            recording_id=recording_id_value
+        ).delete(synchronize_session=False)
+
+        Translation.query.filter_by(
+            recording_id=recording_id_value
+        ).delete(synchronize_session=False)
+
+        TranscriptVersion.query.filter_by(
+            recording_id=recording_id_value
+        ).delete(synchronize_session=False)
+
+        HeritagePassport.query.filter_by(
+            recording_id=recording_id_value
+        ).delete(synchronize_session=False)
+
+        Verification.query.filter_by(
+            recording_id=recording_id_value
+        ).delete(synchronize_session=False)
+
+        Consent.query.filter_by(
+            recording_id=recording_id_value
+        ).delete(synchronize_session=False)
+
+        # Delete the main recording
+        db.session.delete(recording)
+
+        db.session.commit()
+
+        # Remove the associated audio file from storage
+        if audio_path:
+            try:
+                delete_audio(audio_path)
+            except Exception:
+                current_app.logger.exception(
+                    "Recording %s deleted from database, "
+                    "but audio cleanup failed.",
+                    recording_id_value
+                )
+
+        return jsonify({
+            "message": "Recording deleted successfully.",
+            "recording_id": recording_id_value
+        }), 200
+
+    except Exception as exc:
+        db.session.rollback()
+
+        current_app.logger.exception(
+            "Failed to delete recording %s",
+            recording_id_value
+        )
+
+        return jsonify({
+            "error": str(exc)
+        }), 500
 @recordings_bp.route("/<int:recording_id>/audio", methods=["GET"])
 @require_auth
 def stream_original_audio(recording_id):
