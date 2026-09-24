@@ -112,17 +112,69 @@ def _transcribe_file_via_gcs(file_path, language_code, filename=None, mimetype=N
     temporarily in the configured Firebase/GCS bucket and submit a gs:// URI.
     The object is deleted after transcription completes.
     """
+    # Do NOT assume FIREBASE_STORAGE_BUCKET is a valid GCS bucket.
+    # Firebase web config can contain a *.firebasestorage.app name that is not
+    # the actual GCS bucket available to the service account. Use the Google
+    # Cloud Storage client and select the first bucket that actually exists.
     try:
-        from firebase_admin import storage as firebase_storage
+        from google.cloud import storage as gcs_storage
     except ImportError as exc:
-        raise RuntimeError("Firebase Storage support is not installed.") from exc
+        raise RuntimeError("Google Cloud Storage client is not installed.") from exc
 
     path = Path(file_path)
     if not path.exists():
         raise FileNotFoundError("Original audio file is unavailable.")
 
-    # Reuse the Firebase Storage bucket already configured by the application.
-    bucket = firebase_storage.bucket()
+    credentials = _google_credentials()
+    project_id = (
+        os.getenv("GOOGLE_CLOUD_PROJECT")
+        or os.getenv("FIREBASE_PROJECT_ID")
+        or "parampara-27428"
+    ).strip()
+
+    client_kwargs = {"project": project_id}
+    if credentials is not None:
+        client_kwargs["credentials"] = credentials
+    client = gcs_storage.Client(**client_kwargs)
+
+    configured = [
+        os.getenv("SPEECH_GCS_BUCKET", "").strip(),
+        os.getenv("GOOGLE_CLOUD_STORAGE_BUCKET", "").strip(),
+        os.getenv("GCS_BUCKET", "").strip(),
+        os.getenv("FIREBASE_STORAGE_BUCKET", "").strip(),
+    ]
+
+    # Common Firebase/GCS bucket names. The *.firebasestorage.app value is
+    # intentionally not trusted; the *.appspot.com form is also checked.
+    configured.extend([
+        f"{project_id}.appspot.com",
+        f"{project_id}.firebasestorage.app",
+        project_id,
+    ])
+
+    bucket = None
+    checked = []
+    seen = set()
+    for name in configured:
+        if not name or name in seen:
+            continue
+        seen.add(name)
+        checked.append(name)
+        try:
+            candidate = client.bucket(name)
+            if candidate.exists(client=client):
+                bucket = candidate
+                break
+        except Exception:
+            continue
+
+    if bucket is None:
+        raise RuntimeError(
+            "No usable Google Cloud Storage bucket was found for long-audio transcription. "
+            "Set SPEECH_GCS_BUCKET to an existing GCS bucket in the same project. "
+            f"Checked: {', '.join(checked)}"
+        )
+
     safe_name = Path(filename or path.name).name or "recording.webm"
     import uuid
     object_name = f"speech-tmp/{uuid.uuid4().hex}-{safe_name}"
