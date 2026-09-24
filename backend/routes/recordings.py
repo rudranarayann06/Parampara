@@ -452,55 +452,7 @@ def delete_recording(recording_id):
             "error": str(exc)
         }), 500
         
-@recordings_bp.route("/<int:recording_id>", methods=["DELETE"])
-@require_auth
-@require_role("REVIEWER", "ADMIN")
-def delete_recording(recording_id):
-    recording = Recording.query.get_or_404(recording_id)
-
-    audio_path = recording.audio_path
-
-    try:
-        AuditEvent.query.filter_by(recording_id=recording.id).delete(
-            synchronize_session=False
-        )
-        CommunityVerification.query.filter_by(recording_id=recording.id).delete(
-            synchronize_session=False
-        )
-        Translation.query.filter_by(recording_id=recording.id).delete(
-            synchronize_session=False
-        )
-        TranscriptVersion.query.filter_by(recording_id=recording.id).delete(
-            synchronize_session=False
-        )
-        HeritagePassport.query.filter_by(recording_id=recording.id).delete(
-            synchronize_session=False
-        )
-        Verification.query.filter_by(recording_id=recording.id).delete(
-            synchronize_session=False
-        )
-        Consent.query.filter_by(recording_id=recording.id).delete(
-            synchronize_session=False
-        )
-
-        db.session.delete(recording)
-        db.session.commit()
-
-        if audio_path:
-            try:
-                delete_audio(audio_path)
-            except Exception:
-                current_app.logger.exception("Audio cleanup failed")
-
-        return jsonify({
-            "message": "Recording deleted",
-            "recording_id": recording_id
-        }), 200
-
-    except Exception as exc:
-        db.session.rollback()
-        current_app.logger.exception("Delete failed")
-        return jsonify({"error": str(exc)}), 500    
+  
 
 @recordings_bp.route("/<int:recording_id>/audio", methods=["GET"])
 @require_auth
