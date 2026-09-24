@@ -30,16 +30,58 @@ def save_audio(file, upload_folder):
 
 
 def upload_audio_to_storage(file_path, object_name):
-    has_credentials = bool(os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON") or os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON_BASE64"))
+    """
+    Upload audio to Firebase Storage when available.
+
+    If Firebase Storage is unavailable and
+    ALLOW_LOCAL_STORAGE_FALLBACK=true, keep the already-saved
+    local file instead.
+    """
+
+    allow_local_fallback = (
+        os.getenv("ALLOW_LOCAL_STORAGE_FALLBACK", "true").lower()
+        == "true"
+    )
+
+    has_credentials = bool(
+        os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON")
+        or os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON_BASE64")
+    )
+
+    # No Firebase credentials -> use local storage.
     if not has_credentials:
-        if os.getenv("ALLOW_LOCAL_STORAGE_FALLBACK", "true").lower() == "true":
+        if allow_local_fallback:
             return file_path
-        raise RuntimeError("Firebase Storage credentials are not configured.")
-    bucket = get_storage_bucket()
-    blob = bucket.blob(object_name)
-    content_type = mimetypes.guess_type(file_path)[0] or "application/octet-stream"
-    blob.upload_from_filename(file_path, content_type=content_type)
-    return f"gs://{bucket.name}/{object_name}"
+
+        raise RuntimeError(
+            "Firebase Storage credentials are not configured."
+        )
+
+    # Firebase credentials exist, so try Firebase Storage.
+    try:
+        bucket = get_storage_bucket()
+
+        blob = bucket.blob(object_name)
+
+        content_type = (
+            mimetypes.guess_type(file_path)[0]
+            or "application/octet-stream"
+        )
+
+        blob.upload_from_filename(
+            file_path,
+            content_type=content_type
+        )
+
+        return f"gs://{bucket.name}/{object_name}"
+
+    except Exception:
+        # Firebase Storage is unavailable.
+        # For the SIH prototype, keep the locally saved file.
+        if allow_local_fallback:
+            return file_path
+
+        raise
 
 
 def _storage_blob_from_uri(audio_path):
