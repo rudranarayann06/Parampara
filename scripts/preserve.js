@@ -177,39 +177,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   ensureConsentControls(); ensureOfflinePanel(form); setupPreviews();
   form.addEventListener("submit", handleSubmit);
   const audioInput = document.getElementById("audioUpload");
-const audioChooseButton = document.getElementById("audioChooseButton");
-const audioUploadZone = document.getElementById("audioUploadZone");
-
-/* Open the file picker */
-audioChooseButton?.addEventListener("click", (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    audioInput?.click();
-});
-
-/* Also allow clicking anywhere inside the audio upload box */
-audioUploadZone?.addEventListener("click", (event) => {
-    if (event.target === audioChooseButton) return;
-    audioInput?.click();
-});
-
-/* Show selected filename */
-audioInput?.addEventListener("change", () => {
-    const label = document.getElementById("audioName");
-
-    if (label && audioInput.files && audioInput.files.length > 0) {
-        const file = audioInput.files[0];
-
-        label.textContent = `✓ ${file.name}`;
-
-        console.log(
-            "Audio selected:",
-            file.name,
-            file.type,
-            `${(file.size / 1024 / 1024).toFixed(2)} MB`
-        );
-    } else if (label) {
-        label.textContent = "No file selected";
-    }
-});
+  audioInput?.addEventListener("change", () => { const label = document.getElementById("audioName"); if (label && audioInput.files[0]) label.textContent = `✓ ${audioInput.files[0].name}`; });
+  window.addEventListener("parampara:sync", renderOfflineQueue);
+  await renderOfflineQueue();
 });

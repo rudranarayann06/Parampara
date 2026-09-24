@@ -10,96 +10,27 @@ def get_or_create_parampara_user(decoded_token):
     firebase_uid = decoded_token.get("uid")
     email = (decoded_token.get("email") or "").strip().lower() or None
     name = decoded_token.get("name") or email or "PARAMPARA User"
-
     if not firebase_uid:
         return None
-
-    # ---------------------------------------------------------
-    # PARAMPARA DEMO REVIEWER
-    # The currently authenticated Firebase account is treated
-    # as the reviewer account.
-    # ---------------------------------------------------------
-    DEMO_REVIEWER = True
-
     user = User.query.filter_by(firebase_uid=firebase_uid).first()
-
-    claims = (
-        decoded_token.get("role")
-        or decoded_token.get("parampara_role")
-    )
-
-    allowed_roles = {
-        "ADMIN",
-        "REVIEWER",
-        "COMMUNITY_KEEPER",
-        "CONTRIBUTOR",
-    }
-
-    if DEMO_REVIEWER:
-        role = "REVIEWER"
-    else:
-        role = (
-            claims
-            if claims in allowed_roles
-            else "CONTRIBUTOR"
-        )
-
-    # ---------------------------------------------------------
-    # Existing Firebase user
-    # ---------------------------------------------------------
+    claims = decoded_token.get("role") or decoded_token.get("parampara_role")
     if user:
-        changed = False
-
-        if user.role != role:
-            user.role = role
-            changed = True
-
-        if user.status != "ACTIVE":
-            user.status = "ACTIVE"
-            changed = True
-
-        if email and user.email != email:
-            user.email = email
-            changed = True
-
-        if name and not user.name:
-            user.name = name
-            changed = True
-
-        if changed:
+        if claims in {"ADMIN", "REVIEWER", "COMMUNITY_KEEPER", "CONTRIBUTOR"} and user.role != claims:
+            user.role = claims
             db.session.commit()
-
         return user
-
-    # ---------------------------------------------------------
-    # Existing user found by email
-    # ---------------------------------------------------------
     if email:
         user = User.query.filter_by(email=email).first()
-
         if user:
             user.firebase_uid = firebase_uid
             user.name = user.name or name
-            user.role = role
-            user.status = "ACTIVE"
-
+            user.role = claims if claims in {"ADMIN", "REVIEWER", "COMMUNITY_KEEPER", "CONTRIBUTOR"} else (user.role or "CONTRIBUTOR")
+            user.status = user.status or "ACTIVE"
             db.session.commit()
             return user
-
-    # ---------------------------------------------------------
-    # Create new PARAMPARA user
-    # ---------------------------------------------------------
-    user = User(
-        firebase_uid=firebase_uid,
-        name=name,
-        email=email,
-        role=role,
-        status="ACTIVE",
-    )
-
+    user = User(firebase_uid=firebase_uid, name=name, email=email, role=claims if claims in {"ADMIN", "REVIEWER", "COMMUNITY_KEEPER", "CONTRIBUTOR"} else "CONTRIBUTOR", status="ACTIVE")
     db.session.add(user)
     db.session.commit()
-
     return user
 
 

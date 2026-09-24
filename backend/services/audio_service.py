@@ -1,9 +1,14 @@
 import mimetypes
 import os
+import tempfile
 import uuid
 from io import BytesIO
 from pathlib import Path
+from urllib.parse import quote
+
+import requests
 from werkzeug.utils import secure_filename
+
 from services.firebase_service import get_storage_bucket
 
 ALLOWED_EXTENSIONS = {"mp3", "wav", "webm", "m4a", "ogg"}
@@ -15,8 +20,10 @@ def allowed_file(filename):
 
 
 def save_audio(file, upload_folder):
-    if not file or not file.filename: raise ValueError("No audio file provided")
-    if not allowed_file(file.filename): raise ValueError("Unsupported audio format. Use MP3, WAV, M4A, WEBM, or OGG.")
+    if not file or not file.filename:
+        raise ValueError("No audio file provided")
+    if not allowed_file(file.filename):
+        raise ValueError("Unsupported audio format. Use MP3, WAV, M4A, WEBM, or OGG.")
     original_name = secure_filename(file.filename)
     extension = original_name.rsplit(".", 1)[1].lower()
     unique_name = f"{uuid.uuid4()}.{extension}"
@@ -25,71 +32,97 @@ def save_audio(file, upload_folder):
     file.save(file_path)
     if os.path.getsize(file_path) > MAX_AUDIO_BYTES:
         os.remove(file_path)
-        raise ValueError(f"Audio file exceeds the {MAX_AUDIO_BYTES // (1024*1024)} MB limit.")
+        raise ValueError(f"Audio file exceeds the {MAX_AUDIO_BYTES // (1024 * 1024)} MB limit.")
     return unique_name, file_path
 
 
+def _supabase_configured():
+    return bool(os.getenv("SUPABASE_URL", "").strip() and os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip())
+
+
+def _supabase_base_url():
+    return os.getenv("SUPABASE_URL", "").strip().rstrip("/")
+
+
+def _supabase_bucket():
+    return os.getenv("SUPABASE_AUDIO_BUCKET", "parampara-audio").strip()
+
+
+def _supabase_headers(content_type=None):
+    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
+    headers = {
+        "Authorization": f"Bearer {key}",
+        "apikey": key,
+    }
+    if content_type:
+        headers["Content-Type"] = content_type
+    return headers
+
+
+def _supabase_object_url(bucket, object_name):
+    return f"{_supabase_base_url()}/storage/v1/object/{quote(bucket, safe='')}/{quote(object_name, safe='/') }"
+
+
+def _parse_supabase_uri(audio_path):
+    if not audio_path or not audio_path.startswith("supabase://"):
+        return None, None
+    value = audio_path[len("supabase://"):]
+    if "/" not in value:
+        return None, None
+    bucket, object_name = value.split("/", 1)
+    return bucket, object_name
+
+
+def _upload_supabase(file_path, object_name):
+    bucket = _supabase_bucket()
+    url = _supabase_object_url(bucket, object_name)
+    content_type = mimetypes.guess_type(file_path)[0] or "application/octet-stream"
+    headers = _supabase_headers(content_type)
+    headers["Content-Length"] = str(os.path.getsize(file_path))
+    headers["x-upsert"] = "false"
+
+    with open(file_path, "rb") as source:
+        response = requests.post(url, headers=headers, data=source, timeout=(20, 180))
+    if response.status_code not in {200, 201}:
+        detail = response.text[:500].strip()
+        raise RuntimeError(f"Supabase Storage upload failed ({response.status_code}): {detail or 'unknown error'}")
+    return f"supabase://{bucket}/{object_name}"
+
+
 def upload_audio_to_storage(file_path, object_name):
-    """
-    Upload audio to Firebase Storage when available.
-
-    If Firebase Storage is unavailable and
-    ALLOW_LOCAL_STORAGE_FALLBACK=true, keep the already-saved
-    local file instead.
-    """
-
-    allow_local_fallback = (
-        os.getenv("ALLOW_LOCAL_STORAGE_FALLBACK", "true").lower()
-        == "true"
-    )
+    # Supabase is the durable production backend. Firebase remains supported
+    # for existing records and as a migration fallback.
+    if _supabase_configured():
+        return _upload_supabase(file_path, object_name)
 
     has_credentials = bool(
         os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON")
         or os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON_BASE64")
     )
-
-    # No Firebase credentials -> use local storage.
-    if not has_credentials:
-        if allow_local_fallback:
-            return file_path
-
-        raise RuntimeError(
-            "Firebase Storage credentials are not configured."
-        )
-
-    # Firebase credentials exist, so try Firebase Storage.
-    try:
+    if has_credentials:
         bucket = get_storage_bucket()
-
         blob = bucket.blob(object_name)
-
-        content_type = (
-            mimetypes.guess_type(file_path)[0]
-            or "application/octet-stream"
-        )
-
-        blob.upload_from_filename(
-            file_path,
-            content_type=content_type
-        )
-
+        content_type = mimetypes.guess_type(file_path)[0] or "application/octet-stream"
+        blob.upload_from_filename(file_path, content_type=content_type)
         return f"gs://{bucket.name}/{object_name}"
 
-    except Exception:
-        # Firebase Storage is unavailable.
-        # For the SIH prototype, keep the locally saved file.
-        if allow_local_fallback:
-            return file_path
-
-        raise
+    if os.getenv("ALLOW_LOCAL_STORAGE_FALLBACK", "false").lower() == "true":
+        return file_path
+    raise RuntimeError(
+        "Durable audio storage is not configured. Set SUPABASE_URL and "
+        "SUPABASE_SERVICE_ROLE_KEY on Render."
+    )
 
 
 def _storage_blob_from_uri(audio_path):
-    if not audio_path or not audio_path.startswith("gs://"): return None
+    if not audio_path or not audio_path.startswith("gs://"):
+        return None
     value = audio_path[5:]
-    if "/" not in value: return None
+    if "/" not in value:
+        return None
     bucket_name, object_name = value.split("/", 1)
-    if not bucket_name or not object_name: return None
+    if not bucket_name or not object_name:
+        return None
     bucket = get_storage_bucket()
     if bucket.name != bucket_name:
         from firebase_admin import storage
@@ -97,65 +130,68 @@ def _storage_blob_from_uri(audio_path):
     return bucket.blob(object_name)
 
 
-def read_audio(audio_path):
-    if not audio_path:
+def _read_supabase(audio_path):
+    bucket, object_name = _parse_supabase_uri(audio_path)
+    if not bucket or not object_name or not _supabase_configured():
+        return None, None
+    url = _supabase_object_url(bucket, object_name)
+    response = requests.get(url, headers=_supabase_headers(), stream=True, timeout=(20, 180))
+    if response.status_code != 200:
+        response.close()
         return None, None
 
-    # Firebase Storage
-    if audio_path.startswith("gs://"):
-        blob = _storage_blob_from_uri(audio_path)
+    # SpooledTemporaryFile keeps normal recordings in memory but spills larger
+    # files to temporary disk, avoiding a large RAM spike on Render.
+    stream = tempfile.SpooledTemporaryFile(max_size=8 * 1024 * 1024, mode="w+b")
+    for chunk in response.iter_content(chunk_size=1024 * 1024):
+        if chunk:
+            stream.write(chunk)
+    response.close()
+    stream.seek(0)
+    mimetype = response.headers.get("Content-Type") or mimetypes.guess_type(object_name)[0] or "application/octet-stream"
+    return stream, mimetype
 
-        if blob is None:
-            return None, None
 
+def read_audio(audio_path):
+    if audio_path and audio_path.startswith("supabase://"):
+        return _read_supabase(audio_path)
+
+    blob = _storage_blob_from_uri(audio_path) if audio_path and audio_path.startswith("gs://") else None
+    if blob is not None:
         if not blob.exists():
             return None, None
-
-        return (
-            BytesIO(blob.download_as_bytes()),
-            blob.content_type or "application/octet-stream"
-        )
-
-    # Local filesystem
-    if os.getenv("ALLOW_LOCAL_STORAGE_FALLBACK", "true").lower() != "true":
+        return BytesIO(blob.download_as_bytes()), blob.content_type or "application/octet-stream"
+    if audio_path and audio_path.startswith("gs://"):
         return None, None
-
-    path = Path(audio_path)
-
-    current_app = None
-
-    if not path.exists():
-        print(
-            f"[AUDIO] Local audio file not found: {path}",
-            flush=True
-        )
+    if os.getenv("ALLOW_LOCAL_STORAGE_FALLBACK", "false").lower() != "true":
         return None, None
-
-    if not path.is_file():
-        print(
-            f"[AUDIO] Audio path is not a file: {path}",
-            flush=True
-        )
+    path = Path(audio_path or "")
+    if not path.exists() or not path.is_file():
         return None, None
-
-    print(
-        f"[AUDIO] Serving local audio: {path}",
-        flush=True
-    )
-
-    return (
-        open(path, "rb"),
-        mimetypes.guess_type(str(path))[0]
-        or "application/octet-stream"
-    )
+    return open(path, "rb"), mimetypes.guess_type(str(path))[0] or "application/octet-stream"
 
 
 def delete_audio(audio_path):
-    if not audio_path: return
+    if not audio_path:
+        return
+
+    if audio_path.startswith("supabase://"):
+        bucket, object_name = _parse_supabase_uri(audio_path)
+        if not bucket or not object_name or not _supabase_configured():
+            return
+        url = f"{_supabase_base_url()}/storage/v1/object/{quote(bucket, safe='')}/{quote(object_name, safe='/')}"
+        response = requests.delete(url, headers=_supabase_headers(), timeout=30)
+        if response.status_code not in {200, 204}:
+            raise RuntimeError(f"Supabase Storage delete failed ({response.status_code}): {response.text[:300]}")
+        return
+
     if audio_path.startswith("gs://"):
         blob = _storage_blob_from_uri(audio_path)
-        if blob is not None and blob.exists(): blob.delete()
+        if blob is not None and blob.exists():
+            blob.delete()
         return
-    if os.getenv("ALLOW_LOCAL_STORAGE_FALLBACK", "true").lower() == "true":
+
+    if os.getenv("ALLOW_LOCAL_STORAGE_FALLBACK", "false").lower() == "true":
         path = Path(audio_path)
-        if path.exists(): path.unlink()
+        if path.exists():
+            path.unlink()

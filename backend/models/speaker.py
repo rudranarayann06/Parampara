@@ -1,5 +1,4 @@
 from extensions import db
-from models.community import Community
 
 
 class Speaker(db.Model):
@@ -29,7 +28,7 @@ class Speaker(db.Model):
 
     community_id = db.Column(
         db.Integer,
-        db.ForeignKey(Community.id),
+        db.ForeignKey("communities.id"),
         nullable=True
     )
 

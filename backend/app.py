@@ -58,7 +58,7 @@ def home():
 def health():
     try:
         db.session.execute(text("SELECT 1"))
-        storage_mode = "firebase" if (os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON") or os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON_BASE64")) else ("local" if os.getenv("ALLOW_LOCAL_STORAGE_FALLBACK", "true").lower() == "true" else "not_configured")
+        storage_mode = ("supabase" if (os.getenv("SUPABASE_URL") and os.getenv("SUPABASE_SERVICE_ROLE_KEY")) else ("firebase" if (os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON") or os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON_BASE64")) else ("local" if os.getenv("ALLOW_LOCAL_STORAGE_FALLBACK", "false").lower() == "true" else "not_configured")))
         return jsonify({"status": "ok", "database": "connected", "storage": storage_mode, "translation": os.getenv("TRANSLATION_PROVIDER", "auto")})
     except Exception as exc:
         current_app.logger.exception("Health check failed")
@@ -88,140 +88,30 @@ def internal_server_error(_):
 
 def bootstrap():
     with app.app_context():
-
-        # Explicitly import every model before create_all().
-        # This guarantees that all model tables are registered
-        # in SQLAlchemy metadata.
-        from models.user import User as _User
-        from models.community import Community as _Community
-        from models.speaker import Speaker as _Speaker
-        from models.recording import Recording as _Recording
-        from models.consent import Consent as _Consent
-        from models.verification import Verification as _Verification
-        from models.enrichment import (
-            TranscriptVersion as _TranscriptVersion,
-            Translation as _Translation,
-            AuditEvent as _AuditEvent,
-            HeritagePassport as _HeritagePassport,
-            CommunityVerification as _CommunityVerification,
-        )
-
-        expected_model_tables = {
-            "users",
-            "communities",
-            "speakers",
-            "recordings",
-            "consents",
-            "verifications",
-            "transcript_versions",
-            "translations",
-            "audit_events",
-            "heritage_passports",
-            "community_verifications",
-        }
-
-        # Check SQLAlchemy metadata BEFORE creating database tables.
-        metadata_tables = set(db.metadata.tables.keys())
-
-        current_app.logger.info(
-            "PARAMPARA SQLAlchemy metadata tables: %s",
-            sorted(metadata_tables)
-        )
-
-        missing_metadata = expected_model_tables - metadata_tables
-
-        if missing_metadata:
-            raise RuntimeError(
-                "PARAMPARA model metadata is missing tables: "
-                + ", ".join(sorted(missing_metadata))
-            )
-
-        # Create missing tables without deleting existing data.
         db.create_all()
-
+        # Keep existing prototype/Render databases compatible without destructive migrations.
         from sqlalchemy import inspect
-
         inspector = inspect(db.engine)
-
-        tables = set(
-            inspector.get_table_names()
-        )
-
-        current_app.logger.info(
-            "PARAMPARA database tables after bootstrap: %s",
-            sorted(tables)
-        )
-
-        missing_db_tables = expected_model_tables - tables
-
-        if missing_db_tables:
-            raise RuntimeError(
-                "PARAMPARA database is missing tables: "
-                + ", ".join(sorted(missing_db_tables))
-            )
-
-        # Keep existing prototype/Render databases compatible
-        # without destructive migrations.
         legacy = {
             "recordings": {
-                "language_code": "VARCHAR(32)",
-                "category": "VARCHAR(100)",
-                "state": "VARCHAR(100)",
-                "district": "VARCHAR(100)",
-                "community_name": "VARCHAR(255)",
+                "language_code": "VARCHAR(32)", "category": "VARCHAR(100)", "state": "VARCHAR(100)",
+                "district": "VARCHAR(100)", "community_name": "VARCHAR(255)"
             },
         }
-
+        tables = set(inspector.get_table_names())
         for table, cols in legacy.items():
-
-            if table not in tables:
-                continue
-
-            existing = {
-                column["name"]
-                for column in inspector.get_columns(table)
-            }
-
-            for column_name, column_type in cols.items():
-
-                if column_name not in existing:
-
-                    current_app.logger.info(
-                        "Adding legacy column %s.%s",
-                        table,
-                        column_name
-                    )
-
-                    db.session.execute(
-                        text(
-                            f"ALTER TABLE {table} "
-                            f"ADD COLUMN {column_name} {column_type}"
-                        )
-                    )
-
+            if table not in tables: continue
+            existing = {c["name"] for c in inspector.get_columns(table)}
+            for col, typ in cols.items():
+                if col not in existing:
+                    db.session.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {typ}"))
         db.session.commit()
-
-        # Create the system user if it doesn't already exist.
         system_user = User.query.filter_by(id=1).first()
-
         if not system_user:
-
-            db.session.add(
-                User(
-                    id=1,
-                    firebase_uid="parampara-system-user",
-                    name="PARAMPARA System",
-                    email="system@parampara.local",
-                    role="ADMIN",
-                    status="ACTIVE",
-                )
-            )
-
+            db.session.add(User(id=1, firebase_uid="parampara-system-user", name="PARAMPARA System", email="system@parampara.local", role="ADMIN", status="ACTIVE"))
             db.session.commit()
 
-        current_app.logger.info(
-            "PARAMPARA database bootstrap completed successfully."
-        )
+
 bootstrap()
 
 if __name__ == "__main__":

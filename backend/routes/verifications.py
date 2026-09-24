@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Blueprint, request, jsonify, g, current_app
+from flask import Blueprint, request, jsonify, g
 from extensions import db
 from models.recording import Recording
 from models.verification import Verification
@@ -49,130 +49,20 @@ def update_verification(recording_id):
     audit(recording.id, f"VERIFICATION_{status}", g.current_user.id, {"notes": verification.reviewer_notes})
     db.session.commit()
     return jsonify({"message": f"Recording {status.lower()}.", "recording": _serialize(recording, include_private=True)}), 200
+
 @verifications_bp.route("/pending", methods=["GET"])
 @require_auth
 @require_role("REVIEWER", "ADMIN", "COMMUNITY_KEEPER")
 def pending_alias():
-    rows = Recording.query.join(
-        Verification,
-        Verification.recording_id == Recording.id
-    ).filter(
-        Verification.status == "PENDING"
-    ).order_by(
-        Recording.created_at.desc()
-    ).limit(100).all()
-
+    rows = Recording.query.join(Verification, Verification.recording_id == Recording.id).filter(Verification.status == "PENDING").order_by(Recording.created_at.desc()).limit(100).all()
     result = []
-
     for r in rows:
-        v = Verification.query.filter_by(
-            recording_id=r.id
-        ).first()
+        v = Verification.query.filter_by(recording_id=r.id).first()
+        item = _serialize(r, include_private=True)
+        item.update({"recording_id": r.id, "verification_id": v.id, "verification_status": v.status, "audio_filename": r.audio_filename})
+        result.append(item)
+    return jsonify({"verifications": result})
 
-        # Keep the reviewer queue dependent only on the core
-        # recording + verification + consent data.
-        # Optional enrichment is loaded later when the reviewer
-        # opens an individual recording.
-        try:
-            consent = Consent.query.filter_by(
-                recording_id=r.id
-            ).first()
-
-            item = {
-                "id": r.id,
-                "recording_id": r.id,
-                "verification_id": v.id if v else None,
-
-                "title": r.title,
-                "description": r.description,
-
-                "language": r.language,
-                "language_code": r.language_code,
-
-                "category": r.category,
-                "state": r.state,
-                "district": r.district,
-                "community": r.community_name,
-                "location": r.location,
-
-                "duration": r.duration,
-                "access_level": r.access_level,
-
-                "audio_hash": r.audio_hash,
-                "audio_filename": r.audio_filename,
-                "audio_uri": r.audio_path,
-
-                "created_at": (
-                    r.created_at.isoformat()
-                    if r.created_at
-                    else None
-                ),
-
-                "verification_status": (
-                    v.status
-                    if v
-                    else "PENDING"
-                ),
-
-                "consent": {
-                    "archive_allowed": (
-                        bool(consent.archive_allowed)
-                        if consent else False
-                    ),
-                    "transcription_allowed": (
-                        bool(consent.transcription_allowed)
-                        if consent else False
-                    ),
-                    "translation_allowed": (
-                        bool(consent.translation_allowed)
-                        if consent else False
-                    ),
-                    "research_allowed": (
-                        bool(consent.research_allowed)
-                        if consent else False
-                    ),
-                    "public_access_allowed": (
-                        bool(consent.public_access_allowed)
-                        if consent else False
-                    ),
-                    "commercial_use_allowed": (
-                        bool(consent.commercial_use_allowed)
-                        if consent else False
-                    ),
-                    "ai_processing_allowed": (
-                        bool(consent.ai_processing_allowed)
-                        if consent else False
-                    ),
-                    "ai_training_allowed": (
-                        bool(consent.ai_training_allowed)
-                        if consent else False
-                    ),
-                },
-
-                # These are deliberately empty in the queue.
-                # They are populated when the reviewer opens
-                # the individual record.
-                "transcript": None,
-                "translations": [],
-                "community_verification": None,
-                "passport": None,
-            }
-
-            result.append(item)
-
-        except Exception:
-            db.session.rollback()
-
-            current_app.logger.exception(
-                "Failed to serialize reviewer queue item for recording %s",
-                r.id
-            )
-
-            raise
-
-    return jsonify({
-        "verifications": result
-    })
 
 @verifications_bp.route("/<int:recording_id>/approve", methods=["POST"])
 @require_auth

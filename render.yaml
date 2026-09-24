@@ -21,11 +21,17 @@ services:
         value: parampara-27428.firebasestorage.app
       - key: FIREBASE_SERVICE_ACCOUNT_JSON
         sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_AUDIO_BUCKET
+        value: parampara-audio
       - key: GOOGLE_CLOUD_PROJECT
         value: ""
       - key: MAX_CONTENT_LENGTH
         value: 78643200
       - key: ALLOW_LOCAL_STORAGE_FALLBACK
-        value: "true"
+        value: "false"
       - key: TRANSLATION_PROVIDER
         value: mymemory

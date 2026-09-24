@@ -39,261 +39,72 @@ def _language_code(language):
 
 
 def _serialize(recording, include_private=False):
-    verification = None
-    consent = None
-
-    passport = None
-    latest_transcript = None
-    translations = []
-    community = None
-
-    # ---------------------------------------------------------
-    # CORE DATA
-    # ---------------------------------------------------------
-
-    try:
-        verification = Verification.query.filter_by(
-            recording_id=recording.id
-        ).first()
-    except Exception:
-        db.session.rollback()
-        current_app.logger.exception(
-            "Failed to load verification for recording %s",
-            recording.id
-        )
-
-    try:
-        consent = Consent.query.filter_by(
-            recording_id=recording.id
-        ).first()
-    except Exception:
-        db.session.rollback()
-        current_app.logger.exception(
-            "Failed to load consent for recording %s",
-            recording.id
-        )
-
-    # ---------------------------------------------------------
-    # OPTIONAL ENRICHMENT
-    #
-    # These queries must NEVER prevent the reviewer from
-    # opening a recording.
-    # ---------------------------------------------------------
-
-    try:
-        passport = HeritagePassport.query.filter_by(
-            recording_id=recording.id
-        ).first()
-    except Exception:
-        db.session.rollback()
-        current_app.logger.warning(
-            "Passport data unavailable for recording %s",
-            recording.id,
-            exc_info=True
-        )
-
-    try:
-        latest_transcript = (
-            TranscriptVersion.query
-            .filter_by(recording_id=recording.id)
-            .order_by(
-                TranscriptVersion.version.desc()
-            )
-            .first()
-        )
-    except Exception:
-        db.session.rollback()
-        current_app.logger.warning(
-            "Transcript data unavailable for recording %s",
-            recording.id,
-            exc_info=True
-        )
-
-    try:
-        translations = (
-            Translation.query
-            .filter_by(recording_id=recording.id)
-            .order_by(
-                Translation.created_at.desc()
-            )
-            .all()
-        )
-    except Exception:
-        db.session.rollback()
-        current_app.logger.warning(
-            "Translation data unavailable for recording %s",
-            recording.id,
-            exc_info=True
-        )
-
-        translations = []
-
-    try:
-        community = (
-            CommunityVerification.query
-            .filter_by(recording_id=recording.id)
-            .order_by(
-                CommunityVerification.created_at.desc()
-            )
-            .first()
-        )
-    except Exception:
-        db.session.rollback()
-        current_app.logger.warning(
-            "Community verification data unavailable for recording %s",
-            recording.id,
-            exc_info=True
-        )
-
-    # ---------------------------------------------------------
-    # BASE RESPONSE
-    # ---------------------------------------------------------
-
+    verification = Verification.query.filter_by(recording_id=recording.id).first()
+    consent = Consent.query.filter_by(recording_id=recording.id).first()
+    passport = HeritagePassport.query.filter_by(recording_id=recording.id).first()
+    latest_transcript = TranscriptVersion.query.filter_by(recording_id=recording.id).order_by(TranscriptVersion.version.desc()).first()
+    translations = Translation.query.filter_by(recording_id=recording.id).order_by(Translation.created_at.desc()).all()
+    community = CommunityVerification.query.filter_by(recording_id=recording.id).order_by(CommunityVerification.created_at.desc()).first()
     data = {
         "id": recording.id,
-
         "title": recording.title,
         "description": recording.description,
-
         "language": recording.language,
         "language_code": recording.language_code,
-
         "category": recording.category,
         "state": recording.state,
         "district": recording.district,
-
         "community": recording.community_name,
         "location": recording.location,
-
         "duration": recording.duration,
-
         "access_level": recording.access_level,
-
         "audio_hash": recording.audio_hash,
-
-        "created_at": (
-            recording.created_at.isoformat()
-            if recording.created_at
-            else None
-        ),
-
-        "verification_status": (
-            verification.status
-            if verification
-            else "PENDING"
-        ),
-
+        "created_at": recording.created_at.isoformat() if recording.created_at else None,
+        "verification_status": verification.status if verification else "PENDING",
         "consent": {
-            "archive_allowed": (
-                bool(consent.archive_allowed)
-                if consent else False
-            ),
-
-            "transcription_allowed": (
-                bool(consent.transcription_allowed)
-                if consent else False
-            ),
-
-            "translation_allowed": (
-                bool(consent.translation_allowed)
-                if consent else False
-            ),
-
-            "research_allowed": (
-                bool(consent.research_allowed)
-                if consent else False
-            ),
-
-            "public_access_allowed": (
-                bool(consent.public_access_allowed)
-                if consent else False
-            ),
-
-            "commercial_use_allowed": (
-                bool(consent.commercial_use_allowed)
-                if consent else False
-            ),
-
-            "ai_processing_allowed": (
-                bool(consent.ai_processing_allowed)
-                if consent else False
-            ),
-
-            "ai_training_allowed": (
-                bool(consent.ai_training_allowed)
-                if consent else False
-            ),
+            "archive_allowed": bool(consent.archive_allowed) if consent else False,
+            "transcription_allowed": bool(consent.transcription_allowed) if consent else False,
+            "translation_allowed": bool(consent.translation_allowed) if consent else False,
+            "research_allowed": bool(consent.research_allowed) if consent else False,
+            "public_access_allowed": bool(consent.public_access_allowed) if consent else False,
+            "commercial_use_allowed": bool(consent.commercial_use_allowed) if consent else False,
+            "ai_processing_allowed": bool(consent.ai_processing_allowed) if consent else False,
+            "ai_training_allowed": bool(consent.ai_training_allowed) if consent else False,
         },
-
-        "transcript": (
-            {
-                "id": latest_transcript.id,
-                "version": latest_transcript.version,
-                "language": latest_transcript.language,
-                "text": latest_transcript.text,
-                "source": latest_transcript.source,
-                "model": latest_transcript.model,
-                "confidence": latest_transcript.confidence,
-                "created_at": (
-                    latest_transcript.created_at.isoformat()
-                    if latest_transcript.created_at
-                    else None
-                ),
-            }
-            if latest_transcript
-            else None
-        ),
-
-        "translations": [
-            {
-                "id": t.id,
-                "language": t.language,
-                "text": t.translated_text,
-                "source": t.source,
-                "model": t.model,
-                "version": t.version,
-                "created_at": (
-                    t.created_at.isoformat()
-                    if t.created_at
-                    else None
-                ),
-            }
-            for t in translations
-        ],
-
-        "community_verification": (
-            {
-                "status": community.status,
-                "language_valid": community.language_valid,
-                "community_valid": community.community_valid,
-                "location_valid": community.location_valid,
-                "tradition_valid": community.tradition_valid,
-                "cultural_context": community.cultural_context,
-            }
-            if community
-            else None
-        ),
-
-        "passport": (
-            {
-                "passport_id": passport.passport_id,
-                "public_slug": passport.public_slug,
-                "issued_at": (
-                    passport.issued_at.isoformat()
-                    if passport.issued_at
-                    else None
-                ),
-            }
-            if passport
-            else None
-        ),
+        "transcript": ({
+            "id": latest_transcript.id,
+            "version": latest_transcript.version,
+            "language": latest_transcript.language,
+            "text": latest_transcript.text,
+            "source": latest_transcript.source,
+            "model": latest_transcript.model,
+            "confidence": latest_transcript.confidence,
+            "created_at": latest_transcript.created_at.isoformat(),
+        } if latest_transcript else None),
+        "translations": [{
+            "id": t.id, "language": t.language, "text": t.translated_text,
+            "source": t.source, "model": t.model, "version": t.version,
+            "created_at": t.created_at.isoformat(),
+        } for t in translations],
+        "community_verification": ({
+            "status": community.status,
+            "language_valid": community.language_valid,
+            "community_valid": community.community_valid,
+            "location_valid": community.location_valid,
+            "tradition_valid": community.tradition_valid,
+            "cultural_context": community.cultural_context,
+        } if community else None),
+        "passport": ({
+            "passport_id": passport.passport_id,
+            "public_slug": passport.public_slug,
+            "issued_at": passport.issued_at.isoformat(),
+        } if passport else None),
     }
-
     if include_private:
         data["audio_uri"] = recording.audio_path
         data["created_by"] = recording.created_by
-
     return data
+
 
 @recordings_bp.route("", methods=["POST"])
 @optional_auth
@@ -380,79 +191,6 @@ def get_recording(recording_id):
             return jsonify({"error": "This record is not public."}), 403
     return jsonify({"recording": _serialize(recording, include_private=False)})
 
-@recordings_bp.route("/<int:recording_id>", methods=["DELETE"])
-@require_auth
-@require_role("REVIEWER", "ADMIN")
-def delete_recording(recording_id):
-    recording = Recording.query.get_or_404(recording_id)
-
-    recording_id_value = recording.id
-    audio_path = recording.audio_path
-
-    try:
-        # Delete dependent records first
-        AuditEvent.query.filter_by(
-            recording_id=recording_id_value
-        ).delete(synchronize_session=False)
-
-        CommunityVerification.query.filter_by(
-            recording_id=recording_id_value
-        ).delete(synchronize_session=False)
-
-        Translation.query.filter_by(
-            recording_id=recording_id_value
-        ).delete(synchronize_session=False)
-
-        TranscriptVersion.query.filter_by(
-            recording_id=recording_id_value
-        ).delete(synchronize_session=False)
-
-        HeritagePassport.query.filter_by(
-            recording_id=recording_id_value
-        ).delete(synchronize_session=False)
-
-        Verification.query.filter_by(
-            recording_id=recording_id_value
-        ).delete(synchronize_session=False)
-
-        Consent.query.filter_by(
-            recording_id=recording_id_value
-        ).delete(synchronize_session=False)
-
-        # Delete the main recording
-        db.session.delete(recording)
-
-        db.session.commit()
-
-        # Remove the associated audio file from storage
-        if audio_path:
-            try:
-                delete_audio(audio_path)
-            except Exception:
-                current_app.logger.exception(
-                    "Recording %s deleted from database, "
-                    "but audio cleanup failed.",
-                    recording_id_value
-                )
-
-        return jsonify({
-            "message": "Recording deleted successfully.",
-            "recording_id": recording_id_value
-        }), 200
-
-    except Exception as exc:
-        db.session.rollback()
-
-        current_app.logger.exception(
-            "Failed to delete recording %s",
-            recording_id_value
-        )
-
-        return jsonify({
-            "error": str(exc)
-        }), 500
-        
-  
 
 @recordings_bp.route("/<int:recording_id>/audio", methods=["GET"])
 @require_auth
@@ -468,7 +206,15 @@ def stream_original_audio(recording_id):
     audio_file, mimetype = read_audio(recording.audio_path)
     if audio_file is None:
         return jsonify({"error": "Original audio file is unavailable."}), 404
-    return send_file(audio_file, mimetype=mimetype, conditional=False, max_age=0, download_name=recording.audio_filename)
+    download = _bool("download")
+    return send_file(
+        audio_file,
+        mimetype=mimetype,
+        conditional=False,
+        max_age=0,
+        as_attachment=download,
+        download_name=recording.audio_filename,
+    )
 
 
 @recordings_bp.route("/public", methods=["GET"])
@@ -501,7 +247,15 @@ def public_audio(recording_id):
     audio_file, mimetype = read_audio(recording.audio_path)
     if audio_file is None:
         return jsonify({"error": "Audio unavailable."}), 404
-    return send_file(audio_file, mimetype=mimetype, conditional=False, max_age=0, download_name=recording.audio_filename)
+    download = _bool("download")
+    return send_file(
+        audio_file,
+        mimetype=mimetype,
+        conditional=False,
+        max_age=0,
+        as_attachment=download,
+        download_name=recording.audio_filename,
+    )
 
 
 @recordings_bp.route("/<int:recording_id>/transcribe", methods=["POST"])
