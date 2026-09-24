@@ -103,48 +103,57 @@ def transcribe_gcs(gcs_uri, language_code):
     return text, (sum(confidences) / len(confidences) if confidences else None), "Google Cloud Speech-to-Text"
 
 
-def transcribe_local(file_path, language_code):
-    """Transcribe a local prototype upload when Google credentials are configured.
-    This keeps the free/local storage mode compatible with later cloud AI activation.
+def _transcribe_file_via_gcs(file_path, language_code, filename=None, mimetype=None):
+    """Upload a local recording to GCS and use Speech-to-Text V2 BatchRecognize.
+
+    Speech-to-Text rejects sufficiently long inline audio with:
+    "Inline audio exceeds duration limit. Please use a GCS URI."
+    The Preserve flow can receive an upload as a local file, so stage that file
+    temporarily in the configured Firebase/GCS bucket and submit a gs:// URI.
+    The object is deleted after transcription completes.
     """
     try:
-        from google.cloud import speech_v1 as speech
+        from firebase_admin import storage as firebase_storage
     except ImportError as exc:
-        raise RuntimeError("Google Cloud Speech client is not installed.") from exc
+        raise RuntimeError("Firebase Storage support is not installed.") from exc
+
     path = Path(file_path)
     if not path.exists():
         raise FileNotFoundError("Original audio file is unavailable.")
-    data = path.read_bytes()
-    if len(data) > 10 * 1024 * 1024:
-        raise RuntimeError("Local speech fallback supports recordings up to 10 MB. Use GCS-backed transcription for longer audio.")
-    suffix = path.suffix.lower()
-    encoding_map = {
-        ".webm": speech.RecognitionConfig.AudioEncoding.WEBM_OPUS,
-        ".ogg": speech.RecognitionConfig.AudioEncoding.OGG_OPUS,
-        ".wav": speech.RecognitionConfig.AudioEncoding.LINEAR16,
-        ".flac": speech.RecognitionConfig.AudioEncoding.FLAC,
-        ".mp3": speech.RecognitionConfig.AudioEncoding.MP3,
-    }
-    config_kwargs = {
-        "language_code": _normalise_lang(language_code),
-        "enable_automatic_punctuation": True,
-        "model": os.getenv("SPEECH_V1_MODEL", "latest_long"),
-    }
-    if suffix in encoding_map:
-        config_kwargs["encoding"] = encoding_map[suffix]
-    audio = speech.RecognitionAudio(content=data)
-    client = speech.SpeechClient(**_google_client_credentials())
-    operation = client.long_running_recognize(config=speech.RecognitionConfig(**config_kwargs), audio=audio)
-    response = operation.result(timeout=int(os.getenv("SPEECH_TIMEOUT_SECONDS", "600")))
-    chunks, confidences = [], []
-    for result in response.results:
-        if not result.alternatives:
-            continue
-        alt = result.alternatives[0]
-        chunks.append(alt.transcript)
-        confidences.append(float(alt.confidence))
-    text = " ".join(chunks).strip()
-    return text, (sum(confidences) / len(confidences) if confidences else None), "Google Cloud Speech-to-Text (local upload)"
+
+    # Reuse the Firebase Storage bucket already configured by the application.
+    bucket = firebase_storage.bucket()
+    safe_name = Path(filename or path.name).name or "recording.webm"
+    import uuid
+    object_name = f"speech-tmp/{uuid.uuid4().hex}-{safe_name}"
+    blob = bucket.blob(object_name)
+
+    try:
+        blob.upload_from_filename(
+            str(path),
+            content_type=mimetype or mimetypes.guess_type(safe_name)[0] or "application/octet-stream",
+        )
+        return transcribe_gcs(f"gs://{bucket.name}/{object_name}", language_code)
+    finally:
+        try:
+            blob.delete()
+        except Exception:
+            # Cleanup failure must not hide a successful transcription.
+            pass
+
+
+def transcribe_local(file_path, language_code, filename=None, mimetype=None):
+    """Transcribe a local upload through a temporary GCS object.
+
+    Do not send long recordings inline to Speech-to-Text V1; Google rejects
+    them once they exceed the inline-duration limit.
+    """
+    return _transcribe_file_via_gcs(
+        file_path,
+        language_code,
+        filename=filename,
+        mimetype=mimetype,
+    )
 
 
 def transcribe_recording(recording, language_code):
@@ -176,7 +185,7 @@ def transcribe_recording(recording, language_code):
                 if not chunk:
                     break
                 temp.write(chunk)
-        return transcribe_local(temp_path, language_code)
+        return transcribe_local(temp_path, language_code, filename=filename, mimetype=mimetype)
     finally:
         try:
             audio_file.close()
