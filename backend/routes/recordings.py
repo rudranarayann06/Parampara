@@ -41,147 +41,190 @@ def _language_code(language):
 def _serialize(recording, include_private=False):
     verification = None
     consent = None
+
     passport = None
     latest_transcript = None
     translations = []
     community = None
 
-    # Core reviewer/public data should remain available even if
-    # an optional enrichment table is missing from an old database.
+    # ---------------------------------------------------------
+    # CORE DATA
+    # ---------------------------------------------------------
+
     try:
         verification = Verification.query.filter_by(
             recording_id=recording.id
         ).first()
     except Exception:
+        db.session.rollback()
         current_app.logger.exception(
-            "Unable to load verification for recording %s",
+            "Failed to load verification for recording %s",
             recording.id
         )
-        db.session.rollback()
 
     try:
         consent = Consent.query.filter_by(
             recording_id=recording.id
         ).first()
     except Exception:
+        db.session.rollback()
         current_app.logger.exception(
-            "Unable to load consent for recording %s",
+            "Failed to load consent for recording %s",
             recording.id
         )
-        db.session.rollback()
+
+    # ---------------------------------------------------------
+    # OPTIONAL ENRICHMENT
+    #
+    # These queries must NEVER prevent the reviewer from
+    # opening a recording.
+    # ---------------------------------------------------------
 
     try:
         passport = HeritagePassport.query.filter_by(
             recording_id=recording.id
         ).first()
     except Exception:
-        current_app.logger.exception(
-            "Unable to load passport for recording %s",
-            recording.id
-        )
         db.session.rollback()
+        current_app.logger.warning(
+            "Passport data unavailable for recording %s",
+            recording.id,
+            exc_info=True
+        )
 
     try:
         latest_transcript = (
             TranscriptVersion.query
             .filter_by(recording_id=recording.id)
-            .order_by(TranscriptVersion.version.desc())
+            .order_by(
+                TranscriptVersion.version.desc()
+            )
             .first()
         )
     except Exception:
-        current_app.logger.exception(
-            "Unable to load transcript for recording %s",
-            recording.id
-        )
         db.session.rollback()
+        current_app.logger.warning(
+            "Transcript data unavailable for recording %s",
+            recording.id,
+            exc_info=True
+        )
 
     try:
         translations = (
             Translation.query
             .filter_by(recording_id=recording.id)
-            .order_by(Translation.created_at.desc())
+            .order_by(
+                Translation.created_at.desc()
+            )
             .all()
         )
     except Exception:
-        current_app.logger.exception(
-            "Unable to load translations for recording %s",
-            recording.id
-        )
         db.session.rollback()
+        current_app.logger.warning(
+            "Translation data unavailable for recording %s",
+            recording.id,
+            exc_info=True
+        )
+
         translations = []
 
     try:
         community = (
             CommunityVerification.query
             .filter_by(recording_id=recording.id)
-            .order_by(CommunityVerification.created_at.desc())
+            .order_by(
+                CommunityVerification.created_at.desc()
+            )
             .first()
         )
     except Exception:
-        current_app.logger.exception(
-            "Unable to load community verification for recording %s",
-            recording.id
-        )
         db.session.rollback()
+        current_app.logger.warning(
+            "Community verification data unavailable for recording %s",
+            recording.id,
+            exc_info=True
+        )
+
+    # ---------------------------------------------------------
+    # BASE RESPONSE
+    # ---------------------------------------------------------
 
     data = {
         "id": recording.id,
+
         "title": recording.title,
         "description": recording.description,
+
         "language": recording.language,
         "language_code": recording.language_code,
+
         "category": recording.category,
         "state": recording.state,
         "district": recording.district,
+
         "community": recording.community_name,
         "location": recording.location,
+
         "duration": recording.duration,
+
         "access_level": recording.access_level,
+
         "audio_hash": recording.audio_hash,
+
         "created_at": (
             recording.created_at.isoformat()
             if recording.created_at
             else None
         ),
+
         "verification_status": (
             verification.status
             if verification
             else "PENDING"
         ),
+
         "consent": {
             "archive_allowed": (
                 bool(consent.archive_allowed)
                 if consent else False
             ),
+
             "transcription_allowed": (
                 bool(consent.transcription_allowed)
                 if consent else False
             ),
+
             "translation_allowed": (
                 bool(consent.translation_allowed)
                 if consent else False
             ),
+
             "research_allowed": (
                 bool(consent.research_allowed)
                 if consent else False
             ),
+
             "public_access_allowed": (
                 bool(consent.public_access_allowed)
                 if consent else False
             ),
+
             "commercial_use_allowed": (
                 bool(consent.commercial_use_allowed)
                 if consent else False
             ),
+
             "ai_processing_allowed": (
                 bool(consent.ai_processing_allowed)
                 if consent else False
             ),
+
             "ai_training_allowed": (
                 bool(consent.ai_training_allowed)
                 if consent else False
             ),
         },
+
         "transcript": (
             {
                 "id": latest_transcript.id,
@@ -193,11 +236,14 @@ def _serialize(recording, include_private=False):
                 "confidence": latest_transcript.confidence,
                 "created_at": (
                     latest_transcript.created_at.isoformat()
+                    if latest_transcript.created_at
+                    else None
                 ),
             }
             if latest_transcript
             else None
         ),
+
         "translations": [
             {
                 "id": t.id,
@@ -206,10 +252,15 @@ def _serialize(recording, include_private=False):
                 "source": t.source,
                 "model": t.model,
                 "version": t.version,
-                "created_at": t.created_at.isoformat(),
+                "created_at": (
+                    t.created_at.isoformat()
+                    if t.created_at
+                    else None
+                ),
             }
             for t in translations
         ],
+
         "community_verification": (
             {
                 "status": community.status,
@@ -222,11 +273,16 @@ def _serialize(recording, include_private=False):
             if community
             else None
         ),
+
         "passport": (
             {
                 "passport_id": passport.passport_id,
                 "public_slug": passport.public_slug,
-                "issued_at": passport.issued_at.isoformat(),
+                "issued_at": (
+                    passport.issued_at.isoformat()
+                    if passport.issued_at
+                    else None
+                ),
             }
             if passport
             else None
