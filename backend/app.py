@@ -88,29 +88,130 @@ def internal_server_error(_):
 
 def bootstrap():
     with app.app_context():
+        # Import every model before create_all().
+        # This is important because Recording references
+        # communities, speakers and users through foreign keys.
+        from models.user import User
+        from models.community import Community
+        from models.speaker import Speaker
+        from models.recording import Recording
+        from models.consent import Consent
+        from models.verification import Verification
+        from models.enrichment import (
+            TranscriptVersion,
+            Translation,
+            AuditEvent,
+            HeritagePassport,
+            CommunityVerification,
+        )
+
+        # Create all missing tables without deleting existing data.
         db.create_all()
-        # Keep existing prototype/Render databases compatible without destructive migrations.
+
         from sqlalchemy import inspect
+
         inspector = inspect(db.engine)
+        tables = set(inspector.get_table_names())
+
+        current_app.logger.info(
+            "PARAMPARA database tables: %s",
+            sorted(tables)
+        )
+
+        # These are the tables required by the reviewer workflow.
+        required_tables = {
+            "users",
+            "communities",
+            "speakers",
+            "recordings",
+            "consents",
+            "verifications",
+            "transcript_versions",
+            "translations",
+            "audit_events",
+            "heritage_passports",
+            "community_verifications",
+        }
+
+        missing_tables = required_tables - tables
+
+        if missing_tables:
+            current_app.logger.warning(
+                "PARAMPARA missing database tables: %s",
+                sorted(missing_tables)
+            )
+
+            # Run create_all() once more after all model imports.
+            db.create_all()
+
+            inspector = inspect(db.engine)
+            tables = set(inspector.get_table_names())
+
+            still_missing = required_tables - tables
+
+            if still_missing:
+                raise RuntimeError(
+                    "PARAMPARA database is missing required tables: "
+                    + ", ".join(sorted(still_missing))
+                )
+
+        # Keep existing prototype/Render databases compatible
+        # without destructive migrations.
         legacy = {
             "recordings": {
-                "language_code": "VARCHAR(32)", "category": "VARCHAR(100)", "state": "VARCHAR(100)",
-                "district": "VARCHAR(100)", "community_name": "VARCHAR(255)"
+                "language_code": "VARCHAR(32)",
+                "category": "VARCHAR(100)",
+                "state": "VARCHAR(100)",
+                "district": "VARCHAR(100)",
+                "community_name": "VARCHAR(255)",
             },
         }
-        tables = set(inspector.get_table_names())
+
         for table, cols in legacy.items():
-            if table not in tables: continue
-            existing = {c["name"] for c in inspector.get_columns(table)}
+            if table not in tables:
+                continue
+
+            existing = {
+                c["name"]
+                for c in inspector.get_columns(table)
+            }
+
             for col, typ in cols.items():
                 if col not in existing:
-                    db.session.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {typ}"))
+                    current_app.logger.info(
+                        "Adding legacy column %s.%s",
+                        table,
+                        col
+                    )
+
+                    db.session.execute(
+                        text(
+                            f"ALTER TABLE {table} "
+                            f"ADD COLUMN {col} {typ}"
+                        )
+                    )
+
         db.session.commit()
+
+        # Create the system user if it does not already exist.
         system_user = User.query.filter_by(id=1).first()
+
         if not system_user:
-            db.session.add(User(id=1, firebase_uid="parampara-system-user", name="PARAMPARA System", email="system@parampara.local", role="ADMIN", status="ACTIVE"))
+            db.session.add(
+                User(
+                    id=1,
+                    firebase_uid="parampara-system-user",
+                    name="PARAMPARA System",
+                    email="system@parampara.local",
+                    role="ADMIN",
+                    status="ACTIVE",
+                )
+            )
             db.session.commit()
 
+        current_app.logger.info(
+            "PARAMPARA database bootstrap completed successfully."
+        )
 
 bootstrap()
 
