@@ -53,7 +53,72 @@ def transcribe_gcs(gcs_uri, language_code):
     text = " ".join(chunks).strip()
     return text, (sum(confidences) / len(confidences) if confidences else None), "Google Cloud Speech-to-Text"
 
+def _google_speech_client():
+    from google.cloud import speech_v1 as speech
 
+    credentials_json = os.getenv(
+        "FIREBASE_SERVICE_ACCOUNT_JSON",
+        ""
+    ).strip()
+
+    credentials_base64 = os.getenv(
+        "FIREBASE_SERVICE_ACCOUNT_JSON_BASE64",
+        ""
+    ).strip()
+
+    # Explicit Google credentials file
+    credentials_path = os.getenv(
+        "GOOGLE_APPLICATION_CREDENTIALS"
+    )
+
+    if credentials_path:
+        return speech.SpeechClient.from_service_account_json(
+            credentials_path
+        )
+
+    # Firebase service-account JSON
+    if credentials_json:
+        import json
+        from google.oauth2 import service_account
+
+        info = json.loads(credentials_json)
+
+        credentials = (
+            service_account.Credentials.from_service_account_info(
+                info
+            )
+        )
+
+        return speech.SpeechClient(
+            credentials=credentials
+        )
+
+    # Base64 Firebase service-account JSON
+    if credentials_base64:
+        import base64
+        import json
+        from google.oauth2 import service_account
+
+        raw = base64.b64decode(
+            credentials_base64
+        ).decode("utf-8")
+
+        info = json.loads(raw)
+
+        credentials = (
+            service_account.Credentials.from_service_account_info(
+                info
+            )
+        )
+
+        return speech.SpeechClient(
+            credentials=credentials
+        )
+
+    raise RuntimeError(
+        "Google Speech credentials are not configured."
+    )
+    
 def transcribe_local(file_path, language_code):
     """Transcribe a local prototype upload when Google credentials are configured.
     This keeps the free/local storage mode compatible with later cloud AI activation.
@@ -84,7 +149,7 @@ def transcribe_local(file_path, language_code):
     if suffix in encoding_map:
         config_kwargs["encoding"] = encoding_map[suffix]
     audio = speech.RecognitionAudio(content=data)
-    client = speech.SpeechClient()
+    client = _google_speech_client()
     operation = client.long_running_recognize(config=speech.RecognitionConfig(**config_kwargs), audio=audio)
     response = operation.result(timeout=int(os.getenv("SPEECH_TIMEOUT_SECONDS", "600")))
     chunks, confidences = [], []
@@ -99,10 +164,43 @@ def transcribe_local(file_path, language_code):
 
 
 def transcribe_audio(audio_path, language_code):
-    if str(audio_path).startswith("gs://"):
-        return transcribe_gcs(str(audio_path), language_code)
-    return transcribe_local(str(audio_path), language_code)
+    """
+    Transcribe an uploaded recording.
 
+    Google Cloud Speech is used only when explicit Google
+    credentials are configured. Otherwise, fail with a clear
+    message so the reviewer can use the browser-assisted
+    transcription flow instead of producing an ADC error.
+    """
+
+    google_credentials = (
+        os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+        or os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON")
+        or os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON_BASE64")
+    )
+
+    google_project = (
+        os.getenv("GOOGLE_CLOUD_PROJECT")
+        or os.getenv("FIREBASE_PROJECT_ID")
+    )
+
+    if not google_credentials or not google_project:
+        raise RuntimeError(
+            "Automatic cloud transcription is not configured. "
+            "Use Browser-assisted transcript, or configure "
+            "Google Cloud Speech-to-Text credentials."
+        )
+
+    if str(audio_path).startswith("gs://"):
+        return transcribe_gcs(
+            str(audio_path),
+            language_code
+        )
+
+    return transcribe_local(
+        str(audio_path),
+        language_code
+    )
 
 def _translate_google(text, source_language, target_language):
     try:
