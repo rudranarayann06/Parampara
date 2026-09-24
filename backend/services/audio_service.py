@@ -60,7 +60,7 @@ def _supabase_headers(content_type=None):
 
 
 def _supabase_object_url(bucket, object_name):
-    return f"{_supabase_base_url()}/storage/v1/object/{quote(bucket, safe='')}/{quote(object_name, safe='/') }"
+    return f"{_supabase_base_url()}/storage/v1/object/{quote(bucket, safe='')}/{quote(object_name, safe='/')}"
 
 
 def _parse_supabase_uri(audio_path):
