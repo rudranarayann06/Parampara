@@ -1,293 +1,100 @@
 from datetime import datetime
-from pathlib import Path
-import mimetypes
-
-from services.audio_service import read_audio
-
-from flask import (
-    Blueprint,
-    jsonify,
-    request,
-    send_file,
-    g
-)
-from auth import require_auth, require_role
-
+from flask import Blueprint, request, jsonify, g
 from extensions import db
 from models.recording import Recording
 from models.verification import Verification
-   
-verifications_bp = Blueprint(
-    "verifications",
-    __name__,
-    url_prefix="/api/verifications"
-)
+from models.consent import Consent
+from models.enrichment import CommunityVerification
+from services.audit_service import audit
+from services.passport_service import ensure_passport
+from routes.recordings import _serialize
+from auth import require_auth, require_role
+
+verifications_bp = Blueprint("verifications", __name__, url_prefix="/api/verifications")
 
 
-# =========================================================
-# GET PENDING VERIFICATIONS
-# =========================================================
+@verifications_bp.route("/<int:recording_id>", methods=["GET"])
+@require_auth
+@require_role("REVIEWER", "ADMIN", "COMMUNITY_KEEPER")
+def get_verification(recording_id):
+    recording = Recording.query.get_or_404(recording_id)
+    verification = Verification.query.filter_by(recording_id=recording.id).first()
+    return jsonify({"recording": _serialize(recording, include_private=True), "verification": {
+        "id": verification.id,
+        "status": verification.status,
+        "reviewer_id": verification.reviewer_id,
+        "reviewer_notes": verification.reviewer_notes,
+        "reviewed_at": verification.reviewed_at.isoformat() if verification.reviewed_at else None,
+    }})
+
+
+@verifications_bp.route("/<int:recording_id>", methods=["POST", "PATCH"])
+@require_auth
+@require_role("REVIEWER", "ADMIN")
+def update_verification(recording_id):
+    recording = Recording.query.get_or_404(recording_id)
+    verification = Verification.query.filter_by(recording_id=recording.id).first()
+    payload = request.get_json(silent=True) or {}
+    status = (payload.get("status") or "").upper()
+    if status not in {"APPROVED", "REJECTED", "PENDING", "NEEDS_REVIEW"}:
+        return jsonify({"error": "Invalid verification status."}), 400
+    verification.status = status
+    verification.reviewer_id = g.current_user.id
+    verification.reviewer_notes = payload.get("reviewer_notes")
+    verification.reviewed_at = datetime.utcnow()
+    if status == "APPROVED":
+        consent = Consent.query.filter_by(recording_id=recording.id).first()
+        if consent and consent.public_access_allowed:
+            ensure_passport(recording.id, recording.state)
+    audit(recording.id, f"VERIFICATION_{status}", g.current_user.id, {"notes": verification.reviewer_notes})
+    db.session.commit()
+    return jsonify({"message": f"Recording {status.lower()}.", "recording": _serialize(recording, include_private=True)}), 200
 
 @verifications_bp.route("/pending", methods=["GET"])
 @require_auth
-@require_role("REVIEWER", "ADMIN")
-def get_pending_verifications():
+@require_role("REVIEWER", "ADMIN", "COMMUNITY_KEEPER")
+def pending_alias():
+    rows = Recording.query.join(Verification, Verification.recording_id == Recording.id).filter(Verification.status == "PENDING").order_by(Recording.created_at.desc()).limit(100).all()
+    result = []
+    for r in rows:
+        v = Verification.query.filter_by(recording_id=r.id).first()
+        item = _serialize(r, include_private=True)
+        item.update({"recording_id": r.id, "verification_id": v.id, "verification_status": v.status, "audio_filename": r.audio_filename})
+        result.append(item)
+    return jsonify({"verifications": result})
 
-    try:
 
-        verifications = Verification.query.filter_by(
-            status="PENDING"
-        ).order_by(
-            Verification.created_at.asc()
-        ).all()
-
-        results = []
-
-        for verification in verifications:
-
-            recording = Recording.query.get(
-                verification.recording_id
-            )
-
-            if not recording:
-                continue
-
-            results.append({
-                "verification_id": verification.id,
-                "recording_id": recording.id,
-                "title": recording.title,
-                "description": recording.description,
-                "language": recording.language,
-                "audio_filename": recording.audio_filename,
-                "audio_hash": recording.audio_hash,
-                "access_level": recording.access_level,
-                "status": verification.status,
-                "created_at": verification.created_at.isoformat()
-                    if verification.created_at
-                    else None
-            })
-
-        return jsonify({
-            "count": len(results),
-            "verifications": results
-        }), 200
-
-    except Exception as e:
-
-        return jsonify({
-            "error": str(e)
-        }), 500
-
-# =========================================================
-# REVIEWER AUDIO PLAYBACK
-# =========================================================
-
-@verifications_bp.route(
-    "/<int:recording_id>/audio",
-    methods=["GET"]
-)
+@verifications_bp.route("/<int:recording_id>/approve", methods=["POST"])
 @require_auth
 @require_role("REVIEWER", "ADMIN")
-def reviewer_audio(recording_id):
-
-    try:
-
-        verification = Verification.query.filter_by(
-            recording_id=recording_id
-        ).first()
-
-        if not verification:
-
-            return jsonify({
-                "error": "Verification record not found."
-            }), 404
-
-
-        # Reviewers should be able to listen to
-        # recordings that are currently pending review.
-        if verification.status not in [
-            "PENDING",
-            "APPROVED"
-        ]:
-
-            return jsonify({
-                "error": (
-                    "This recording is not available "
-                    "for reviewer playback."
-                )
-            }), 403
+def approve_alias(recording_id):
+    payload = request.get_json(silent=True) or {}
+    recording = Recording.query.get_or_404(recording_id)
+    v = Verification.query.filter_by(recording_id=recording.id).first()
+    v.status = "APPROVED"
+    v.reviewer_id = g.current_user.id
+    v.reviewer_notes = payload.get("reviewer_notes")
+    v.reviewed_at = datetime.utcnow()
+    consent = Consent.query.filter_by(recording_id=recording.id).first()
+    passport = None
+    if consent and consent.public_access_allowed:
+        passport = ensure_passport(recording.id, recording.state)
+    audit(recording.id, "VERIFICATION_APPROVED", g.current_user.id, {"reviewer_notes": v.reviewer_notes})
+    db.session.commit()
+    return jsonify({"message": "Recording approved", "passport_id": passport.passport_id if passport else None, "recording": _serialize(recording, include_private=True)})
 
 
-        recording = Recording.query.get(
-            recording_id
-        )
-
-        if not recording:
-
-            return jsonify({
-                "error": "Recording not found."
-            }), 404
-
-
-        if not recording.audio_path:
-            return jsonify({
-                "error": "Audio path is not available."
-            }), 404
-
-        audio_file, mimetype = read_audio(
-            recording.audio_path
-        )
-
-        if audio_file is None:
-            return jsonify({
-                "error": "Original audio file is unavailable."
-            }), 404
-
-        return send_file(
-            audio_file,
-            mimetype=mimetype or "application/octet-stream",
-            conditional=False
-        )
-
-
-    except Exception as e:
-
-        return jsonify({
-            "error": str(e)
-        }), 500
-# =========================================================
-# APPROVE RECORDING
-# =========================================================
-
-@verifications_bp.route(
-    "/<int:recording_id>/approve",
-    methods=["POST"]
-)
+@verifications_bp.route("/<int:recording_id>/reject", methods=["POST"])
 @require_auth
 @require_role("REVIEWER", "ADMIN")
-def approve_recording(recording_id):
-
-    try:
-
-        verification = Verification.query.filter_by(
-            recording_id=recording_id
-        ).first()
-
-        if not verification:
-
-            return jsonify({
-                "error": "Verification record not found."
-            }), 404
-
-        if verification.status != "PENDING":
-
-            return jsonify({
-                "error": (
-                    f"Recording is already "
-                    f"{verification.status.lower()}."
-                )
-            }), 409
-
-        data = request.get_json(silent=True) or {}
-
-        reviewer_notes = data.get(
-            "reviewer_notes",
-            ""
-        )
-
-        verification.status = "APPROVED"
-        verification.reviewer_notes = reviewer_notes
-        verification.reviewed_at = datetime.utcnow()
-
-        # Temporary reviewer until authentication/RBAC
-        # is connected to the reviewer dashboard.
-        verification.reviewer_id = g.current_user.id
-
-        db.session.commit()
-
-        return jsonify({
-            "message": "Recording approved successfully.",
-            "recording_id": recording_id,
-            "status": verification.status
-        }), 200
-
-    except Exception as e:
-
-        db.session.rollback()
-
-        return jsonify({
-            "error": str(e)
-        }), 500
-
-
-# =========================================================
-# REJECT RECORDING
-# =========================================================
-
-@verifications_bp.route(
-    "/<int:recording_id>/reject",
-    methods=["POST"]
-)
-@require_auth
-@require_role("REVIEWER", "ADMIN")
-def reject_recording(recording_id):
-
-    try:
-
-        verification = Verification.query.filter_by(
-            recording_id=recording_id
-        ).first()
-
-        if not verification:
-
-            return jsonify({
-                "error": "Verification record not found."
-            }), 404
-
-        if verification.status != "PENDING":
-
-            return jsonify({
-                "error": (
-                    f"Recording is already "
-                    f"{verification.status.lower()}."
-                )
-            }), 409
-
-        data = request.get_json(silent=True) or {}
-
-        reviewer_notes = data.get(
-            "reviewer_notes",
-            ""
-        )
-
-        if not reviewer_notes.strip():
-
-            return jsonify({
-                "error": "Rejection reason is required."
-            }), 400
-
-        verification.status = "REJECTED"
-        verification.reviewer_notes = reviewer_notes
-        verification.reviewed_at = datetime.utcnow()
-
-        # Temporary reviewer until authentication/RBAC
-        # is connected to the reviewer dashboard.
-        verification.reviewer_id = g.current_user.id
-
-        db.session.commit()
-
-        return jsonify({
-            "message": "Recording rejected.",
-            "recording_id": recording_id,
-            "status": verification.status,
-            "reviewer_notes": reviewer_notes
-        }), 200
-
-    except Exception as e:
-
-        db.session.rollback()
-
-        return jsonify({
-            "error": str(e)
-        }), 500
-        
+def reject_alias(recording_id):
+    payload = request.get_json(silent=True) or {}
+    recording = Recording.query.get_or_404(recording_id)
+    v = Verification.query.filter_by(recording_id=recording.id).first()
+    v.status = "REJECTED"
+    v.reviewer_id = g.current_user.id
+    v.reviewer_notes = payload.get("reviewer_notes")
+    v.reviewed_at = datetime.utcnow()
+    audit(recording.id, "VERIFICATION_REJECTED", g.current_user.id, {"reviewer_notes": v.reviewer_notes})
+    db.session.commit()
+    return jsonify({"message": "Recording rejected", "recording": _serialize(recording, include_private=True)})

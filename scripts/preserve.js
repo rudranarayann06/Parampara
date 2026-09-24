@@ -1,1464 +1,163 @@
-/* =========================================================
-   PARAMPARA — PRESERVE PAGE
-   Authentication Protection
-========================================================= */
+import { auth } from "../firebase-config.js";
 
-import {
-    auth
-} from "../firebase-config.js";
+const API_BASE = window.PARAMPARA_API_BASE || "https://parampara-backend-8yt9.onrender.com";
 
-/* =========================================================
-   PARAMPARA API CONFIGURATION
-   ========================================================= */
+const esc = value => String(value ?? "").replace(/[&<>\"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
 
-const API_BASE =
-    window.PARAMPARA_API_BASE ||
-    "https://parampara-backend-8yt9.onrender.com";
-
-console.log(
-    "🔥 PARAMPARA API BASE:",
-    API_BASE
-);
-
-// Firebase ID tokens can expire while a page is open. Retry one 401
-// with a freshly refreshed token instead of immediately failing.
-async function authenticatedFetch(url, options = {}) {
-
-    const headers = new Headers(options.headers || {});
-    const user = auth.currentUser;
-
-    // Login is optional on Preserve. If Firebase has a logged-in user,
-    // attach the token; otherwise the backend creates an anonymous contributor.
-    if (user) {
-        try {
-            const token = await user.getIdToken(false);
-            headers.set("Authorization", `Bearer ${token}`);
-        } catch (error) {
-            console.warn("Firebase token unavailable; continuing as anonymous contributor.", error);
-        }
-    }
-
-    return fetch(url, {
-        ...options,
-        headers
-    });
+async function authHeaders() {
+  const headers = {};
+  const user = auth.currentUser;
+  if (user) {
+    try { headers.Authorization = `Bearer ${await user.getIdToken(false)}`; } catch (_) {}
+  }
+  return headers;
 }
 
-
-/* =========================================================
-   AUTHENTICATION GUARD
-========================================================= */
-
-document.addEventListener("DOMContentLoaded", () => {
-    initializePreservePage(auth.currentUser);
-});
-
-
-/* =========================================================
-   PRESERVE PAGE
-========================================================= */
-
-function initializePreservePage(user) {
-
-    console.log(
-        "Preserve page initialized. Firebase user:",
-        user?.email || "anonymous"
-    );
-
-
-    /* =====================================================
-       ELEMENTS
-    ===================================================== */
-
-    const form = document.getElementById("preserveForm");
-
-    const titleInput =
-        document.getElementById("storyTitle");
-
-    const descriptionInput =
-        document.getElementById("storyDescription");
-
-    const stateInput =
-        document.getElementById("state");
-
-    const districtInput =
-        document.getElementById("district");
-
-    const locationInput =
-        document.getElementById("location");
-
-    const languageInput =
-        document.getElementById("language");
-
-    const categoryInput =
-        document.getElementById("traditionCategory");
-
-
-    /* Preview */
-
-    const previewTitle =
-        document.getElementById("previewTitle");
-
-    const previewDescription =
-        document.getElementById("previewDescription");
-
-    const previewLocation =
-        document.getElementById("previewLocation");
-
-    const previewLanguage =
-        document.getElementById("previewLanguage");
-
-    const previewCategory =
-        document.getElementById("previewCategory");
-
-
-    /* Character counter */
-
-    const descriptionCount =
-        document.getElementById("descriptionCount");
-
-
-    /* Modal */
-
-    const successModal =
-        document.getElementById("successModal");
-
-    const successClose =
-        document.getElementById("successClose");
-
-
-    /* Submit button */
-
-    const submitButton =
-        document.querySelector(".submit-preserve-btn");
-
-
-    /* =====================================================
-       STORY TITLE → LIVE PREVIEW
-    ===================================================== */
-
-    if (titleInput) {
-
-        titleInput.addEventListener("input", () => {
-
-            const value =
-                titleInput.value.trim();
-
-            if (previewTitle) {
-
-                previewTitle.textContent =
-                    value || "Your story title";
-            }
-
-            validateField(titleInput);
-
-        });
-
-    }
-
-
-    /* =====================================================
-       DESCRIPTION → LIVE PREVIEW
-    ===================================================== */
-
-    if (descriptionInput) {
-
-        descriptionInput.addEventListener("input", () => {
-
-            const value =
-                descriptionInput.value.trim();
-
-            if (previewDescription) {
-
-                previewDescription.textContent =
-                    value ||
-                    "Your story description will appear here as you add it.";
-            }
-
-
-            /* Character count */
-
-            if (descriptionCount) {
-
-                descriptionCount.textContent =
-                    `${descriptionInput.value.length} / 5000`;
-            }
-
-
-            validateField(descriptionInput);
-
-        });
-
-    }
-
-
-    /* =====================================================
-       STATE + DISTRICT + LOCATION
-       → LIVE LOCATION PREVIEW
-    ===================================================== */
-
-    function updateLocationPreview() {
-
-        const state =
-            stateInput?.value.trim() || "";
-
-        const district =
-            districtInput?.value.trim() || "";
-
-        const location =
-            locationInput?.value.trim() || "";
-
-
-        let result = "";
-
-
-        if (location) {
-
-            result = location;
-
-        } else if (district && state) {
-
-            result =
-                `${district}, ${state}`;
-
-        } else if (state) {
-
-            result = state;
-
-        } else {
-
-            result = "Location";
-        }
-
-
-        if (previewLocation) {
-
-            previewLocation.textContent =
-                result;
-        }
-
-    }
-
-
-    stateInput?.addEventListener(
-        "change",
-        updateLocationPreview
-    );
-
-    districtInput?.addEventListener(
-        "input",
-        updateLocationPreview
-    );
-
-    locationInput?.addEventListener(
-        "input",
-        updateLocationPreview
-    );
-
-
-    /* =====================================================
-       LANGUAGE → PREVIEW
-    ===================================================== */
-
-    if (languageInput) {
-
-        languageInput.addEventListener("input", () => {
-
-            const value =
-                languageInput.value.trim();
-
-            if (previewLanguage) {
-
-                previewLanguage.textContent =
-                    value || "Language";
-            }
-
-            validateField(languageInput);
-
-        });
-
-    }
-
-
-    /* =====================================================
-       CATEGORY → PREVIEW
-    ===================================================== */
-
-    if (categoryInput) {
-
-        categoryInput.addEventListener("change", () => {
-
-            const selected =
-                categoryInput.options[
-                categoryInput.selectedIndex
-                ];
-
-            if (previewCategory) {
-
-                previewCategory.textContent =
-                    selected && selected.value
-                        ? selected.textContent.toUpperCase()
-                        : "HERITAGE STORY";
-            }
-
-            validateField(categoryInput);
-
-        });
-
-    }
-
-
-    /* =====================================================
-       FILE UPLOADS
-    ===================================================== */
-
-    setupFileInput(
-        "audioUpload",
-        "audioName",
-        "audio"
-    );
-
-    const audioInput = document.getElementById("audioUpload");
-    const audioUploadZone = document.getElementById("audioUploadZone");
-    const audioChooseButton = document.getElementById("audioChooseButton");
-
-    if (audioChooseButton && audioInput) {
-        audioChooseButton.addEventListener("click", (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            audioInput.click();
-        });
-    }
-
-    if (audioUploadZone && audioInput) {
-        audioUploadZone.addEventListener("click", (event) => {
-            const target = event.target;
-            if (target === audioUploadZone || target.closest(".upload-zone > strong") || target.closest(".upload-zone > span")) {
-                audioInput.click();
-            }
-        });
-    }
-
-    setupFileInput(
-        "imageUpload",
-        "imageName",
-        "image"
-    );
-
-    setupFileInput(
-        "videoUpload",
-        "videoName",
-        "video"
-    );
-
-    setupFileInput(
-        "documentUpload",
-        "documentName",
-        "document"
-    );
-
-
-    function setupFileInput(inputId, outputId, type) {
-
-        const input = document.getElementById(inputId);
-        const output = document.getElementById(outputId);
-
-        if (!input || !output) {
-            console.warn(`Missing file input: ${inputId}`);
-            return;
-        }
-
-        input.addEventListener("change", () => {
-
-            const files = Array.from(input.files || []);
-
-            if (!files.length) {
-                output.textContent = "No file selected";
-                return;
-            }
-
-            const file = files[0];
-
-            if (type === "audio") {
-                const allowedExtensions = [".mp3", ".wav", ".m4a", ".webm", ".ogg"];
-                const lowerName = file.name.toLowerCase();
-                const validExtension = allowedExtensions.some(ext => lowerName.endsWith(ext));
-
-                if (!validExtension) {
-                    input.value = "";
-                    output.textContent = "Unsupported audio format";
-                    alert("Please choose an MP3, WAV, M4A, WEBM, or OGG audio file.");
-                    return;
-                }
-
-                if (file.size > 50 * 1024 * 1024) {
-                    input.value = "";
-                    output.textContent = "File is larger than 50 MB";
-                    alert("Audio file must be smaller than 50 MB.");
-                    return;
-                }
-            }
-
-            output.textContent = `✓ ${file.name}`;
-            if (type === "audio") {
-
-                const zone =
-                    input.closest(".upload-zone");
-
-                if (zone) {
-
-                    let preview =
-                        zone.querySelector(
-                            "audio.audio-preview"
-                        );
-
-                    if (!preview) {
-
-                        preview =
-                            document.createElement("audio");
-
-                        preview.className =
-                            "audio-preview";
-
-                        preview.controls = true;
-
-                        preview.preload = "metadata";
-
-                        preview.style.display = "block";
-
-                        preview.style.width = "100%";
-
-                        preview.style.marginTop = "12px";
-
-                        zone.appendChild(preview);
-                    }
-
-                    if (preview.dataset.objectUrl) {
-
-                        URL.revokeObjectURL(
-                            preview.dataset.objectUrl
-                        );
-                    }
-
-                    const objectUrl =
-                        URL.createObjectURL(file);
-
-                    preview.dataset.objectUrl =
-                        objectUrl;
-
-                    preview.src = objectUrl;
-
-                    preview.load();
-                }
-            }
-
-            const zone = input.closest(".upload-zone");
-
-            if (zone) {
-                zone.classList.add("has-file");
-            }
-
-            console.log("Audio selected:", {
-                name: file.name,
-                type: file.type,
-                size: file.size
-            });
-        });
-    }
-
-
-    /* =====================================================
-       DRAG & DROP UPLOAD
-    ===================================================== */
-
-    document
-        .querySelectorAll(".upload-zone")
-        .forEach(zone => {
-
-            const input =
-                zone.querySelector(
-                    'input[type="file"]'
-                );
-
-
-            if (!input) {
-                return;
-            }
-
-
-            zone.addEventListener(
-                "dragover",
-                event => {
-
-                    event.preventDefault();
-
-                    zone.classList.add(
-                        "dragging"
-                    );
-
-                }
-            );
-
-
-            zone.addEventListener(
-                "dragleave",
-                () => {
-
-                    zone.classList.remove(
-                        "dragging"
-                    );
-
-                }
-            );
-
-
-            zone.addEventListener(
-                "drop",
-                event => {
-
-                    event.preventDefault();
-
-                    zone.classList.remove(
-                        "dragging"
-                    );
-
-
-                    const files =
-                        event.dataTransfer.files;
-
-
-                    if (!files.length) {
-                        return;
-                    }
-
-
-                    try {
-
-                        const dataTransfer =
-                            new DataTransfer();
-
-                        Array.from(files).forEach(
-                            file => {
-                                dataTransfer.items.add(
-                                    file
-                                );
-                            }
-                        );
-
-                        input.files =
-                            dataTransfer.files;
-
-                        input.dispatchEvent(
-                            new Event(
-                                "change",
-                                {
-                                    bubbles: true
-                                }
-                            )
-                        );
-
-                    } catch (error) {
-
-                        console.warn(
-                            "Drag and drop assignment failed:",
-                            error
-                        );
-
-                    }
-
-                }
-            );
-
-        });
-
-
-    /* =====================================================
-       FORM VALIDATION
-    ===================================================== */
-
-    const requiredFields =
-        form?.querySelectorAll(
-            "[required]"
-        );
-
-
-    requiredFields?.forEach(field => {
-
-        field.addEventListener(
-            "blur",
-            () => validateField(field)
-        );
-
-
-        field.addEventListener(
-            "change",
-            () => validateField(field)
-        );
-
-    });
-
-
-    function validateField(field) {
-
-        if (!field) {
-            return true;
-        }
-
-
-        if (!field.required) {
-            return true;
-        }
-
-
-        const valid =
-            field.checkValidity();
-
-
-        field.classList.toggle(
-            "valid",
-            valid && field.value.trim() !== ""
-        );
-
-
-        field.classList.toggle(
-            "invalid",
-            !valid
-        );
-
-
-        return valid;
-
-    }
-
-
-    /* =====================================================
-       FORM SUBMISSION
-    ===================================================== */
-
-    if (form) {
-
-        form.addEventListener(
-            "submit",
-            event => {
-
-                event.preventDefault();
-
-                console.log("🔥 PRESERVE FORM SUBMITTED");
-
-
-                /* Validate everything */
-
-                let formValid = true;
-
-
-                requiredFields?.forEach(field => {
-
-                    const valid =
-                        validateField(field);
-
-
-                    if (!valid) {
-
-                        formValid = false;
-                    }
-
-                });
-
-
-                if (!formValid) {
-
-                    showValidationMessage();
-
-                    return;
-                }
-
-
-                /* Disable button */
-
-                setLoadingState(true);
-
-
-                /* Send contribution to Flask backend */
-
-                submitContribution()
-                    .then(result => {
-
-                        console.log(
-                            "Recording successfully preserved:",
-                            result
-                        );
-
-                        setLoadingState(false);
-
-                        showBackendSuccess(result);
-
-                    })
-                    .catch(error => {
-
-                        console.error(
-                            "Contribution submission failed:",
-                            error
-                        );
-
-                        setLoadingState(false);
-
-                        let errorMessage = "Unknown error";
-
-                        if (error instanceof Error) {
-
-                            errorMessage =
-                                error.message;
-
-                        } else if (
-                            typeof error === "string"
-                        ) {
-
-                            errorMessage =
-                                error;
-
-                        } else if (
-                            error &&
-                            typeof error === "object"
-                        ) {
-
-                            errorMessage =
-                                error.error ||
-                                error.message ||
-                                error.detail ||
-                                JSON.stringify(error);
-
-                        }
-
-                        alert(
-                            "Could not preserve your story.\n\n" +
-                            errorMessage
-                        );
-                    });
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       VALIDATION MESSAGE
-    ===================================================== */
-
-    function showValidationMessage() {
-
-        const firstInvalid =
-            form?.querySelector(
-                ".invalid"
-            );
-
-
-        if (firstInvalid) {
-
-            firstInvalid.scrollIntoView({
-                behavior: "smooth",
-                block: "center"
-            });
-
-
-            setTimeout(() => {
-
-                firstInvalid.focus();
-
-            }, 400);
-
-        }
-
-    }
-
-
-    /* =====================================================
-       LOADING STATE
-    ===================================================== */
-
-    function setLoadingState(isLoading) {
-
-        if (!submitButton) {
-            return;
-        }
-
-
-        if (isLoading) {
-
-            submitButton.classList.add(
-                "loading"
-            );
-
-            submitButton.disabled = true;
-
-
-            submitButton.querySelector(
-                "span"
-            ).textContent =
-                "Preparing Contribution";
-
-
-            const icon =
-                submitButton.querySelector(
-                    "i"
-                );
-
-
-            if (icon) {
-
-                icon.className =
-                    "fa-solid fa-spinner";
-            }
-
-        } else {
-
-            submitButton.classList.remove(
-                "loading"
-            );
-
-            submitButton.disabled = false;
-
-
-            submitButton.querySelector(
-                "span"
-            ).textContent =
-                "Submit for Verification";
-
-
-            const icon =
-                submitButton.querySelector(
-                    "i"
-                );
-
-
-            if (icon) {
-
-                icon.className =
-                    "fa-solid fa-arrow-right";
-            }
-
-        }
-
-    }
-
-
-    /* =====================================================
-       SUCCESS MODAL
-    ===================================================== */
-
-    function openSuccessModal() {
-
-        if (!successModal) {
-            return;
-        }
-
-
-        successModal.classList.add(
-            "show"
-        );
-
-
-        successModal.setAttribute(
-            "aria-hidden",
-            "false"
-        );
-
-
-        document.body.style.overflow =
-            "hidden";
-
-    }
-
-
-    function closeSuccessModal() {
-
-        if (!successModal) {
-            return;
-        }
-
-
-        successModal.classList.remove(
-            "show"
-        );
-
-
-        successModal.setAttribute(
-            "aria-hidden",
-            "true"
-        );
-
-
-        document.body.style.overflow =
-            "";
-
-    }
-
-
-    successClose?.addEventListener(
-        "click",
-        closeSuccessModal
-    );
-
-
-    /* Click outside modal */
-
-    successModal?.addEventListener(
-        "click",
-        event => {
-
-            if (
-                event.target.classList.contains(
-                    "success-backdrop"
-                )
-            ) {
-
-                closeSuccessModal();
-            }
-
-        }
-    );
-
-
-    /* Escape key */
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key === "Escape" &&
-                successModal?.classList.contains(
-                    "show"
-                )
-            ) {
-
-                closeSuccessModal();
-
-            }
-
-        }
-    );
-
-
-    /* =====================================================
-       AUTO-SCROLL PROGRESS
-    ===================================================== */
-
-    const formSections =
-        document.querySelectorAll(
-            ".form-section"
-        );
-
-    const progressSteps =
-        document.querySelectorAll(
-            ".progress-step"
-        );
-
-
-    if (
-        formSections.length &&
-        progressSteps.length
-    ) {
-
-        const observer =
-            new IntersectionObserver(
-                entries => {
-
-                    entries.forEach(
-                        entry => {
-
-                            if (
-                                entry.isIntersecting
-                            ) {
-
-                                const index =
-                                    Array.from(
-                                        formSections
-                                    ).indexOf(
-                                        entry.target
-                                    );
-
-
-                                /*
-                                   There are four
-                                   major form sections.
-                                */
-
-                                if (
-                                    progressSteps[index]
-                                ) {
-
-                                    progressSteps
-                                        .forEach(
-                                            step =>
-                                                step.classList.remove(
-                                                    "active"
-                                                )
-                                        );
-
-
-                                    progressSteps[
-                                        index
-                                    ].classList.add(
-                                        "active"
-                                    );
-
-                                }
-
-                            }
-
-                        }
-                    );
-
-                },
-                {
-                    threshold: 0.35
-                }
-            );
-
-
-        formSections.forEach(
-            section =>
-                observer.observe(section)
-        );
-
-    }
-
-
-    /* =====================================================
-       UPLOAD ZONE VISUAL STATE
-    ===================================================== */
-
-    const style =
-        document.createElement("style");
-
-
-    style.textContent = `
-
-        .upload-zone.has-file {
-
-            border-color:
-                rgba(215,168,91,0.38);
-
-            background:
-                rgba(215,168,91,0.035);
-
-        }
-
-
-        .upload-zone.dragging {
-
-            border-color:
-                rgba(215,168,91,0.65);
-
-            background:
-                rgba(215,168,91,0.075);
-
-            transform:
-                translateY(-2px);
-
-        }
-
-
-        .submit-preserve-btn:disabled {
-
-            cursor:
-                not-allowed;
-
-        }
-
-    `;
-
-
-    document.head.appendChild(style);
-
-
-    /* =====================================================
-       INITIAL PREVIEW
-    ===================================================== */
-
-    updateLocationPreview();
-
-
-    if (previewTitle) {
-
-        previewTitle.textContent =
-            titleInput?.value.trim() ||
-            "Your story title";
-
-    }
-
-
-    if (previewDescription) {
-
-        previewDescription.textContent =
-            descriptionInput?.value.trim() ||
-            "Your story description will appear here as you add it.";
-
-    }
-
-
-    if (previewLanguage) {
-
-        previewLanguage.textContent =
-            languageInput?.value.trim() ||
-            "Language";
-
-    }
-
-
-    /* =====================================================
-       CONSOLE
-    ===================================================== */
-
-    console.log(
-        "PARAMPARA Preserve System initialized."
-    );
-
-} function showBackendSuccess(result) {
-
-    console.log(
-        "Recording successfully preserved:",
-        result?.recording_id ?? result
-    );
-
-    const recordingId =
-        document.getElementById("resultRecordingId");
-
-    const hash =
-        document.getElementById("resultHash");
-
-    if (recordingId) {
-        recordingId.textContent =
-            `#${result.recording_id}`;
-    }
-
-    if (hash) {
-        hash.textContent =
-            result.audio_hash || "—";
-    }
-
-    // Open success modal
-    const successModal =
-        document.getElementById("successModal");
-
-    if (successModal) {
-
-        successModal.classList.add("show");
-
-        successModal.setAttribute(
-            "aria-hidden",
-            "false"
-        );
-
-        document.body.style.overflow = "hidden";
-
-    } else {
-
-        console.error(
-            "Success modal not found in HTML."
-        );
-
-    }
+function notify(message, type = "") {
+  let el = document.getElementById("paramparaFormNotice");
+  if (!el) {
+    el = document.createElement("div"); el.id = "paramparaFormNotice"; el.className = "offline-contribution-panel";
+    document.querySelector("#preserveForm")?.prepend(el);
+  }
+  el.innerHTML = `<strong>${esc(message)}</strong>`;
+  el.dataset.type = type;
 }
 
-async function submitContribution() {
-    console.log("🚀 submitContribution() started");
-    const audioInput =
-        document.getElementById("audioUpload");
-
-    const titleInput =
-        document.getElementById("storyTitle");
-
-    const descriptionInput =
-        document.getElementById("storyDescription");
-
-    const languageInput =
-        document.getElementById("language");
-
-    const accessLevelInput =
-        document.getElementById("accessLevel");
-
-    const stateInput =
-        document.getElementById("state");
-
-    const districtInput =
-        document.getElementById("district");
-
-    const locationInput =
-        document.getElementById("location");
-
-    const communityInput =
-        document.getElementById("community");
-
-    const categoryInput =
-        document.getElementById("traditionCategory");
-
-    const consentDeclaration =
-        document.getElementById("consentDeclaration");
-
-    const accuracyDeclaration =
-        document.getElementById("accuracyDeclaration");
-
-
-    /* =========================================
-       AUDIO
-    ========================================= */
-
-    if (!audioInput || !audioInput.files.length) {
-
-        throw new Error(
-            "Please upload an audio recording."
-        );
-
-    }
-
-
-    const audioFile =
-        audioInput.files[0];
-    console.log(
-        "🎙️ AUDIO FILE:",
-        audioFile.name,
-        audioFile.type,
-        audioFile.size
-    );
-
-
-    /* =========================================
-       FORM VALUES
-    ========================================= */
-
-    const title =
-        titleInput?.value.trim() || "";
-
-    const description =
-        descriptionInput?.value.trim() || "";
-
-    const language =
-        languageInput?.value.trim() || "";
-
-    const accessLevel =
-        accessLevelInput?.value || "RESTRICTED";
-
-
-    /* =========================================
-       CREATE FORM DATA
-    ========================================= */
-
-    const formData =
-        new FormData();
-
-
-    formData.append(
-        "audio",
-        audioFile
-    );
-
-
-    formData.append(
-        "title",
-        title
-    );
-
-
-    formData.append(
-        "description",
-        description
-    );
-
-
-    formData.append(
-        "language",
-        language
-    );
-
-
-    formData.append(
-        "access_level",
-        accessLevel
-    );
-
-
-    /* =========================================
-       ADDITIONAL HERITAGE METADATA
-    ========================================= */
-
-    formData.append(
-        "state",
-        stateInput?.value.trim() || ""
-    );
-
-
-    formData.append(
-        "district",
-        districtInput?.value.trim() || ""
-    );
-
-
-    formData.append(
-        "location",
-        locationInput?.value.trim() || ""
-    );
-
-
-    formData.append(
-        "community",
-        communityInput?.value.trim() || ""
-    );
-
-
-    formData.append(
-        "category",
-        categoryInput?.value || ""
-    );
-
-
-    /* =========================================
-       CONSENT
-    ========================================= */
-    formData.append(
-        "archive_allowed",
-        document.getElementById("archiveAllowed")?.checked
-            ? "true"
-            : "false"
-    );
-
-    formData.append(
-        "transcription_allowed",
-        document.getElementById("transcriptionAllowed")?.checked
-            ? "true"
-            : "false"
-    );
-
-    formData.append(
-        "translation_allowed",
-        document.getElementById("translationAllowed")?.checked
-            ? "true"
-            : "false"
-    );
-
-    formData.append(
-        "research_allowed",
-        document.getElementById("researchAllowed")?.checked
-            ? "true"
-            : "false"
-    );
-
-
-    formData.append(
-        "public_access_allowed",
-        accessLevel === "PUBLIC"
-            ? "true"
-            : "false"
-    );
-
-
-    formData.append(
-        "commercial_use_allowed",
-        "false"
-    );
-
-
-    formData.append(
-        "ai_processing_allowed",
-        "true"
-    );
-
-
-    formData.append(
-        "ai_training_allowed",
-        "false"
-    );
-
-
-    /* =========================================
-       SEND TO FLASK
-    ========================================= */
-    console.log(
-        "🌐 Sending request to Flask..."
-    );
-    const response =
-        await authenticatedFetch(
-            `${API_BASE}/api/recordings`,
-            {
-                method: "POST",
-                body: formData
-            }
-        );
-    console.log(
-        "🌐 Flask response:",
-        response.status
-    );
-
-
-    /* =========================================
-       READ BACKEND RESPONSE SAFELY
-    ========================================= */
-
-    const responseText =
-        await response.text();
-
-    console.log(
-        "🔥 RAW BACKEND RESPONSE:",
-        responseText
-    );
-
-    let result = {};
-
+function ensureConsentControls() {
+  const section = document.querySelector(".consent-form-section");
+  if (!section || document.getElementById("paramparaGranularConsent")) return;
+  const wrap = document.createElement("div");
+  wrap.id = "paramparaGranularConsent";
+  wrap.className = "parampara-granular-consent";
+  wrap.innerHTML = `
+    <div class="consent-notice" style="margin-top:18px"><i class="fa-solid fa-link"></i><div><strong>Processing permissions</strong><p>These permissions are stored with the record and are checked by the AI pipeline.</p></div></div>
+    <label class="consent-check"><input type="checkbox" id="archiveAllowed" checked><span class="custom-check"></span><span class="consent-text">Archive this original testimony.</span></label>
+    <label class="consent-check"><input type="checkbox" id="transcriptionAllowed" checked><span class="custom-check"></span><span class="consent-text">Allow AI-assisted transcription.</span></label>
+    <label class="consent-check"><input type="checkbox" id="translationAllowed" checked><span class="custom-check"></span><span class="consent-text">Allow AI-assisted translation.</span></label>
+    <label class="consent-check"><input type="checkbox" id="researchAllowed" checked><span class="custom-check"></span><span class="consent-text">Allow researchers to discover this record and its themes.</span></label>
+    <label class="consent-check"><input type="checkbox" id="aiProcessingAllowed" checked><span class="custom-check"></span><span class="consent-text">Allow AI processing only for the purposes selected above. AI training is never enabled by default.</span></label>`;
+  section.appendChild(wrap);
+}
+
+function ensureOfflinePanel(form) {
+  if (document.getElementById("offlineContributionPanel")) return;
+  const panel = document.createElement("section");
+  panel.id = "offlineContributionPanel";
+  panel.className = "offline-contribution-panel";
+  panel.innerHTML = `
+    <div class="offline-head"><div><span class="offline-badge"><i class="fa-solid fa-cloud-arrow-down"></i> Offline-first contribution</span><h3>Record even without internet.</h3><p>Your audio, metadata and consent stay on this device until PARAMPARA can sync them.</p></div></div>
+    <div class="offline-actions">
+      <button type="button" class="offline-action primary" id="startLocalRecord"><i class="fa-solid fa-microphone"></i> Record locally</button>
+      <button type="button" class="offline-action" id="stopLocalRecord" disabled><i class="fa-solid fa-stop"></i> Stop recording</button>
+      <button type="button" class="offline-action" id="syncNow"><i class="fa-solid fa-rotate"></i> Sync now</button>
+    </div>
+    <div id="offlineRecorderStatus" class="offline-rec-status">Ready. Offline recording is stored in IndexedDB.</div>
+    <div id="offlineQueue" class="offline-queue"></div>`;
+  form.parentElement?.insertBefore(panel, form);
+
+  const start = panel.querySelector("#startLocalRecord");
+  const stop = panel.querySelector("#stopLocalRecord");
+  let recorder = null; let chunks = []; let stream = null;
+  start.addEventListener("click", async () => {
     try {
-
-        result =
-            responseText
-                ? JSON.parse(responseText)
-                : {};
-
-    } catch (parseError) {
-
-        console.error(
-            "🔥 Backend returned non-JSON:",
-            parseError
-        );
-
-        throw new Error(
-            `Backend returned HTTP ${response.status}: ${responseText || "Empty response"}`
-        );
-
-    }
-
-    console.log(
-        "PARAMPARA BACKEND RESPONSE:",
-        result
-    );
-
-
-    /* =========================================
-       ERROR HANDLING
-    ========================================= */
-
-    if (!response.ok) {
-
-        const backendError =
-            typeof result.error === "object"
-                ? (
-                    result.error.message ||
-                    result.error.detail ||
-                    JSON.stringify(result.error)
-                )
-                : (
-                    result.error ||
-                    result.message ||
-                    result.detail
-                );
-
-        throw new Error(
-            backendError ||
-            `Server rejected the contribution (HTTP ${response.status}).`
-        );
-    }
-
-
-
-return result;
-
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mime = ["audio/webm;codecs=opus", "audio/webm", "audio/ogg"].find(MediaRecorder.isTypeSupported) || "";
+      recorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+      chunks = [];
+      recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+      recorder.onstart = () => { start.disabled = true; stop.disabled = false; panel.querySelector("#offlineRecorderStatus").textContent = "Recording locally…"; };
+      recorder.onstop = async () => {
+        stream?.getTracks().forEach(t => t.stop()); stream = null;
+        const blob = new Blob(chunks, { type: recorder.mimeType || "audio/webm" });
+        const ext = blob.type.includes("ogg") ? "ogg" : "webm";
+        const file = new File([blob], `parampara-${Date.now()}.${ext}`, { type: blob.type });
+        const input = document.getElementById("audioUpload");
+        const dt = new DataTransfer(); dt.items.add(file); if (input) input.files = dt.files;
+        const label = document.getElementById("audioName"); if (label) label.textContent = `✓ ${file.name} (local recording)`;
+        panel.querySelector("#offlineRecorderStatus").textContent = "Recording captured. Submit the form to save it offline or sync it online.";
+        start.disabled = false; stop.disabled = true;
+      };
+      recorder.start(250);
+    } catch (error) { panel.querySelector("#offlineRecorderStatus").textContent = `Microphone unavailable: ${error.message}`; }
+  });
+  stop.addEventListener("click", () => recorder?.state === "recording" && recorder.stop());
+  panel.querySelector("#syncNow").addEventListener("click", () => window.ParamparaPWA?.syncQueue());
 }
 
+async function renderOfflineQueue() {
+  const box = document.getElementById("offlineQueue");
+  if (!box || !window.ParamparaOffline) return;
+  const items = await window.ParamparaOffline.all();
+  if (!items.length) { box.innerHTML = `<small>No pending local records.</small>`; return; }
+  box.innerHTML = items.slice().sort((a,b) => b.createdAt.localeCompare(a.createdAt)).map(item => {
+    const state = item.status === "SYNCED" ? "synced" : item.status === "FAILED" ? "failed" : "waiting";
+    const label = item.status === "SYNCED" ? "✓ Synchronized" : item.status === "FAILED" ? `Retry: ${esc(item.error || "failed")}` : "🟠 Waiting for sync";
+    return `<div class="offline-item"><div><strong>${esc(item.metadata.title || item.audioName)}</strong><br><small>${esc(item.metadata.language || "Unknown language")} · ${new Date(item.createdAt).toLocaleString()}</small></div><span class="${state}">${label}</span></div>`;
+  }).join("");
+}
+
+async function submitOnline(form, audio) {
+  const fd = new FormData();
+  const get = id => document.getElementById(id)?.value?.trim() || "";
+  const checked = id => !!document.getElementById(id)?.checked;
+  const access = get("accessLevel") || "PRIVATE";
+  const fields = {
+    title: get("storyTitle"), description: get("storyDescription"), state: get("state"), district: get("district"), location: get("location"), language: get("language"),
+    community: get("community"), category: get("traditionCategory"), access_level: access,
+    archive_allowed: checked("archiveAllowed"), transcription_allowed: checked("transcriptionAllowed"), translation_allowed: checked("translationAllowed"),
+    research_allowed: checked("researchAllowed"), public_access_allowed: access === "PUBLIC", commercial_use_allowed: false, ai_processing_allowed: checked("aiProcessingAllowed"), ai_training_allowed: false,
+  };
+  Object.entries(fields).forEach(([k,v]) => fd.append(k, String(v)));
+  fd.append("audio", audio, audio.name);
+  let response = await fetch(`${API_BASE}/api/recordings`, { method: "POST", headers: await authHeaders(), body: fd });
+  if (response.status === 401 && auth.currentUser) {
+    const headers = { Authorization: `Bearer ${await auth.currentUser.getIdToken(true)}` };
+    response = await fetch(`${API_BASE}/api/recordings`, { method: "POST", headers, body: fd });
+  }
+  const text = await response.text(); let result = {}; try { result = text ? JSON.parse(text) : {}; } catch (_) {}
+  if (!response.ok) throw new Error(result.error?.message || result.error || `Server returned HTTP ${response.status}`);
+  return result;
+}
+
+async function handleSubmit(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const audio = document.getElementById("audioUpload")?.files?.[0];
+  if (!audio) { notify("Attach an audio recording or use Record locally.", "error"); return; }
+  if (!document.getElementById("consentDeclaration")?.checked || !document.getElementById("accuracyDeclaration")?.checked) { notify("Please complete the required consent declarations.", "error"); return; }
+  const button = document.getElementById("preserveStory"); if (button) { button.disabled = true; button.dataset.original = button.innerHTML; button.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Preserving…`; }
+  try {
+    if (!navigator.onLine) {
+      const saved = await window.ParamparaPWA.saveOffline(form, audio);
+      if (saved.duplicate) notify("This audio is already waiting in the offline queue.", "error");
+      else notify("✓ Saved to this device. It will sync automatically when internet returns.", "success");
+    } else {
+      try {
+        const result = await submitOnline(form, audio);
+        notify(`✓ Preserved successfully. Record ${result.recording?.id ? `#${result.recording.id}` : "created"} is now awaiting verification.`, "success");
+      } catch (networkError) {
+        const saved = await window.ParamparaPWA.saveOffline(form, audio);
+        notify(saved.duplicate ? "This source already exists in the local queue." : "Backend unavailable. Saved safely to this device; sync will retry automatically.", "success");
+      }
+    }
+    await renderOfflineQueue();
+  } catch (error) { console.error(error); notify(error.message || "Could not preserve this recording.", "error"); }
+  finally { if (button) { button.disabled = false; button.innerHTML = button.dataset.original || "Submit for Verification"; } }
+}
+
+function setupPreviews() {
+  const title = document.getElementById("storyTitle"), desc = document.getElementById("storyDescription"), lang = document.getElementById("language"), cat = document.getElementById("traditionCategory");
+  const bind = (input, target, fallback) => input?.addEventListener("input", () => { if (target) target.textContent = input.value.trim() || fallback; });
+  bind(title, document.getElementById("previewTitle"), "Your story title"); bind(desc, document.getElementById("previewDescription"), "A memory worth preserving."); bind(lang, document.getElementById("previewLanguage"), "Language");
+  cat?.addEventListener("change", () => { const o = cat.options[cat.selectedIndex]; const t = document.getElementById("previewCategory"); if (t) t.textContent = o?.textContent?.toUpperCase() || "HERITAGE STORY"; });
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const form = document.getElementById("preserveForm"); if (!form) return;
+  ensureConsentControls(); ensureOfflinePanel(form); setupPreviews();
+  form.addEventListener("submit", handleSubmit);
+  const audioInput = document.getElementById("audioUpload");
+  audioInput?.addEventListener("change", () => { const label = document.getElementById("audioName"); if (label && audioInput.files[0]) label.textContent = `✓ ${audioInput.files[0].name}`; });
+  window.addEventListener("parampara:sync", renderOfflineQueue);
+  await renderOfflineQueue();
+});

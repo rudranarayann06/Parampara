@@ -1,307 +1,116 @@
 import os
-
+from pathlib import Path
 from flask import Flask, jsonify, current_app
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
+from sqlalchemy import text
 
-from models.verification import Verification
+from extensions import db
 from models.user import User
+from models.recording import Recording
+from models.consent import Consent
+from models.verification import Verification
+from models.enrichment import TranscriptVersion, Translation, AuditEvent, HeritagePassport, CommunityVerification
 from routes.recordings import recordings_bp
 from routes.verifications import verifications_bp
 from routes.auth import auth_bp
 
-from extensions import db
-import models
-from sqlalchemy import text, inspect
-
-
-# =========================================================
-# Load environment variables
-# =========================================================
-
 load_dotenv()
 
-
-# =========================================================
-# Create Flask application
-# =========================================================
-
 app = Flask(__name__)
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "change-me-in-production")
 
-# =========================================================
-# Configuration
-# =========================================================
-
-app.config["SECRET_KEY"] = os.getenv(
-    "SECRET_KEY",
-    "parampara-development-secret"
-)
-
-
-# Database
-database_url = os.getenv(
-    "DATABASE_URL",
-    "sqlite:///parampara.db"
-)
-
-# Render/PostgreSQL may provide the older postgres:// scheme.
+database_url = os.getenv("DATABASE_URL", "sqlite:///parampara.db")
 if database_url.startswith("postgres://"):
-    database_url = database_url.replace(
-        "postgres://",
-        "postgresql://",
-        1
-    )
-
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_CONTENT_LENGTH", str(75 * 1024 * 1024)))
 
+frontend_url = os.getenv("FRONTEND_URL", "https://rudranarayann06.github.io").rstrip("/")
+allowed_origins = [frontend_url, "http://127.0.0.1:5500", "http://localhost:5500", "http://127.0.0.1:8000", "http://localhost:8000"]
+allowed_origins += [x.strip().rstrip("/") for x in os.getenv("CORS_ORIGINS", "").split(",") if x.strip()]
+CORS(app, resources={r"/api/*": {"origins": list(dict.fromkeys(allowed_origins)) + [r"https://.*\.github\.io"], "supports_credentials": False}})
 
-# =========================================================
-# CORS
-# =========================================================
-
-frontend_url = os.getenv(
-    "FRONTEND_URL",
-    "https://rudranarayann06.github.io"
-).rstrip("/")
-
-allowed_origins = [
-    frontend_url,
-    "https://rudranarayann06.github.io",
-    "http://127.0.0.1:5500",
-    "http://localhost:5500"
-]
-
-# Optional comma-separated extra origins for future deployments.
-extra_origins = os.getenv("CORS_ORIGINS", "")
-allowed_origins.extend(
-    origin.strip().rstrip("/")
-    for origin in extra_origins.split(",")
-    if origin.strip()
-)
-
-allowed_origins = list(dict.fromkeys(allowed_origins))
-
-CORS(
-    app,
-    resources={
-        r"/api/*": {
-            "origins": allowed_origins
-        }
-    }
-)
-
-
-# =========================================================
-# Audio upload folder
-# =========================================================
-
-BASE_DIR = os.path.dirname(
-    os.path.abspath(__file__)
-)
-
-UPLOAD_FOLDER = os.getenv(
-    "UPLOAD_FOLDER",
-    os.path.join(BASE_DIR, "uploads")
-)
-
-os.makedirs(
-    UPLOAD_FOLDER,
-    exist_ok=True
-)
-
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-
-
-# =========================================================
-# Initialize database
-# =========================================================
+base_dir = Path(__file__).resolve().parent
+upload_folder = Path(os.getenv("UPLOAD_FOLDER", base_dir / "uploads"))
+upload_folder.mkdir(parents=True, exist_ok=True)
+app.config["UPLOAD_FOLDER"] = str(upload_folder)
 
 db.init_app(app)
 
-
-# =========================================================
-# Register API routes
-# =========================================================
-
+limiter = Limiter(key_func=get_remote_address, app=app, default_limits=["300 per hour"], storage_uri=os.getenv("RATELIMIT_STORAGE_URI", "memory://"))
 app.register_blueprint(recordings_bp)
 app.register_blueprint(verifications_bp)
 app.register_blueprint(auth_bp)
 
-# =========================================================
-# Health check
-# =========================================================
 
 @app.route("/")
 def home():
+    return jsonify({"status": "online", "project": "PARAMPARA", "version": "2026.1", "message": "Provenance-aware cultural archive API"})
 
-    return jsonify({
-        "status": "online",
-        "project": "PARAMPARA",
-        "message": "Cultural Archive Backend is running"
-    })
-    # =========================================================
-# Health check
-# =========================================================
 
-@app.route("/api/health", methods=["GET"])
+@app.route("/api/health")
 def health():
-
     try:
         db.session.execute(text("SELECT 1"))
+        storage_mode = "firebase" if (os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON") or os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON_BASE64")) else ("local" if os.getenv("ALLOW_LOCAL_STORAGE_FALLBACK", "true").lower() == "true" else "not_configured")
+        return jsonify({"status": "ok", "database": "connected", "storage": storage_mode, "translation": os.getenv("TRANSLATION_PROVIDER", "auto")})
+    except Exception as exc:
+        current_app.logger.exception("Health check failed")
+        return jsonify({"status": "error", "database": "unavailable", "detail": str(exc)}), 503
 
-        return jsonify({
-            "status": "ok",
-            "database": "connected"
-        }), 200
 
-    except Exception:
-        current_app.logger.exception(
-            "Health check failed"
-        )
-
-        return jsonify({
-            "status": "error",
-            "database": "unavailable"
-        }), 503
-# =========================================================
-# Create database tables and keep older Render PostgreSQL schemas
-# compatible with the current models.
-# =========================================================
-def ensure_legacy_columns():
-    inspector = inspect(db.engine)
-    definitions = {
-        "users": {
-            "firebase_uid": "VARCHAR(255)",
-            "name": "VARCHAR(255)",
-            "email": "VARCHAR(255)",
-            "role": "VARCHAR(50)",
-            "status": "VARCHAR(50)",
-        },
-        "recordings": {
-            "description": "TEXT",
-            "audio_filename": "VARCHAR(255)",
-            "audio_path": "VARCHAR(500)",
-            "audio_hash": "VARCHAR(64)",
-            "language": "VARCHAR(100)",
-            "speaker_id": "INTEGER",
-            "community_id": "INTEGER",
-            "location": "VARCHAR(255)",
-            "recorded_at": "TIMESTAMP",
-            "duration": "DOUBLE PRECISION",
-            "access_level": "VARCHAR(50)",
-            "created_by": "INTEGER",
-            "created_at": "TIMESTAMP",
-        },
-        "consents": {
-            "archive_allowed": "BOOLEAN",
-            "transcription_allowed": "BOOLEAN",
-            "translation_allowed": "BOOLEAN",
-            "research_allowed": "BOOLEAN",
-            "public_access_allowed": "BOOLEAN",
-            "commercial_use_allowed": "BOOLEAN",
-            "ai_processing_allowed": "BOOLEAN",
-            "ai_training_allowed": "BOOLEAN",
-            "consent_method": "VARCHAR(100)",
-            "consent_date": "TIMESTAMP",
-        },
-        "verifications": {
-            "reviewer_id": "INTEGER",
-            "reviewer_notes": "TEXT",
-            "reviewed_at": "TIMESTAMP",
-            "created_at": "TIMESTAMP",
-        },
-    }
-    dialect = db.engine.dialect.name
-    tables = set(inspector.get_table_names())
-    for table, columns in definitions.items():
-        if table not in tables:
-            continue
-        existing = {column["name"] for column in inspector.get_columns(table)}
-        for column, sql_type in columns.items():
-            if column not in existing:
-                db.session.execute(text(
-                    f"ALTER TABLE {table} ADD COLUMN {column} {sql_type}"
-                ))
-    if "users" in tables and dialect == "postgresql":
-        db.session.execute(text(
-            "CREATE UNIQUE INDEX IF NOT EXISTS uq_users_firebase_uid "
-            "ON users (firebase_uid) WHERE firebase_uid IS NOT NULL"
-        ))
-    db.session.commit()
+@app.errorhandler(413)
+def too_large(_):
+    return jsonify({"error": "Audio file is too large."}), 413
 
 
 @app.errorhandler(400)
-def bad_request(error):
-    return jsonify({
-        "error": "Bad request."
-    }), 400
-
-
+def bad_request(_): return jsonify({"error": "Bad request."}), 400
 @app.errorhandler(401)
-def unauthorized(error):
-    return jsonify({
-        "error": "Authentication required."
-    }), 401
-
-
+def unauthorized(_): return jsonify({"error": "Authentication required."}), 401
 @app.errorhandler(403)
-def forbidden(error):
-    return jsonify({
-        "error": "Access denied."
-    }), 403
-
-
+def forbidden(_): return jsonify({"error": "Access denied."}), 403
 @app.errorhandler(404)
-def not_found(error):
-    return jsonify({
-        "error": "Resource not found."
-    }), 404
+def not_found(_): return jsonify({"error": "Resource not found."}), 404
 
 
 @app.errorhandler(500)
-def internal_server_error(error):
-    current_app.logger.exception(
-        "Unhandled server error"
-    )
+def internal_server_error(_):
+    current_app.logger.exception("Unhandled server error")
+    return jsonify({"error": "Internal server error."}), 500
 
-    return jsonify({
-        "error": "Internal server error."
-    }), 500
-with app.app_context():
 
-    db.create_all()
-    ensure_legacy_columns()
-
-    # PARAMPARA demo/system contributor.
-    # This provides the initial creator referenced by
-    # the current contribution workflow.
-    system_user = User.query.filter_by(id=1).first()
-
-    if not system_user:
-
-        system_user = User(
-            id=1,
-            firebase_uid="parampara-system-user",
-            name="PARAMPARA System Contributor",
-            email="system@parampara.local",
-            role="CONTRIBUTOR",
-            status="ACTIVE"
-        )
-
-        db.session.add(system_user)
+def bootstrap():
+    with app.app_context():
+        db.create_all()
+        # Keep existing prototype/Render databases compatible without destructive migrations.
+        from sqlalchemy import inspect
+        inspector = inspect(db.engine)
+        legacy = {
+            "recordings": {
+                "language_code": "VARCHAR(32)", "category": "VARCHAR(100)", "state": "VARCHAR(100)",
+                "district": "VARCHAR(100)", "community_name": "VARCHAR(255)"
+            },
+        }
+        tables = set(inspector.get_table_names())
+        for table, cols in legacy.items():
+            if table not in tables: continue
+            existing = {c["name"] for c in inspector.get_columns(table)}
+            for col, typ in cols.items():
+                if col not in existing:
+                    db.session.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {typ}"))
         db.session.commit()
+        system_user = User.query.filter_by(id=1).first()
+        if not system_user:
+            db.session.add(User(id=1, firebase_uid="parampara-system-user", name="PARAMPARA System", email="system@parampara.local", role="ADMIN", status="ACTIVE"))
+            db.session.commit()
 
 
-# =========================================================
-# Start development server
-# =========================================================
+bootstrap()
 
 if __name__ == "__main__":
-
-    app.run(
-        debug=True,
-        host="127.0.0.1",
-        port=5000
-    )
+    app.run(host=os.getenv("HOST", "127.0.0.1"), port=int(os.getenv("PORT", "5000")), debug=os.getenv("FLASK_DEBUG", "false").lower() == "true")

@@ -11,7 +11,7 @@ import {
 ============================================================ */
 
 console.log("🔥 PARAMPARA NEW REVIEWER.JS LOADED");
-const API_BASE = window.PARAMPARA_API_BASE || "https://parampara-backend-8yt9.onrender.com";
+const API_BASE = window.PARAMPARA_API_BASE || "";
 console.log("🔥 API BASE:", API_BASE);
 
 let verificationQueue = [];
@@ -279,7 +279,7 @@ async function loadVerificationQueue() {
 
 
         showStatus(
-            "Unable to connect to the PARAMPARA backend. Make sure Flask is running on https://parampara-backend-8yt9.onrender.com.",
+            "Unable to connect to the PARAMPARA backend. Check the Render API URL and /api/health endpoint.",
             "error"
         );
 
@@ -609,12 +609,190 @@ function setupModal() {
    OPEN MODAL
 ============================================================ */
 
+function ensureEnrichmentPanel() {
+    if (document.getElementById("aiEnrichmentPanel")) return;
+    const notes = document.getElementById("reviewerNotes");
+    if (!notes) return;
+    const panel = document.createElement("div");
+    panel.id = "aiEnrichmentPanel";
+    panel.className = "provenance-panel ai-enrichment-panel";
+    panel.innerHTML = `
+      <div class="enrichment-head">
+        <div>
+          <span class="section-kicker">AI ENRICHMENT</span>
+          <h3>Turn the verified source into searchable evidence</h3>
+          <p>Every generated artifact stays linked to the original recording and is clearly labelled as AI-derived.</p>
+        </div>
+        <span class="enrichment-source-badge">SOURCE → TRANSCRIPT → TRANSLATIONS</span>
+      </div>
+      <div class="enrichment-actions">
+        <button type="button" id="autoEnrichBtn" class="action-btn approve-btn"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto transcript + all languages</button>
+        <button type="button" id="generateTranscriptBtn" class="action-btn"><i class="fa-solid fa-file-waveform"></i> Auto transcript</button>
+        <button type="button" id="browserTranscriptBtn" class="action-btn"><i class="fa-solid fa-microphone-lines"></i> Browser-assisted transcript</button>
+        <button type="button" data-target="en" class="translation-btn action-btn"><i class="fa-solid fa-language"></i> English</button>
+        <button type="button" data-target="hi" class="translation-btn action-btn"><i class="fa-solid fa-language"></i> हिन्दी</button>
+        <button type="button" data-target="or" class="translation-btn action-btn"><i class="fa-solid fa-language"></i> ଓଡ଼ିଆ</button>
+      </div>
+      <div class="enrichment-status" id="enrichmentStatus">Ready. Transcription/translation will run only when contributor consent permits AI processing.</div>
+      <div id="aiEnrichmentOutput" class="enrichment-output"><div class="derived-empty">No derived content generated yet.</div></div>`;
+    notes.parentElement.insertBefore(panel, notes);
+
+    panel.querySelector("#autoEnrichBtn").addEventListener("click", autoEnrichAll);
+    panel.querySelector("#generateTranscriptBtn").addEventListener("click", generateTranscript);
+    panel.querySelector("#browserTranscriptBtn").addEventListener("click", browserAssistedTranscript);
+    panel.querySelectorAll(".translation-btn").forEach(btn => btn.addEventListener("click", () => generateTranslation(btn.dataset.target)));
+}
+
+function setEnrichmentStatus(message, type = "") {
+    const el = document.getElementById("enrichmentStatus");
+    if (!el) return;
+    el.textContent = message;
+    el.className = `enrichment-status ${type}`.trim();
+}
+
+function renderEnrichment(data) {
+    const out = document.getElementById("aiEnrichmentOutput");
+    if (!out) return;
+    const tr = data?.transcript;
+    const translations = data?.translations || [];
+    const translationCards = translations.map(t => `
+      <article class="derived-card">
+        <div class="derived-card-head"><span class="ai-label">AI-assisted translation</span><strong>${escapeHtml(languageLabel(t.language))}</strong></div>
+        <p>${escapeHtml(t.text || "")}</p>
+        <small>Version ${escapeHtml(t.version || 1)} · ${escapeHtml(t.model || "Translation provider")}</small>
+      </article>`).join("");
+    out.innerHTML = `
+      ${tr ? `<article class="derived-card transcript-card"><div class="derived-card-head"><span class="ai-label">${tr.source === "AI" ? "AI-generated transcript" : "Human verified transcript"}</span><strong>${escapeHtml(tr.language || "Original language")}</strong></div><p>${escapeHtml(tr.text || "")}</p><small>Version ${escapeHtml(tr.version || 1)} · Confidence ${tr.confidence == null ? "—" : (Number(tr.confidence) * 100).toFixed(1) + "%"} · ${escapeHtml(tr.model || "Transcript provider")}</small></article>` : ""}
+      ${translationCards || (!tr ? '<div class="derived-empty">No derived content generated yet.</div>' : '')}`;
+}
+
+function languageLabel(code) {
+    return ({ en: "English", "en-IN": "English", hi: "हिन्दी", "hi-IN": "हिन्दी", or: "ଓଡ଼ିଆ", "or-IN": "ଓଡ଼ିଆ", bn: "বাংলা", "bn-IN": "বাংলা" })[code] || code || "Translation";
+}
+
+async function fetchRecordEnrichment() {
+    if (!selectedRecording) return;
+    const response = await authenticatedFetch(`${API_BASE}/api/recordings/${selectedRecording.recording_id}`);
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "Could not refresh enrichment data.");
+    renderEnrichment(result.recording || {});
+}
+
+async function browserAssistedTranscript() {
+    if (!selectedRecording) return;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        setEnrichmentStatus("This browser does not support Web Speech recognition. Use Auto transcript with a configured speech provider.", "error");
+        return;
+    }
+    const sourceLang = selectedRecording.language_code || selectedRecording.language || "en-IN";
+    const recognition = new SpeechRecognition();
+    recognition.lang = sourceLang;
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    const chunks = [];
+    const status = document.getElementById("enrichmentStatus");
+    setEnrichmentStatus("Browser-assisted mode: play the source audio through speakers and keep the microphone close to the speaker. Stop when finished…");
+    const play = document.getElementById("originalAudio");
+    recognition.onresult = event => {
+        let finalText = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const text = event.results[i][0]?.transcript || "";
+            if (event.results[i].isFinal) finalText += `${text} `;
+        }
+        if (finalText.trim()) chunks.push(finalText.trim());
+    };
+    recognition.onerror = event => setEnrichmentStatus(`Browser speech recognition: ${event.error}`, "error");
+    recognition.onend = async () => {
+        const text = chunks.join(" ").trim();
+        if (!text) { setEnrichmentStatus("No speech was captured. Try again with microphone permission and clear audio.", "error"); return; }
+        try {
+            const response = await authenticatedFetch(`${API_BASE}/api/recordings/${selectedRecording.recording_id}/transcript`, {method:"POST", body:JSON.stringify({text, source:"HUMAN_ASSISTED", model:"Web Speech API"})}, true);
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || "Could not save browser-assisted transcript.");
+            setEnrichmentStatus("Browser-assisted transcript saved as a separate version. Review it before treating it as verified.", "success");
+            await fetchRecordEnrichment();
+        } catch (e) { setEnrichmentStatus(e.message, "error"); }
+    };
+    try {
+        recognition.start();
+        if (play && play.paused) await play.play();
+        const stop = () => { try { recognition.stop(); } catch (_) {} if (play) play.pause(); window.removeEventListener("beforeunload", stop); };
+        window.addEventListener("beforeunload", stop, {once:true});
+        setTimeout(() => { if (recognition) stop(); }, 180000);
+    } catch (e) { setEnrichmentStatus(e.message || "Could not start browser speech recognition.", "error"); }
+}
+
+async function generateTranscript() {
+    if (!selectedRecording) return;
+    setEnrichmentStatus("Transcribing the original source…");
+    try {
+        const response = await authenticatedFetch(`${API_BASE}/api/recordings/${selectedRecording.recording_id}/transcribe`, { method: "POST" });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Transcription failed. Configure a speech provider on the backend.");
+        setEnrichmentStatus("Transcript generated and linked to the original recording.", "success");
+        await fetchRecordEnrichment();
+    } catch (e) {
+        setEnrichmentStatus(e.message, "error");
+    }
+}
+
+async function generateTranslation(target) {
+    if (!selectedRecording) return;
+    const consent = selectedRecording.consent || {};
+    if (consent.translation_allowed === false || consent.ai_processing_allowed === false) {
+        setEnrichmentStatus("Translation is blocked by contributor consent for this record.", "error");
+        return;
+    }
+    setEnrichmentStatus(`Generating ${languageLabel(target)} translation…`);
+    try {
+        const response = await authenticatedFetch(`${API_BASE}/api/recordings/${selectedRecording.recording_id}/translate`, { method: "POST", body: JSON.stringify({ target_language: target }) }, true);
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Translation failed. Configure a translation provider on the backend.");
+        setEnrichmentStatus(`${languageLabel(target)} translation generated.`, "success");
+        await fetchRecordEnrichment();
+    } catch (e) {
+        setEnrichmentStatus(e.message, "error");
+    }
+}
+
+async function autoEnrichAll() {
+    if (!selectedRecording) return;
+    const consent = selectedRecording.consent || {};
+    if (consent.transcription_allowed === false || consent.translation_allowed === false || consent.ai_processing_allowed === false) {
+        setEnrichmentStatus("Auto enrichment is blocked because contributor consent does not permit transcription, translation and AI processing together.", "error");
+        return;
+    }
+    const btn = document.getElementById("autoEnrichBtn");
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enriching…'; }
+    try {
+        setEnrichmentStatus("Step 1/4 · Generating the original-language transcript…");
+        let response = await authenticatedFetch(`${API_BASE}/api/recordings/${selectedRecording.recording_id}/transcribe`, { method: "POST" });
+        let result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Transcription failed.");
+        for (const target of ["en", "hi", "or"]) {
+            setEnrichmentStatus(`Step ${target === "en" ? 2 : target === "hi" ? 3 : 4}/4 · Translating to ${languageLabel(target)}…`);
+            response = await authenticatedFetch(`${API_BASE}/api/recordings/${selectedRecording.recording_id}/translate`, { method: "POST", body: JSON.stringify({ target_language: target }) }, true);
+            result = await response.json();
+            if (!response.ok) throw new Error(result.error || `${languageLabel(target)} translation failed.`);
+        }
+        setEnrichmentStatus("Complete · transcript + English + Hindi + Odia are linked to the source.", "success");
+        await fetchRecordEnrichment();
+    } catch (e) {
+        setEnrichmentStatus(e.message, "error");
+        await fetchRecordEnrichment().catch(() => {});
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Auto transcript + all languages'; }
+    }
+}
+
 function openReviewModal(
     verification
 ) {
 
     selectedRecording =
         verification;
+    ensureEnrichmentPanel();
     loadOriginalAudio(
         verification.recording_id
     );
@@ -685,6 +863,10 @@ function openReviewModal(
         reviewerNotes.value = "";
 
     }
+
+    const consent = verification.consent || {};
+    setEnrichmentStatus(consent.ai_processing_allowed ? "Ready. AI processing is permitted by consent." : "AI processing is not permitted by contributor consent.", consent.ai_processing_allowed ? "" : "error");
+    renderEnrichment(verification);
 
 
     if (reviewModal) {
@@ -822,10 +1004,19 @@ async function approveRecording() {
         closeReviewModal();
 
         showStatus(
-            "Recording approved successfully.",
+            result.passport_id ? `Approved. Heritage Passport ${result.passport_id} issued.` : "Recording approved successfully.",
             "success"
         );
 
+        if (result.passport_id) {
+            try {
+                const passportResponse = await fetch(`${API_BASE}/api/recordings/${recordingId}/passport`);
+                const passportData = await passportResponse.json();
+                if (passportResponse.ok && passportData.passport?.public_slug) {
+                    window.open(`passport.html?passport=${encodeURIComponent(passportData.passport.public_slug)}`, "_blank", "noopener");
+                }
+            } catch (_) {}
+        }
 
         await loadVerificationQueue();
 

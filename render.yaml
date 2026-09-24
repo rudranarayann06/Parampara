@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: parampara-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --workers 2 --threads 4 --timeout 120 --bind 0.0.0.0:$PORT app:app
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.10
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        value: parampara-27428
+      - key: FIREBASE_STORAGE_BUCKET
+        value: parampara-27428.firebasestorage.app
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false
+      - key: GOOGLE_CLOUD_PROJECT
+        value: parampara-27428
+      - key: MAX_CONTENT_LENGTH
+        value: 78643200
+      - key: ALLOW_LOCAL_STORAGE_FALLBACK
+        value: "false"
