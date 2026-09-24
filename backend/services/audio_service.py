@@ -278,6 +278,74 @@ def _supabase_bucket_names(preferred=None):
             print(f"[SUPABASE AUDIO] bucket discovery failed: {type(exc).__name__}: {exc}")
     return list(dict.fromkeys(names))
 
+
+
+def _supabase_list_matches(bucket, searches):
+    """Search a Supabase bucket when an older record used an unknown object layout."""
+    if not _supabase_configured() or not bucket:
+        return []
+    matches = []
+    seen = set()
+    for term in [x for x in searches if x]:
+        try:
+            response = requests.post(
+                f"{_supabase_base_url()}/storage/v1/object/list/{quote(bucket, safe='')}",
+                headers={**_supabase_headers("application/json"), "Content-Type": "application/json"},
+                json={
+                    "prefix": "",
+                    "limit": 100,
+                    "offset": 0,
+                    "search": str(term),
+                    "sortBy": {"column": "name", "order": "asc"},
+                },
+                timeout=20,
+            )
+            if not response.ok:
+                print(f"[SUPABASE AUDIO] list search failed bucket={bucket} term={term!r} status={response.status_code}")
+                continue
+            for item in response.json() or []:
+                if not isinstance(item, dict):
+                    continue
+                name = str(item.get("name") or "").strip()
+                if not name or name in seen:
+                    continue
+                # Storage list may return folders. A folder has no id/metadata;
+                # only enqueue actual-looking audio objects.
+                if name.endswith("/"):
+                    continue
+                if "." not in name:
+                    continue
+                seen.add(name)
+                matches.append(f"supabase://{bucket}/{name}")
+        except Exception as exc:
+            print(f"[SUPABASE AUDIO] list search exception bucket={bucket}: {type(exc).__name__}: {exc}")
+    return matches
+
+
+def _firebase_object_candidates(digest, filename):
+    """Find legacy Firebase objects even if their historical path is unknown."""
+    if not digest and not filename:
+        return []
+    try:
+        from firebase_admin import storage
+        names = []
+        bucket_names = [_firebase_bucket_name()]
+        for bucket_name in bucket_names:
+            bucket = storage.bucket(name=bucket_name)
+            for blob in bucket.list_blobs():
+                name = str(blob.name or "")
+                if not name:
+                    continue
+                base = name.rsplit("/", 1)[-1]
+                if (filename and (base == filename or filename in base)) or (digest and digest in name):
+                    names.append(f"gs://{bucket_name}/{name}")
+                    if len(names) >= 25:
+                        return names
+        return names
+    except Exception as exc:
+        print(f"[FIREBASE AUDIO] object discovery failed: {type(exc).__name__}: {exc}")
+        return []
+
 def read_audio_for_recording(recording):
     """Resolve audio for a Recording across current and legacy storage layouts."""
     candidates = []
@@ -287,20 +355,38 @@ def read_audio_for_recording(recording):
 
     if stored:
         candidates.append(stored)
+        # Older builds sometimes persisted a bare object path or a public
+        # storage URL instead of a gs:// / supabase:// URI. Keep those paths
+        # useful by extracting the object portion for server-side lookup.
+        stored_text = str(stored).strip()
+        if stored_text.startswith("/"):
+            stored_text = stored_text.lstrip("/")
+        if stored_text and not stored_text.startswith(("supabase://", "gs://", "http://", "https://")):
+            filename_from_path = stored_text.split("?", 1)[0]
+            variants_from_stored = [filename_from_path]
+        else:
+            variants_from_stored = []
+    else:
+        variants_from_stored = []
 
-    variants = _supabase_object_variants(digest, filename)
+    variants = list(dict.fromkeys(variants_from_stored + _supabase_object_variants(digest, filename)))
     if _supabase_configured():
         preferred_bucket = None
         if str(stored or "").startswith("supabase://"):
             preferred_bucket, _ = _parse_supabase_uri(str(stored))
-        for bucket in _supabase_bucket_names(preferred_bucket):
+        buckets = _supabase_bucket_names(preferred_bucket)
+        for bucket in buckets:
             for obj in variants:
                 candidates.append(f"supabase://{bucket}/{obj}")
+            # Last-resort discovery for legacy objects whose path was not one
+            # of the layouts used by the current application.
+            candidates.extend(_supabase_list_matches(bucket, [filename, digest]))
 
     if digest and filename:
         firebase_bucket = _firebase_bucket_name()
         for obj in _supabase_object_variants(digest, filename):
             candidates.append(f"gs://{firebase_bucket}/{obj}")
+        candidates.extend(_firebase_object_candidates(digest, filename))
 
     return read_audio_candidates(None, candidates)
 
