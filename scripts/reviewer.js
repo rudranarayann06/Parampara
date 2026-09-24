@@ -1266,7 +1266,7 @@ async function loadOriginalAudio(recordingId) {
     try {
 
         const audioUrl =
-            `${API_BASE}/api/verifications/${recordingId}/audio`;
+            `${API_BASE}/api/recordings/${recordingId}/audio`;
 
         console.log(
             "🔥 REVIEW AUDIO URL:",

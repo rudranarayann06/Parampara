@@ -207,14 +207,18 @@ def stream_original_audio(recording_id):
     if audio_file is None:
         return jsonify({"error": "Original audio file is unavailable."}), 404
     download = _bool("download")
-    return send_file(
+    response = send_file(
         audio_file,
         mimetype=mimetype,
-        conditional=False,
+        conditional=True,
+        etag=recording.audio_hash,
         max_age=0,
         as_attachment=download,
         download_name=recording.audio_filename,
     )
+    response.headers["Accept-Ranges"] = "bytes"
+    response.headers["Cache-Control"] = "private, no-cache, must-revalidate" if not public_ok else "public, max-age=0, must-revalidate"
+    return response
 
 
 @recordings_bp.route("/public", methods=["GET"])
@@ -248,14 +252,18 @@ def public_audio(recording_id):
     if audio_file is None:
         return jsonify({"error": "Audio unavailable."}), 404
     download = _bool("download")
-    return send_file(
+    response = send_file(
         audio_file,
         mimetype=mimetype,
-        conditional=False,
+        conditional=True,
+        etag=recording.audio_hash,
         max_age=0,
         as_attachment=download,
         download_name=recording.audio_filename,
     )
+    response.headers["Accept-Ranges"] = "bytes"
+    response.headers["Cache-Control"] = "public, max-age=0, must-revalidate"
+    return response
 
 
 @recordings_bp.route("/<int:recording_id>/transcribe", methods=["POST"])

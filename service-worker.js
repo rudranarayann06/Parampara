@@ -1,4 +1,4 @@
-const CACHE = "parampara-shell-v5";
+const CACHE = "parampara-shell-v6";
 let API_BASE = "https://parampara-backend-8yt9.onrender.com";
 const SHELL = [
   "./", "./index.html", "./preserve.html", "./explore.html", "./about.html",

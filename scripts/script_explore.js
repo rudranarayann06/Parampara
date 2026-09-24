@@ -132,6 +132,8 @@ function renderArchiveRecords(records) {
                     controls
                     preload="none"
                     src="${API_BASE}/api/recordings/public/${record.id}/audio"
+                    preload="metadata"
+                    crossorigin="anonymous"
                 ></audio>
 
                 <button
@@ -146,15 +148,19 @@ function renderArchiveRecords(records) {
         </article>
     `).join("");
 
-    // Make broken/missing files visible instead of leaving a silent 0:00 player.
+    // Surface playback failures instead of leaving a silent 0:00 player.
     archiveGrid.querySelectorAll(".archive-audio").forEach(audio => {
-        audio.addEventListener("error", () => {
+        const showAudioError = () => {
             if (!audio.nextElementSibling?.classList.contains("audio-error")) {
                 audio.insertAdjacentHTML(
                     "afterend",
-                    '<small class="audio-error">Audio file is currently unavailable.</small>'
+                    '<small class="audio-error">Audio could not be loaded. Refresh once if the Render service was asleep.</small>'
                 );
             }
+        };
+        audio.addEventListener("error", showAudioError, { once: true });
+        audio.addEventListener("stalled", () => {
+            if (audio.readyState === 0) showAudioError();
         }, { once: true });
     });
 
@@ -530,6 +536,7 @@ document.addEventListener(
 
 async function openProvenance(recordingId) {
     const modal = document.getElementById("provenanceModal");
+    const trigger = document.querySelector(`.provenance-button[data-recording-id="${CSS.escape(String(recordingId))}"]`);
     const title = document.getElementById("provenanceTitle");
     const content = document.getElementById("provenanceContent");
 
@@ -658,10 +665,15 @@ async function openProvenance(recordingId) {
         content.innerHTML = `
             <div class="provenance-row">
                 <span class="provenance-value">
-                    Unable to load provenance.
+                    Unable to load provenance${error?.message ? `: ${escapeHtml(error.message)}` : "."}
                 </span>
             </div>
         `;
+    } finally {
+        if (trigger) {
+            trigger.disabled = false;
+            trigger.removeAttribute("aria-busy");
+        }
     }
 }
 

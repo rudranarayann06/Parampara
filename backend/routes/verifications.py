@@ -64,6 +64,40 @@ def pending_alias():
     return jsonify({"verifications": result})
 
 
+
+
+@verifications_bp.route("/<int:recording_id>/audio", methods=["GET"])
+@require_auth
+@require_role("REVIEWER", "ADMIN", "COMMUNITY_KEEPER")
+def reviewer_audio(recording_id):
+    """Protected audio endpoint for the reviewer workspace.
+
+    Kept under /api/verifications/... for backward compatibility with the
+    older reviewer frontend. The canonical authenticated audio endpoint is
+    /api/recordings/<id>/audio.
+    """
+    from flask import current_app, send_file
+    from services.audio_service import read_audio
+
+    recording = Recording.query.get_or_404(recording_id)
+    audio_file, mimetype = read_audio(recording.audio_path)
+    if audio_file is None:
+        return jsonify({"error": "Original audio file is unavailable."}), 404
+
+    response = send_file(
+        audio_file,
+        mimetype=mimetype,
+        conditional=True,
+        etag=recording.audio_hash,
+        max_age=0,
+        as_attachment=False,
+        download_name=recording.audio_filename,
+    )
+    response.headers["Accept-Ranges"] = "bytes"
+    response.headers["Cache-Control"] = "private, no-cache, must-revalidate"
+    return response
+
+
 @verifications_bp.route("/<int:recording_id>/approve", methods=["POST"])
 @require_auth
 @require_role("REVIEWER", "ADMIN")
