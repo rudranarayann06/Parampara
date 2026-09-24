@@ -98,15 +98,56 @@ def _storage_blob_from_uri(audio_path):
 
 
 def read_audio(audio_path):
-    blob = _storage_blob_from_uri(audio_path) if audio_path and audio_path.startswith("gs://") else None
-    if blob is not None:
-        if not blob.exists(): return None, None
-        return BytesIO(blob.download_as_bytes()), blob.content_type or "application/octet-stream"
-    if audio_path and audio_path.startswith("gs://"): return None, None
-    if os.getenv("ALLOW_LOCAL_STORAGE_FALLBACK", "true").lower() != "true": return None, None
-    path = Path(audio_path or "")
-    if not path.exists() or not path.is_file(): return None, None
-    return open(path, "rb"), mimetypes.guess_type(str(path))[0] or "application/octet-stream"
+    if not audio_path:
+        return None, None
+
+    # Firebase Storage
+    if audio_path.startswith("gs://"):
+        blob = _storage_blob_from_uri(audio_path)
+
+        if blob is None:
+            return None, None
+
+        if not blob.exists():
+            return None, None
+
+        return (
+            BytesIO(blob.download_as_bytes()),
+            blob.content_type or "application/octet-stream"
+        )
+
+    # Local filesystem
+    if os.getenv("ALLOW_LOCAL_STORAGE_FALLBACK", "true").lower() != "true":
+        return None, None
+
+    path = Path(audio_path)
+
+    current_app = None
+
+    if not path.exists():
+        print(
+            f"[AUDIO] Local audio file not found: {path}",
+            flush=True
+        )
+        return None, None
+
+    if not path.is_file():
+        print(
+            f"[AUDIO] Audio path is not a file: {path}",
+            flush=True
+        )
+        return None, None
+
+    print(
+        f"[AUDIO] Serving local audio: {path}",
+        flush=True
+    )
+
+    return (
+        open(path, "rb"),
+        mimetypes.guess_type(str(path))[0]
+        or "application/octet-stream"
+    )
 
 
 def delete_audio(audio_path):
